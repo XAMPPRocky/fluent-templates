@@ -8,6 +8,15 @@ use std::path::Path;
 use fluent_bundle::{FluentBundle, FluentResource, FluentValue};
 use fluent_locale::negotiate_languages;
 
+pub trait Loader {
+    fn lookup(
+        &self,
+        lang: &str,
+        text_id: &str,
+        args: Option<&HashMap<&str, FluentValue>>,
+    ) -> String;
+}
+
 lazy_static! {
     static ref CORE_RESOURCE: FluentResource =
         read_from_file("./locales/core.ftl").expect("cannot find core.ftl");
@@ -37,12 +46,12 @@ pub fn build_fallbacks() -> HashMap<String, Vec<String>> {
         .collect()
 }
 
-pub struct Loader {
+pub struct SimpleLoader {
     bundles: &'static HashMap<String, FluentBundle<'static>>,
     fallbacks: &'static HashMap<String, Vec<String>>,
 }
 
-impl Loader {
+impl SimpleLoader {
     pub fn new() -> Self {
         Self {
             bundles: &*BUNDLES,
@@ -73,8 +82,26 @@ impl Loader {
         }
     }
 
+    // Don't fall back to English
+    pub fn lookup_no_english(
+        &self,
+        lang: &str,
+        text_id: &str,
+        args: Option<&HashMap<&str, FluentValue>>,
+    ) -> Option<String> {
+        for l in self.fallbacks.get(lang).expect("language not found") {
+            if let Some(val) = self.lookup_single_language(l, text_id, args) {
+                return Some(val);
+            }
+        }
+
+        None
+    }
+}
+
+impl Loader for SimpleLoader {
     // Traverse the fallback chain,
-    pub fn lookup(
+    fn lookup(
         &self,
         lang: &str,
         text_id: &str,
@@ -91,22 +118,6 @@ impl Loader {
             }
         }
         format!("Unknown localization {}", text_id)
-    }
-
-    // Don't fall back to English
-    pub fn lookup_no_english(
-        &self,
-        lang: &str,
-        text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
-    ) -> Option<String> {
-        for l in self.fallbacks.get(lang).expect("language not found") {
-            if let Some(val) = self.lookup_single_language(l, text_id, args) {
-                return Some(val);
-            }
-        }
-
-        None
     }
 }
 

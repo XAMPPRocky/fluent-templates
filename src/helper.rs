@@ -3,27 +3,21 @@ use handlebars::{
     Renderable,
 };
 
-use fluent_bundle::{FluentBundle, FluentResource, FluentValue};
+use fluent_bundle::FluentValue;
 use handlebars::template::{Parameter, TemplateElement};
 use serde_json::Value as Json;
 use std::collections::HashMap;
-use std::fs::read_dir;
-use std::fs::File;
 use std::io;
-use std::io::prelude::*;
-use std::path::Path;
 
 use crate::Loader;
 
-pub struct I18NHelper {
-    loader: Loader,
+pub struct I18NHelper<L> {
+    loader: L,
 }
 
-impl I18NHelper {
-    pub fn new() -> Self {
-        Self {
-            loader: Loader::new(),
-        }
+impl<L> I18NHelper<L> {
+    pub fn new(loader: L) -> Self {
+        Self { loader }
     }
 }
 
@@ -39,7 +33,7 @@ impl Output for StringOutput {
     }
 }
 
-impl HelperDef for I18NHelper {
+impl<L: Loader + Send + Sync> HelperDef for I18NHelper<L> {
     fn call<'reg: 'rc, 'rc>(
         &self,
         h: &Helper<'reg, 'rc>,
