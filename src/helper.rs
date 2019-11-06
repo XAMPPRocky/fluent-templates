@@ -11,11 +11,11 @@ use std::io;
 
 use crate::Loader;
 
-pub struct I18NHelper<L> {
+pub struct FluentHelper<L> {
     loader: L,
 }
 
-impl<L> I18NHelper<L> {
+impl<L> FluentHelper<L> {
     pub fn new(loader: L) -> Self {
         Self { loader }
     }
@@ -33,7 +33,7 @@ impl Output for StringOutput {
     }
 }
 
-impl<L: Loader + Send + Sync> HelperDef for I18NHelper<L> {
+impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
     fn call<'reg: 'rc, 'rc>(
         &self,
         h: &Helper<'reg, 'rc>,
