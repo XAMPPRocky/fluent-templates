@@ -113,24 +113,8 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             .expect("Language not set in context")
             .as_str()
             .expect("Language must be string");
-        let pontoon = context
-            .data()
-            .get("pontoon_enabled")
-            .expect("Pontoon not set in context")
-            .as_bool()
-            .expect("Pontoon must be boolean");
-        let in_context =
-            pontoon && !id.ends_with("-title") && !id.ends_with("-alt") && !id.starts_with("meta-");
 
         let response = self.loader.lookup(lang, &id, args.as_ref());
-        if in_context {
-            out.write(&format!("<span data-l10n-id='{}'>", id))
-                .map_err(RenderError::with)?;
-        }
-        out.write(&response).map_err(RenderError::with)?;
-        if in_context {
-            out.write("</span>").map_err(RenderError::with)?;
-        }
-        Ok(())
+        out.write(&response).map_err(RenderError::with)
     }
 }
