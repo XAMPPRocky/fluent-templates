@@ -50,10 +50,14 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             ));
         };
 
-        let id = if let Some(id) = id.path() {
-            id
+        if id.path().is_some() {
+            return Err(RenderError::new("{{fluent}} takes a string parameter with no path"));
+        }
+
+        let id = if let Json::String(ref s) = *id.value() {
+            s
         } else {
-            return Err(RenderError::new("{{fluent}} takes an identifier parameter"));
+            return Err(RenderError::new("{{fluent}} takes a string parameter"));   
         };
 
         let mut args = if h.hash().is_empty() {
