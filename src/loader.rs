@@ -17,24 +17,54 @@ pub trait Loader {
     ) -> String;
 }
 
-lazy_static! {
-    static ref CORE_RESOURCE: FluentResource =
-        read_from_file("./locales/core.ftl").expect("cannot find core.ftl");
-    static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources();
-    static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles();
-    static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
-    static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks();
+#[macro_export]
+macro_rules! simple_loader {
+    ($constructor:ident, $location:expr, $fallback:expr) => {
+        use $crate::loader::{build_resources, build_bundles, build_fallbacks, SimpleLoader};
+        $crate::lazy_static::lazy_static! {
+            static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
+            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&&RESOURCES, None);
+            static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
+            static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
+        }
+
+        pub fn $constructor() -> SimpleLoader {
+            SimpleLoader {
+                bundles: &*bundles,
+                fallbacks: &*fallbacks,
+                fallback: $fallback.into(),
+            }
+        }
+    };
+    ($constructor:ident, $location:expr, $fallback:expr, core: $core:expr) => {
+        use $crate::loader::{build_resources, build_bundles, build_fallbacks, SimpleLoader};
+        $crate::lazy_static::lazy_static! {
+            static ref CORE_RESOURCE: FluentResource = load_core_resource($core);
+            static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
+            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&*RESOURCES, Some(&FluentResource));
+            static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
+            static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
+        }
+
+        pub fn $constructor() -> SimpleLoader {
+            SimpleLoader {
+                bundles: &*bundles,
+                fallbacks: &*fallbacks,
+                fallback: $fallback.into(),
+            }
+        }
+    };
 }
 
-pub fn build_fallbacks() -> HashMap<String, Vec<String>> {
-    LOCALES
+pub fn build_fallbacks(locales: &[&str]) -> HashMap<String, Vec<String>> {
+    locales
         .iter()
         .map(|locale| {
             (
                 locale.to_string(),
                 negotiate_languages(
                     &[locale],
-                    &LOCALES,
+                    &locales,
                     None,
                     &fluent_locale::NegotiationStrategy::Filtering,
                 )
@@ -49,16 +79,10 @@ pub fn build_fallbacks() -> HashMap<String, Vec<String>> {
 pub struct SimpleLoader {
     bundles: &'static HashMap<String, FluentBundle<'static>>,
     fallbacks: &'static HashMap<String, Vec<String>>,
+    fallback: String,
 }
 
 impl SimpleLoader {
-    pub fn new() -> Self {
-        Self {
-            bundles: &*BUNDLES,
-            fallbacks: &*FALLBACKS,
-        }
-    }
-
     pub fn lookup_single_language(
         &self,
         lang: &str,
@@ -112,8 +136,8 @@ impl Loader for SimpleLoader {
                 return val;
             }
         }
-        if lang != "en-US" {
-            if let Some(val) = self.lookup_single_language("en-US", text_id, args) {
+        if lang != self.fallback {
+            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return val;
             }
         }
@@ -121,7 +145,7 @@ impl Loader for SimpleLoader {
     }
 }
 
-pub fn read_from_file<P: AsRef<Path>>(filename: P) -> io::Result<FluentResource> {
+fn read_from_file<P: AsRef<Path>>(filename: P) -> io::Result<FluentResource> {
     let mut file = File::open(filename)?;
     let mut string = String::new();
 
@@ -130,7 +154,7 @@ pub fn read_from_file<P: AsRef<Path>>(filename: P) -> io::Result<FluentResource>
     Ok(FluentResource::try_new(string).expect("File did not parse!"))
 }
 
-pub fn read_from_dir<P: AsRef<Path>>(dirname: P) -> io::Result<Vec<FluentResource>> {
+fn read_from_dir<P: AsRef<Path>>(dirname: P) -> io::Result<Vec<FluentResource>> {
     let mut result = Vec::new();
     for dir_entry in read_dir(dirname)? {
         let entry = dir_entry?;
@@ -140,11 +164,17 @@ pub fn read_from_dir<P: AsRef<Path>>(dirname: P) -> io::Result<Vec<FluentResourc
     Ok(result)
 }
 
-pub fn create_bundle(lang: &str, resources: &'static Vec<FluentResource>) -> FluentBundle<'static> {
+pub fn create_bundle(
+    lang: &str,
+    resources: &'static Vec<FluentResource>,
+    core_resource: Option<&'static FluentResource>,
+) -> FluentBundle<'static> {
     let mut bundle = FluentBundle::new(&[lang]);
-    bundle
-        .add_resource(&CORE_RESOURCE)
-        .expect("Failed to add core resource to bundle");
+    if let Some(core) = core_resource {
+        bundle
+            .add_resource(core)
+            .expect("Failed to add core resource to bundle");
+    }
     for res in resources {
         bundle
             .add_resource(res)
@@ -180,9 +210,9 @@ pub fn create_bundle(lang: &str, resources: &'static Vec<FluentResource>) -> Flu
     bundle
 }
 
-fn build_resources() -> HashMap<String, Vec<FluentResource>> {
+pub fn build_resources(dir: &str) -> HashMap<String, Vec<FluentResource>> {
     let mut all_resources = HashMap::new();
-    let entries = read_dir("./locales").unwrap();
+    let entries = read_dir(dir).unwrap();
     for entry in entries {
         let entry = entry.unwrap();
         if entry.file_type().unwrap().is_dir() {
@@ -195,10 +225,17 @@ fn build_resources() -> HashMap<String, Vec<FluentResource>> {
     all_resources
 }
 
-fn build_bundles() -> HashMap<String, FluentBundle<'static>> {
+pub fn build_bundles(
+    resources: &'static HashMap<String, Vec<FluentResource>>,
+    core_resource: Option<&'static FluentResource>,
+) -> HashMap<String, FluentBundle<'static>> {
     let mut bundles = HashMap::new();
-    for (ref k, ref v) in &*RESOURCES {
-        bundles.insert(k.to_string(), create_bundle(&k, &v));
+    for (ref k, ref v) in &*resources {
+        bundles.insert(k.to_string(), create_bundle(&k, &v, core_resource));
     }
     bundles
+}
+
+pub fn load_core_resource(path: &str) -> FluentResource {
+    read_from_file(path).expect("cannot find core resource")
 }
