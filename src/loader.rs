@@ -59,34 +59,28 @@ pub trait Loader {
 #[macro_export]
 macro_rules! simple_loader {
     ($constructor:ident, $location:expr, $fallback:expr) => {
-        use $crate::loader::{build_resources, build_bundles, build_fallbacks, SimpleLoader, load_core_resource};
-        use std::collections::HashMap;
-        use $crate::fluent_bundle::{FluentBundle, FluentResource, FluentValue};
         $crate::lazy_static::lazy_static! {
-            static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
-            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&&RESOURCES, None, |_bundle| {});
+            static ref RESOURCES: std::collections::HashMap<String, Vec<$crate::fluent_bundle::FluentResource>> = $crate::loader::build_resources($location);
+            static ref BUNDLES: std::collections::HashMap<String, $crate::fluent_bundle::FluentBundle<'static>> = $crate::loader::build_bundles(&&RESOURCES, None, |_bundle| {});
             static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
-            static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
+            static ref FALLBACKS: std::collections::HashMap<String, Vec<String>> = $crate::loader::build_fallbacks(&LOCALES);
         }
 
-        pub fn $constructor() -> SimpleLoader {
-            SimpleLoader::new(&*BUNDLES, &*FALLBACKS, $fallback.into())
+        pub fn $constructor() -> $crate::loader::SimpleLoader {
+            $crate::loader::SimpleLoader::new(&*BUNDLES, &*FALLBACKS, $fallback.into())
         }
     };
     ($constructor:ident, $location:expr, $fallback:expr, core: $core:expr, customizer: $custom:expr) => {
-        use $crate::loader::{build_resources, build_bundles, build_fallbacks, SimpleLoader, load_core_resource};
-        use std::collections::HashMap;
-        use $crate::fluent_bundle::{FluentBundle, FluentResource, FluentValue};
         $crate::lazy_static::lazy_static! {
-            static ref CORE_RESOURCE: FluentResource = load_core_resource($core);
-            static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
-            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&*RESOURCES, Some(&CORE_RESOURCE), $custom);
+            static ref CORE_RESOURCE: $crate::fluent_bundle::FluentResource = $crate::loader::load_core_resource($core);
+            static ref RESOURCES: std::collections::HashMap<String, Vec<$crate::fluent_bundle::FluentResource>> = $crate::loader::build_resources($location);
+            static ref BUNDLES: std::collections::HashMap<String, $crate::fluent_bundle::FluentBundle<'static>> = $crate::loader::build_bundles(&*RESOURCES, Some(&CORE_RESOURCE), $custom);
             static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
-            static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
+            static ref FALLBACKS: std::collections::HashMap<String, Vec<String>> = $crate::loader::build_fallbacks(&LOCALES);
         }
 
-        pub fn $constructor() -> SimpleLoader {
-            SimpleLoader::new(&*BUNDLES, &*FALLBACKS, $fallback.into())
+        pub fn $constructor() -> $crate::loader::SimpleLoader {
+            $crate::loader::SimpleLoader::new(&*BUNDLES, &*FALLBACKS, $fallback.into())
         }
     };
 }
