@@ -10,7 +10,7 @@ use fluent_locale::negotiate_languages;
 
 /// Something capable of looking up Fluent keys fiven a language
 ///
-/// Use SimpleLoader if you just need the basics
+/// Use [SimpleLoader] if you just need the basics
 pub trait Loader {
     fn lookup(
         &self,
@@ -48,7 +48,7 @@ pub trait Loader {
 /// use handlebars_fluent::*;
 ///
 /// simple_loader!(create_loader, "./tests/locales/", "en-US", core: "./tests/core.ftl",
-///                customizer: |bundle| {bundle.add_function("ENGLISH", |_values, _named| {unimplemented!()}); });
+///                customizer: |bundle| {bundle.add_function("FOOBAR", |_values, _named| {unimplemented!()}); });
 ///
 /// fn init() {
 ///     let loader = create_loader();
@@ -111,7 +111,8 @@ pub fn build_fallbacks(locales: &[&str]) -> HashMap<String, Vec<String>> {
         .collect()
 }
 
-/// A simple Loader implementation, with statically-loaded fluent data. For use with the `simple_loader!` macro
+/// A simple Loader implementation, with statically-loaded fluent data.
+/// Typically created with the [`simple_loader!()`] macro
 pub struct SimpleLoader {
     bundles: &'static HashMap<String, FluentBundle<'static>>,
     fallbacks: &'static HashMap<String, Vec<String>>,
