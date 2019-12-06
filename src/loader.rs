@@ -25,7 +25,7 @@ macro_rules! simple_loader {
         use $crate::fluent_bundle::{FluentBundle, FluentResource, FluentValue};
         $crate::lazy_static::lazy_static! {
             static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
-            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&&RESOURCES, None);
+            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&&RESOURCES, None, |_bundle| {});
             static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
             static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
         }
@@ -34,14 +34,14 @@ macro_rules! simple_loader {
             SimpleLoader::new(&*BUNDLES, &*FALLBACKS, $fallback.into())
         }
     };
-    ($constructor:ident, $location:expr, $fallback:expr, core: $core:expr) => {
+    ($constructor:ident, $location:expr, $fallback:expr, core: $core:expr, customizer: $custom:expr) => {
         use $crate::loader::{build_resources, build_bundles, build_fallbacks, SimpleLoader, load_core_resource};
         use std::collections::HashMap;
         use $crate::fluent_bundle::{FluentBundle, FluentResource, FluentValue};
         $crate::lazy_static::lazy_static! {
             static ref CORE_RESOURCE: FluentResource = load_core_resource($core);
             static ref RESOURCES: HashMap<String, Vec<FluentResource>> = build_resources($location);
-            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&*RESOURCES, Some(&CORE_RESOURCE));
+            static ref BUNDLES: HashMap<String, FluentBundle<'static>> = build_bundles(&*RESOURCES, Some(&CORE_RESOURCE), $custom);
             static ref LOCALES: Vec<&'static str> = RESOURCES.iter().map(|(l, _)| &**l).collect();
             static ref FALLBACKS: HashMap<String, Vec<String>> = build_fallbacks(&LOCALES);
         }
@@ -176,6 +176,7 @@ pub fn create_bundle(
     lang: &str,
     resources: &'static Vec<FluentResource>,
     core_resource: Option<&'static FluentResource>,
+    customizer: &impl Fn(&mut FluentBundle<'static>)
 ) -> FluentBundle<'static> {
     let mut bundle = FluentBundle::new(&[lang]);
     if let Some(core) = core_resource {
@@ -189,32 +190,7 @@ pub fn create_bundle(
             .expect("Failed to add FTL resources to the bundle.");
     }
 
-    bundle
-        .add_function("EMAIL", |values, _named| {
-            let email = match *values.get(0)?.as_ref()? {
-                FluentValue::String(ref s) => s,
-                _ => return None,
-            };
-            Some(FluentValue::String(format!(
-                "<a href='mailto:{0}' lang='en-US'>{0}</a>",
-                email
-            )))
-        })
-        .expect("could not add function");
-
-    bundle
-        .add_function("ENGLISH", |values, _named| {
-            let text = match *values.get(0)?.as_ref()? {
-                FluentValue::String(ref s) => s,
-                _ => return None,
-            };
-            Some(FluentValue::String(format!(
-                "<span lang='en-US'>{0}</span>",
-                text
-            )))
-        })
-        .expect("could not add function");
-
+    customizer(&mut bundle);
     bundle
 }
 
@@ -236,10 +212,11 @@ pub fn build_resources(dir: &str) -> HashMap<String, Vec<FluentResource>> {
 pub fn build_bundles(
     resources: &'static HashMap<String, Vec<FluentResource>>,
     core_resource: Option<&'static FluentResource>,
+    customizer: impl Fn(&mut FluentBundle<'static>)
 ) -> HashMap<String, FluentBundle<'static>> {
     let mut bundles = HashMap::new();
     for (ref k, ref v) in &*resources {
-        bundles.insert(k.to_string(), create_bundle(&k, &v, core_resource));
+        bundles.insert(k.to_string(), create_bundle(&k, &v, core_resource, &customizer));
     }
     bundles
 }
