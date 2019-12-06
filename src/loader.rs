@@ -56,6 +56,8 @@ pub trait Loader {
 /// }
 /// ```
 ///
+/// The constructor function is cheap to call multiple times since all the heavy duty stuff is stored in shared statics.
+///
 #[macro_export]
 macro_rules! simple_loader {
     ($constructor:ident, $location:expr, $fallback:expr) => {
