@@ -8,6 +8,9 @@ use std::path::Path;
 use fluent_bundle::{FluentBundle, FluentResource, FluentValue};
 use fluent_locale::negotiate_languages;
 
+/// Something capable of looking up Fluent keys fiven a language
+///
+/// Use SimpleLoader if you just need the basics
 pub trait Loader {
     fn lookup(
         &self,
@@ -17,6 +20,42 @@ pub trait Loader {
     ) -> String;
 }
 
+/// Loads Fluent data at runtime via `lazy_static` to produce a loader.
+///
+/// Usage:
+///
+/// ```rust
+/// use handlebars_fluent::*;
+///
+/// simple_loader!(create_loader, "./tests/locales/", "en-US");
+///
+/// fn init() {
+///     let loader = create_loader();
+///     let helper = FluentHelper::new(loader);
+/// }
+/// ```
+///
+/// `$constructor` is the name of the constructor function for the loader, `$location` is
+/// the location of a folder containing individual locale folders, `$fallback` is the language to use
+/// for fallback strings.
+///
+/// Some Fluent users have a share "core.ftl" file that contains strings used by all locales,
+/// for example branding information. They also may want to define custom functions on the bundle.
+/// 
+/// This can be done with an extended invocation:
+///
+/// ```rust
+/// use handlebars_fluent::*;
+///
+/// simple_loader!(create_loader, "./tests/locales/", "en-US", core: "./tests/core.ftl",
+///                customizer: |bundle| {bundle.add_function("ENGLISH", |_values, _named| {unimplemented!()}); });
+///
+/// fn init() {
+///     let loader = create_loader();
+///     let helper = FluentHelper::new(loader);
+/// }
+/// ```
+///
 #[macro_export]
 macro_rules! simple_loader {
     ($constructor:ident, $location:expr, $fallback:expr) => {
@@ -72,6 +111,7 @@ pub fn build_fallbacks(locales: &[&str]) -> HashMap<String, Vec<String>> {
         .collect()
 }
 
+/// A simple Loader implementation, with statically-loaded fluent data. For use with the `simple_loader!` macro
 pub struct SimpleLoader {
     bundles: &'static HashMap<String, FluentBundle<'static>>,
     fallbacks: &'static HashMap<String, Vec<String>>,
@@ -79,6 +119,9 @@ pub struct SimpleLoader {
 }
 
 impl SimpleLoader {
+    /// Construct a SimpleLoader
+    ///
+    /// You should probably be using the constructor from `simple_loader!()`
     pub fn new(
         bundles: &'static HashMap<String, FluentBundle<'static>>,
         fallbacks: &'static HashMap<String, Vec<String>>,
@@ -91,6 +134,7 @@ impl SimpleLoader {
         }
     }
 
+    /// Convenience function to look up a string for a single language
     pub fn lookup_single_language(
         &self,
         lang: &str,
@@ -114,8 +158,8 @@ impl SimpleLoader {
         }
     }
 
-    // Don't fall back to English
-    pub fn lookup_no_english(
+    /// Convenience function to look up a string without falling back to the default fallback language
+    pub fn lookup_no_default_fallback(
         &self,
         lang: &str,
         text_id: &str,
@@ -176,7 +220,7 @@ pub fn create_bundle(
     lang: &str,
     resources: &'static Vec<FluentResource>,
     core_resource: Option<&'static FluentResource>,
-    customizer: &impl Fn(&mut FluentBundle<'static>)
+    customizer: &impl Fn(&mut FluentBundle<'static>),
 ) -> FluentBundle<'static> {
     let mut bundle = FluentBundle::new(&[lang]);
     if let Some(core) = core_resource {
@@ -212,11 +256,14 @@ pub fn build_resources(dir: &str) -> HashMap<String, Vec<FluentResource>> {
 pub fn build_bundles(
     resources: &'static HashMap<String, Vec<FluentResource>>,
     core_resource: Option<&'static FluentResource>,
-    customizer: impl Fn(&mut FluentBundle<'static>)
+    customizer: impl Fn(&mut FluentBundle<'static>),
 ) -> HashMap<String, FluentBundle<'static>> {
     let mut bundles = HashMap::new();
     for (ref k, ref v) in &*resources {
-        bundles.insert(k.to_string(), create_bundle(&k, &v, core_resource, &customizer));
+        bundles.insert(
+            k.to_string(),
+            create_bundle(&k, &v, core_resource, &customizer),
+        );
     }
     bundles
 }
