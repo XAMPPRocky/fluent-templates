@@ -207,6 +207,12 @@ fn read_from_dir<P: AsRef<Path>>(dirname: P) -> io::Result<Vec<FluentResource>> 
     let mut result = Vec::new();
     for dir_entry in read_dir(dirname)? {
         let entry = dir_entry?;
+
+        // Prevent loading non-FTL files as translations, such as VIM temporary files.
+        if entry.path().extension().and_then(|e| e.to_str()) != Some("ftl") {
+            continue;
+        }
+
         let resource = read_from_file(entry.path())?;
         result.push(resource);
     }
@@ -267,4 +273,35 @@ pub fn build_bundles(
 
 pub fn load_core_resource(path: &str) -> FluentResource {
     read_from_file(path).expect("cannot find core resource")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fluent_bundle::FluentBundle;
+    use std::error::Error;
+
+    #[test]
+    fn test_load_from_dir() -> Result<(), Box<dyn Error>> {
+        let dir = tempfile::tempdir()?;
+        std::fs::write(dir.path().join("core.ftl"), "foo = bar\n".as_bytes())?;
+        std::fs::write(dir.path().join("other.ftl"), "bar = baz\n".as_bytes())?;
+        std::fs::write(dir.path().join("invalid.txt"), "baz = foo\n".as_bytes())?;
+        std::fs::write(dir.path().join(".binary_file.swp"), &[0, 1, 2, 3, 4, 5])?;
+
+        let result = read_from_dir(dir.path())?;
+        assert_eq!(2, result.len()); // Doesn't include the binary file or the txt file
+
+        let mut bundle = FluentBundle::new(&["en-US"]);
+        for resource in &result {
+            bundle.add_resource(resource).unwrap();
+        }
+
+        // Ensure the correct files were loaded
+        assert_eq!(Some(("bar".into(), Vec::new())), bundle.format("foo", None));
+        assert_eq!(Some(("baz".into(), Vec::new())), bundle.format("bar", None));
+        assert_eq!(None, bundle.format("baz", None)); // The extension was txt
+
+        Ok(())
+    }
 }
