@@ -20,3 +20,6 @@ fluent-bundle = "0.6.0"
 fluent-syntax = "0.9.0"
 fluent-locale = "0.4.1"
 serde_json = "1.0"
+
+[dev-dependencies]
+tempfile = "3.1.0"
