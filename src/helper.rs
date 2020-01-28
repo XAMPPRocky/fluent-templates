@@ -88,10 +88,10 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             let args = args.as_mut().unwrap();
             for element in &tpl.elements {
                 if let TemplateElement::HelperBlock(ref block) = element {
-                    if block.name != "fluentparam" {
+                    if block.name != Parameter::Name("fluentparam".into()) {
                         return Err(RenderError::new(format!(
                             "{{{{fluent}}}} can only contain {{{{fluentparam}}}} elements, not {}",
-                            block.name
+                            block.name.expand_as_name(reg, context, rcx).unwrap()
                         )));
                     }
                     let id = if let Some(el) = block.params.get(0) {
@@ -114,7 +114,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
                     if let Some(ref tpl) = block.template {
                         let mut s = StringOutput::default();
                         tpl.render(reg, context, rcx, &mut s)?;
-                        args.insert(&*id, FluentValue::String(s.s));
+                        args.insert(&*id, FluentValue::String(s.s.into()));
                     }
                 }
             }

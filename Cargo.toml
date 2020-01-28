@@ -13,7 +13,7 @@ categories = ["internationalization", "localization", "template-engine"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-handlebars = "1.1.0"
+handlebars = "2"
 lazy_static = "1.2.0"
 fluent = "0.5"
 fluent-bundle = "0.6.0"
