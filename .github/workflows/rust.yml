@@ -1,0 +1,23 @@
+name: Rust
+
+on: [push, pull_request]
+
+jobs:
+  no_and_all_features:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup component add rustfmt
+    - run: cargo fmt --check && cargo fmt --check --all-features
+    - run: cargo build && cargo build --all-features
+    - run: cargo test && cargo test --all-features
+  feature_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        feature: [handlebars, tera]
+    steps:
+    - uses: actions/checkout@v2
+    - run: cargo fmt --check --feature {{ matrix.feature }}
+    - run: cargo build --feature {{ matrix.feature }}
+    - run: cargo test --verbose --feature {{ matrix.feature }}
