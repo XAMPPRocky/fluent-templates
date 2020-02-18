@@ -1,10 +1,10 @@
-## handlebars-fluent
+# `fluent-template-helper`
 
-[![Build Status](https://travis-ci.org/Manishearth/handlebars-fluent.svg?branch=master)](https://travis-ci.org/Manishearth/handlebars-fluent)
-[![Current Version](https://meritbadge.herokuapp.com/handlebars-fluent)](https://crates.io/crates/handlebars-fluent)
-[![License: MIT/Apache-2.0](https://img.shields.io/crates/l/handlebars-fluent.svg)](#license)
+![CI Status](https://github.com/XAMPPRocky/fluent-template-helper/workflows/Rust/badge.svg?branch=master&event=push)
+[![Current Version](https://img.shields.io/crates/v/fluent-template-helper.svg)
+[![License: MIT/Apache-2.0](https://img.shields.io/crates/l/fluent-template-helper.svg)](#license)
 
 
-This crate provides the Rust implementation¹ of [Handlebars](https://docs.rs/handlebars/) with a helper for the [Fluent](https://docs.rs/fluent) internationalization framework.
+This crate provides you with the ability to create [Fluent](https://docs.rs/fluent) loaders that implement [Handlebars](https://docs.rs/handlebars/)' `handlebars::HelperDef` and [Tera](https://docs.rs/tera) `tera::Function`. Allowing you to easily add localisation to your templating engines.
 
-¹ <sub> See [handlebars-helper-fluent](https://github.com/alerque/handlebars-helper-fluent) for a Fluent helper for the Javascript implementation of Handlebars.</sub>
+All template engine implementations are optional and can be disabled with features.
