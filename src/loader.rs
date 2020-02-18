@@ -8,7 +8,7 @@ use std::path::Path;
 use fluent_bundle::{FluentBundle, FluentResource, FluentValue};
 use fluent_locale::negotiate_languages;
 
-/// Something capable of looking up Fluent keys fiven a language
+/// Something capable of looking up Fluent keys given a language.
 ///
 /// Use [SimpleLoader] if you just need the basics
 pub trait Loader {
