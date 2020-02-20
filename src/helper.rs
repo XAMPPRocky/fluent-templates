@@ -70,9 +70,12 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
                 .iter()
                 .filter_map(|(k, v)| {
                     let json = v.value();
-                    let val = match *json {
-                        Json::Number(ref n) => FluentValue::Number(n.to_string()),
-                        Json::String(ref s) => FluentValue::String(s.to_string()),
+                    let val = match json {
+                        // `Number::as_f64` can't fail here because we haven't
+                        // enabled `arbitrary_precision` feature
+                        // in `serde_json`.
+                        Json::Number(n) => n.as_f64().unwrap().into(),
+                        Json::String(s) => s.to_owned().into(),
                         _ => return None,
                     };
                     Some((&**k, val))
@@ -124,9 +127,11 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             .get("lang")
             .expect("Language not set in context")
             .as_str()
-            .expect("Language must be string");
+            .expect("Language must be string")
+            .parse()
+            .expect("Language not valid identifier");
 
-        let response = self.loader.lookup(lang, &id, args.as_ref());
+        let response = self.loader.lookup(&lang, &id, args.as_ref());
         out.write(&response).map_err(RenderError::with)
     }
 }

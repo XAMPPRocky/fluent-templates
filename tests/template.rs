@@ -1,7 +1,9 @@
 use handlebars::*;
 use handlebars_fluent::*;
 
-simple_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |_bundle| {});
+simple_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
+    bundle.set_use_isolating(false)
+});
 
 use serde_json::json;
 
