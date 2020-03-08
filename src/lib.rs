@@ -36,14 +36,14 @@
 //!
 //! The main helper provided is the `{{fluent}}` helper. If you have the following Fluent
 //! file:
-//! 
+//!
 //! ```fluent
 //! foo-bar = "foo bar"
 //! placeholder = this has a placeholder { $variable }
 //! ```
 //!
 //! You can include the strings in your template with
-//! 
+//!
 //! ```hbs
 //! {{fluent "foo-bar"}} <!-- will render "foo bar" -->
 //! {{fluent "placeholder" variable="baz"}} <!-- will render "this has a placeholder baz" -->
@@ -65,8 +65,6 @@
 //!
 //! [variables]: https://projectfluent.org/fluent/guide/variables.html
 //! [`simple_loader!()`]: ./macro.simple_loader.html
-
-
 
 #[doc(hidden)]
 pub extern crate lazy_static;
