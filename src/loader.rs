@@ -5,7 +5,8 @@ use std::io;
 use std::io::prelude::*;
 use std::path::Path;
 
-use fluent_bundle::{FluentBundle, FluentResource, FluentValue};
+use fluent_bundle::concurrent::FluentBundle;
+use fluent_bundle::{FluentResource, FluentValue};
 use fluent_langneg::negotiate_languages;
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
@@ -65,7 +66,7 @@ macro_rules! simple_loader {
     ($constructor:ident, $location:expr, $fallback:expr) => {
         $crate::lazy_static::lazy_static! {
             static ref RESOURCES: std::collections::HashMap<$crate::loader::LanguageIdentifier, Vec<$crate::fluent_bundle::FluentResource>> = $crate::loader::build_resources($location);
-            static ref BUNDLES: std::collections::HashMap<$crate::loader::LanguageIdentifier, $crate::fluent_bundle::FluentBundle<&'static $crate::fluent_bundle::FluentResource>> = $crate::loader::build_bundles(&&RESOURCES, None, |_bundle| {});
+            static ref BUNDLES: std::collections::HashMap<$crate::loader::LanguageIdentifier, $crate::fluent_bundle::concurrent::FluentBundle<&'static $crate::fluent_bundle::FluentResource>> = $crate::loader::build_bundles(&&RESOURCES, None, |_bundle| {});
             static ref LOCALES: Vec<$crate::loader::LanguageIdentifier> = RESOURCES.keys().cloned().collect();
             static ref FALLBACKS: std::collections::HashMap<$crate::loader::LanguageIdentifier, Vec<$crate::loader::LanguageIdentifier>> = $crate::loader::build_fallbacks(&*LOCALES);
         }
@@ -78,7 +79,7 @@ macro_rules! simple_loader {
         $crate::lazy_static::lazy_static! {
             static ref CORE_RESOURCE: $crate::fluent_bundle::FluentResource = $crate::loader::load_core_resource($core);
             static ref RESOURCES: std::collections::HashMap<$crate::loader::LanguageIdentifier, Vec<$crate::fluent_bundle::FluentResource>> = $crate::loader::build_resources($location);
-            static ref BUNDLES: std::collections::HashMap<$crate::loader::LanguageIdentifier, $crate::fluent_bundle::FluentBundle<&'static $crate::fluent_bundle::FluentResource>> = $crate::loader::build_bundles(&*RESOURCES, Some(&CORE_RESOURCE), $custom);
+            static ref BUNDLES: std::collections::HashMap<$crate::loader::LanguageIdentifier, $crate::fluent_bundle::concurrent::FluentBundle<&'static $crate::fluent_bundle::FluentResource>> = $crate::loader::build_bundles(&*RESOURCES, Some(&CORE_RESOURCE), $custom);
             static ref LOCALES: Vec<$crate::loader::LanguageIdentifier> = RESOURCES.keys().cloned().collect();
             static ref FALLBACKS: std::collections::HashMap<$crate::loader::LanguageIdentifier, Vec<$crate::loader::LanguageIdentifier>> = $crate::loader::build_fallbacks(&*LOCALES);
         }
@@ -288,7 +289,7 @@ pub fn load_core_resource(path: &str) -> FluentResource {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fluent_bundle::FluentBundle;
+    use fluent_bundle::concurrent::FluentBundle;
     use std::error::Error;
 
     #[test]
