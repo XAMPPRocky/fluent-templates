@@ -79,7 +79,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// ```no_run
 /// use fluent_template_helper::{ArcLoader, FluentHelper};
 ///
-/// let mut handlebars = Handlebars::new();
+/// let mut handlebars = handlebars::Handlebars::new();
 /// let loader = ArcLoader::new("locales/", unic_langid::langid!("en-US"))
 ///     .core("locales/core.ftl")
 ///     .customize(|bundle| bundle.set_use_isolating(false))

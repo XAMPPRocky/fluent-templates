@@ -10,7 +10,7 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 /// Usage:
 ///
 /// ```rust
-/// use handlebars_fluent::*;
+/// use fluent_template_helper::*;
 ///
 /// static_loader!(create_loader, "./tests/locales/", "en-US");
 ///
@@ -30,7 +30,7 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 /// This can be done with an extended invocation:
 ///
 /// ```rust
-/// use handlebars_fluent::*;
+/// use fluent_template_helper::*;
 ///
 /// static_loader!(create_loader, "./tests/locales/", "en-US", core: "./tests/core.ftl",
 ///                customizer: |bundle| {bundle.add_function("FOOBAR", |_values, _named| {unimplemented!()}); });

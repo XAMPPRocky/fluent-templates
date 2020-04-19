@@ -8,11 +8,11 @@
 //! The easiest way to use this is to use the [`simple_loader!()`] macro:
 //!
 //! ```rust
-//! use handlebars_fluent::*;
+//! use fluent_template_helper::*;
 //! use handlebars::*;
 //! use serde_json::*;
 //!
-//! simple_loader!(create_loader, "./locales/", "en-US");
+//! static_loader!(create_loader, "./locales/", "en-US");
 //!
 //! fn init(handlebars: &mut Handlebars) {
 //!     let loader = create_loader();

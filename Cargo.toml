@@ -1,13 +1,13 @@
 [package]
-name = "handlebars-fluent"
-version = "0.3.0"
-authors = ["Manish Goregaokar <manishsmail@gmail.com>"]
+name = "fluent-template-helper"
+version = "0.1.0"
+authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
 description = "Handlebars helpers for the Fluent internationalization framework"
 license = "MIT/Apache-2.0"
-documentation = "https://docs.rs/handlebars-fluent/"
-repository = "https://github.com/manishearth/handlebars-fluent"
-keywords = ["handlebars", "fluent", "internationalization", "localization"]
+documentation = "https://docs.rs/fluent-template-helper/"
+repository = "https://github.com/XAMPPRocky/fluent-template-helper"
+keywords = ["handlebars", "tera", "fluent", "internationalization", "localization"]
 categories = ["internationalization", "localization", "template-engine"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -1,7 +1,7 @@
 use handlebars::*;
-use handlebars_fluent::*;
+use fluent_template_helper::*;
 
-simple_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
+static_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
     bundle.set_use_isolating(false)
 });
 
