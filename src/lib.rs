@@ -73,7 +73,7 @@ pub extern crate lazy_static;
 pub extern crate fluent_bundle;
 
 pub use helper::FluentHelper;
-pub use loader::{Loader, SimpleLoader};
+pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, StaticLoader};
 
 mod helper;
 pub mod loader;

@@ -7,117 +7,76 @@ simple_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl
 
 use serde_json::json;
 
-#[test]
-fn test_english() {
-    let mut handlebars = Handlebars::new();
-    handlebars.register_helper("fluent", Box::new(FluentHelper::new(load())));
-    let data = json!({"lang": "en-US"});
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "simple"}}"#, &data)
-            .unwrap(),
-        "simple text"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "reference"}}"#, &data)
-            .unwrap(),
-        "simple text with a reference: foo"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "parameter" param="PARAM"}}"#, &data)
-            .unwrap(),
-        "text with a PARAM"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "parameter2" param1="P1" param2="P2"}}"#, &data)
-            .unwrap(),
-        "text one P1 second P2"
-    );
-    assert_eq!(
-        handlebars.render_template(r#"{{#fluent "parameter"}}{{#fluentparam "param"}}blah blah{{/fluentparam}}{{/fluent}}"#, &data).unwrap(),
-        "text with a blah blah"
-    );
-    assert_eq!(
-        handlebars.render_template(r#"{{#fluent "parameter2"}}{{#fluentparam "param1"}}foo{{/fluentparam}}{{#fluentparam "param2"}}bar{{/fluentparam}}{{/fluent}}"#, &data).unwrap(),
-        "text one foo second bar"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "fallback"}}"#, &data)
-            .unwrap(),
-        "this should fall back"
-    );
+/// Generates tests for each loader in different locales.
+macro_rules! generate_tests {
+    ($(fn $locale_test_fn:ident ($locale:expr) {
+        $($assert_macro:ident ! ( $lhs:expr , $rhs:expr ) );* $(;)?
+    })+) => {
+        $(
+            #[test]
+            fn $locale_test_fn() {
+                let data = json!({"lang": $locale});
+                // Test the static loader.
+                {
+                    let mut handlebars = Handlebars::new();
+                    handlebars.register_helper("fluent", Box::new(FluentHelper::new(load())));
+                    $(
+                        $assert_macro ! (
+                            handlebars
+                            .render_template($lhs, &data)
+                            .unwrap(),
+                            $rhs
+                        );
+                    )*
+                }
+                // Test the arc loader.
+                {
+                    let mut handlebars = Handlebars::new();
+                    let loader = ArcLoader::new("./tests/locales", unic_langid::langid!("en-US"))
+                        .core("./tests/locales/core.ftl")
+                        .customize(|bundle| bundle.set_use_isolating(false))
+                        .build()
+                        .unwrap();
+                    handlebars.register_helper("fluent", Box::new(FluentHelper::new(loader)));
+                    $(
+                        $assert_macro ! (
+                            handlebars
+                            .render_template($lhs, &data)
+                            .unwrap(),
+                            $rhs
+                        );
+                    )*
+                }
+            }
+        )+
+    };
 }
 
-#[test]
-fn test_french() {
-    let mut handlebars = Handlebars::new();
-    handlebars.register_helper("fluent", Box::new(FluentHelper::new(load())));
-    let data = json!({"lang": "fr"});
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "simple"}}"#, &data)
-            .unwrap(),
-        "texte simple"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "reference"}}"#, &data)
-            .unwrap(),
-        "texte simple avec une référence: foo"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "parameter" param="PARAM"}}"#, &data)
-            .unwrap(),
-        "texte avec une PARAM"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "parameter2" param1="P1" param2="P2"}}"#, &data)
-            .unwrap(),
-        "texte une P1 seconde P2"
-    );
-    assert_eq!(
-        handlebars.render_template(r#"{{#fluent "parameter"}}{{#fluentparam "param"}}blah blah{{/fluentparam}}{{/fluent}}"#, &data).unwrap(),
-        "texte avec une blah blah"
-    );
-    assert_eq!(
-        handlebars.render_template(r#"{{#fluent "parameter2"}}{{#fluentparam "param1"}}foo{{/fluentparam}}{{#fluentparam "param2"}}bar{{/fluentparam}}{{/fluent}}"#, &data).unwrap(),
-        "texte une foo seconde bar"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "fallback"}}"#, &data)
-            .unwrap(),
-        "this should fall back"
-    );
-}
+generate_tests! {
+    fn english("en-US") {
+        assert_eq!(r#"{{fluent "simple"}}"#, "simple text");
+        assert_eq!(r#"{{fluent "reference"}}"#, "simple text with a reference: foo");
+        assert_eq!(r#"{{fluent "parameter" param="PARAM"}}"#, "text with a PARAM");
+        assert_eq!(r#"{{fluent "parameter2" param1="P1" param2="P2"}}"#, "text one P1 second P2");
+        assert_eq!(r#"{{#fluent "parameter"}}{{#fluentparam "param"}}blah blah{{/fluentparam}}{{/fluent}}"#, "text with a blah blah");
+        assert_eq!(r#"{{#fluent "parameter2"}}{{#fluentparam "param1"}}foo{{/fluentparam}}{{#fluentparam "param2"}}bar{{/fluentparam}}{{/fluent}}"#, "text one foo second bar");
+        assert_eq!(r#"{{fluent "fallback"}}"#, "this should fall back");
+    }
 
-#[test]
-fn test_chinese() {
-    let mut handlebars = Handlebars::new();
-    handlebars.register_helper("fluent", Box::new(FluentHelper::new(load())));
-    let data = json!({"lang": "zh-TW"});
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "exists"}}"#, &data)
-            .unwrap(),
-        "兒"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "fallback-zh"}}"#, &data)
-            .unwrap(),
-        "气"
-    );
-    assert_eq!(
-        handlebars
-            .render_template(r#"{{fluent "fallback"}}"#, &data)
-            .unwrap(),
-        "this should fall back"
-    );
+    fn french("fr") {
+        assert_eq!(r#"{{fluent "simple"}}"#, "texte simple");
+        assert_eq!(r#"{{fluent "reference"}}"#, "texte simple avec une référence: foo");
+        assert_eq!(r#"{{fluent "parameter" param="PARAM"}}"#, "texte avec une PARAM");
+        assert_eq!(r#"{{fluent "parameter2" param1="P1" param2="P2"}}"#, "texte une P1 seconde P2");
+        assert_eq!(r#"{{#fluent "parameter"}}{{#fluentparam "param"}}blah blah{{/fluentparam}}{{/fluent}}"#, "texte avec une blah blah");
+        assert_eq!(r#"{{#fluent "parameter2"}}{{#fluentparam "param1"}}foo{{/fluentparam}}{{#fluentparam "param2"}}bar{{/fluentparam}}{{/fluent}}"#, "texte une foo seconde bar");
+        assert_eq!(r#"{{fluent "fallback"}}"#, "this should fall back");
+
+    }
+
+    fn chinese("zh-TW") {
+        assert_eq!(r#"{{fluent "exists"}}"#, "兒");
+        assert_eq!(r#"{{fluent "fallback-zh"}}"#, "气");
+        assert_eq!(r#"{{fluent "fallback"}}"#, "this should fall back");
+    }
 }
