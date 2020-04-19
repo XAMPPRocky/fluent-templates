@@ -39,7 +39,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
         h: &Helper<'reg, 'rc>,
         reg: &'reg Handlebars,
         context: &'rc Context,
-        rcx: &mut RenderContext<'reg>,
+        rcx: &mut RenderContext<'reg, 'rc>,
         out: &mut dyn Output,
     ) -> HelperResult {
         let id = if let Some(id) = h.param(0) {
@@ -50,7 +50,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             ));
         };
 
-        if id.path().is_some() {
+        if id.relative_path().is_some() {
             return Err(RenderError::new(
                 "{{fluent}} takes a string parameter with no path",
             ));
