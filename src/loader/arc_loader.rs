@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::read_dir;
+use std::path::Path;
 use std::sync::Arc;
 
 use fluent_bundle::concurrent::FluentBundle;
@@ -8,15 +9,15 @@ use fluent_bundle::{FluentResource, FluentValue};
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 pub struct ArcLoaderBuilder<'a, 'b> {
-    location: &'a str,
+    location: &'a Path,
     fallback: LanguageIdentifier,
-    core: Option<&'b str>,
+    core: Option<&'b Path>,
     customize: Option<fn(&mut FluentBundle<Arc<FluentResource>>)>,
 }
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
-    pub fn core(mut self, core: &'b str) -> Self {
+    pub fn core<P: AsRef<Path> + ?Sized>(mut self, core: &'b P) -> Self {
         self.core = Some(core.as_ref());
         self
     }
@@ -118,13 +119,13 @@ impl super::Loader for ArcLoader {
 
 impl ArcLoader {
     /// Creates a new `ArcLoaderBuilder`
-    pub fn new(location: &str, fallback: LanguageIdentifier) -> ArcLoaderBuilder {
-        ArcLoaderBuilder { location, fallback, core: None, customize: None }
+    pub fn new<P: AsRef<Path> + ?Sized>(location: &P, fallback: LanguageIdentifier) -> ArcLoaderBuilder {
+        ArcLoaderBuilder { location: location.as_ref(), fallback, core: None, customize: None }
     }
 
-    /// Returns an iterator over the locales that were detected.
-    pub fn locales(&self) -> impl Iterator<Item = &LanguageIdentifier> {
-        self.resources.keys()
+    /// Returns a Vec over the locales that were detected.
+    pub fn locales(&self) -> Vec<LanguageIdentifier> {
+        self.resources.keys().cloned().collect()
     }
 
     /// Convenience function to look up a string for a single language
