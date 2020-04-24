@@ -33,7 +33,7 @@ macro_rules! generate_tests {
                 {
                     let mut handlebars = Handlebars::new();
                     let loader = ArcLoader::new("./tests/locales", unic_langid::langid!("en-US"))
-                        .core("./tests/locales/core.ftl")
+                        .shared_resources(Some(&["./tests/locales/core.ftl".into()]))
                         .customize(|bundle| bundle.set_use_isolating(false))
                         .build()
                         .unwrap();

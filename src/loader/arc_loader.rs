@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs::read_dir;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use fluent_bundle::concurrent::FluentBundle;
@@ -11,15 +11,15 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 pub struct ArcLoaderBuilder<'a, 'b> {
     location: &'a Path,
     fallback: LanguageIdentifier,
-    shared: Option<Vec<&'b Path>>,
+    shared: Option<&'b [PathBuf]>,
     customize: Option<fn(&mut FluentBundle<Arc<FluentResource>>)>,
 }
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
     /// Adds Fluent resources that are shared across all localizations.
-    pub fn shared_resources<P: AsRef<Path> + ?Sized>(mut self, shared: Option<&'b [&'b P]>) -> Self {
-        self.shared = shared.map(|v| v.into_iter().map(|p| p.as_ref()).collect());
+    pub fn shared_resources(mut self, shared: Option<&'b [PathBuf]>) -> Self {
+        self.shared = shared;
         self
     }
 
@@ -87,7 +87,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 ///
 /// let mut handlebars = handlebars::Handlebars::new();
 /// let loader = ArcLoader::new("locales/", unic_langid::langid!("en-US"))
-///     .core("locales/core.ftl")
+///     .shared_resources(Some(&["locales/core.ftl".into()]))
 ///     .customize(|bundle| bundle.set_use_isolating(false))
 ///     .build()
 ///     .unwrap();
