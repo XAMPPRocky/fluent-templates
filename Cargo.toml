@@ -1,6 +1,6 @@
 [package]
 name = "fluent-template-helper"
-version = "0.4.3"
+version = "0.4.4"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
 description = "Template helpers for the Fluent internationalization framework"
