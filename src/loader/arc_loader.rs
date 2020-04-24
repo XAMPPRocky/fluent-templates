@@ -11,33 +11,37 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 pub struct ArcLoaderBuilder<'a, 'b> {
     location: &'a Path,
     fallback: LanguageIdentifier,
-    core: Option<&'b Path>,
+    shared: Option<Vec<&'b Path>>,
     customize: Option<fn(&mut FluentBundle<Arc<FluentResource>>)>,
 }
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
-    pub fn core<P: AsRef<Path> + ?Sized>(mut self, core: &'b P) -> Self {
-        self.core = Some(core.as_ref());
+    /// Adds Fluent resources that are shared across all localizations.
+    pub fn shared_resources<P: AsRef<Path> + ?Sized>(mut self, shared: Option<&'b [&'b P]>) -> Self {
+        self.shared = shared.map(|v| v.into_iter().map(|p| p.as_ref()).collect());
         self
     }
 
+    /// Allows you to customise each `FluentBundle`.
     pub fn customize(mut self, customize: fn(&mut FluentBundle<Arc<FluentResource>>)) -> Self {
         self.customize = Some(customize);
         self
     }
 
+    /// Constructs an `ArcLoader` from the settings provided.
     pub fn build(self) -> Result<ArcLoader, Box<dyn std::error::Error>> {
         let mut resources = HashMap::new();
-        for entry in read_dir(self.location).unwrap() {
-            let entry = entry.unwrap();
-            if entry.file_type().unwrap().is_dir() {
+
+        for entry in read_dir(self.location)? {
+            let entry = entry?;
+            if entry.file_type()?.is_dir() {
                 if let Ok(lang) = entry.file_name().into_string() {
                     let lang_resources = super::read_from_dir(entry.path())?
                         .into_iter()
                         .map(Arc::new)
                         .collect::<Vec<_>>();
-                    resources.insert(lang.parse::<LanguageIdentifier>().unwrap(), lang_resources);
+                    resources.insert(lang.parse::<LanguageIdentifier>()?, lang_resources);
                 }
             }
         }
@@ -46,8 +50,8 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
         for (lang, v) in resources.iter() {
             let mut bundle = FluentBundle::new(&[lang.clone()][..]);
 
-            if let Some(ref core) = self.core {
-                bundle.add_resource(Arc::new(super::read_from_file(core)?))
+            for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
+                bundle.add_resource(Arc::new(super::read_from_file(shared_resource)?))
                     .expect("Failed to add core FTL resources to the bundle.");
             }
 
@@ -63,6 +67,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
             bundles.insert(lang.clone(), bundle);
         }
+
         let fallbacks = super::build_fallbacks(&*resources.keys().cloned().collect::<Vec<_>>());
 
         Ok(ArcLoader {
@@ -120,7 +125,7 @@ impl super::Loader for ArcLoader {
 impl ArcLoader {
     /// Creates a new `ArcLoaderBuilder`
     pub fn new<P: AsRef<Path> + ?Sized>(location: &P, fallback: LanguageIdentifier) -> ArcLoaderBuilder {
-        ArcLoaderBuilder { location: location.as_ref(), fallback, core: None, customize: None }
+        ArcLoaderBuilder { location: location.as_ref(), fallback, shared: None, customize: None }
     }
 
     /// Returns a Vec over the locales that were detected.
