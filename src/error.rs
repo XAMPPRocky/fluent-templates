@@ -1,24 +1,39 @@
 use std::fmt;
 
+/// Errors that can occur when loading or parsing fluent resources.
 #[derive(Debug, snafu::Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub enum LoaderError {
+    /// An `io::Error` occurred while interacting with `path`.
+    #[snafu(display("Error with {}\n: {}", path.display(), source))]
     Fs {
+        /// The path to file with the error.
         path: std::path::PathBuf,
+        /// The error source.
         source: std::io::Error,
     },
+    /// An error was found in the fluent syntax.
+    #[snafu(display("Error parsing Fluent\n: {}", source))]
     Fluent {
+        /// The original parse errors
         #[snafu(source(from(Vec<fluent_syntax::parser::ParserError>, FluentError::from)))]
         source: FluentError,
     },
 }
 
+/// A wrapper struct around `Vec<fluent_syntax::parser::ParserError>`.
 #[derive(Debug)]
 pub struct FluentError(Vec<fluent_syntax::parser::ParserError>);
 
 impl From<Vec<fluent_syntax::parser::ParserError>> for FluentError {
     fn from(errors: Vec<fluent_syntax::parser::ParserError>) -> Self {
         Self(errors)
+    }
+}
+
+impl From<FluentError> for Vec<fluent_syntax::parser::ParserError> {
+    fn from(error: FluentError) -> Self {
+        error.0
     }
 }
 

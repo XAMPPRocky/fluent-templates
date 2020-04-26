@@ -1,10 +1,31 @@
-# `fluent-templates`
+# `fluent-templates`: Templating for Fluent.
 
 ![CI Status](https://github.com/XAMPPRocky/fluent-templates/workflows/Rust/badge.svg?branch=master&event=push)
 ![Current Version](https://img.shields.io/crates/v/fluent-templates.svg)
 [![License: MIT/Apache-2.0](https://img.shields.io/crates/l/fluent-templates.svg)](#license)
 
+This crate provides you with the ability to create [Fluent] loaders for use
+in templating engines such as handlebars and tera.
 
-This crate provides you with the ability to create [Fluent](https://docs.rs/fluent) loaders that implement [Handlebars](https://docs.rs/handlebars/)' `handlebars::HelperDef` and [Tera](https://docs.rs/tera) `tera::Function`. Allowing you to easily add localisation to your templating engines.
+## Basic handlebars example
+```rust
+//! Requires `--features handlebars`.
+use fluent_templates::*;
+use handlebars::*;
+use serde_json::*;
 
-All template engine implementations are optional and can be disabled with features.
+static_loader!(create_loader, "./locales/", "en-US");
+
+fn init(handlebars: &mut Handlebars) {
+    let loader = create_loader();
+    let helper = FluentHelper::new(loader);
+    handlebars.register_helper("fluent", Box::new(helper));
+}
+
+fn render_page(handlebars: &Handlebars) -> String {
+    let data = json!({"lang": "zh-CN"});
+    handlebars.render_template("{{fluent \"foo-bar\"}} baz", &data).unwrap()
+}
+```
+
+[fluent]: https://projectfluent.org

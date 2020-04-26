@@ -8,6 +8,7 @@ use fluent_bundle::{FluentResource, FluentValue};
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 
+/// A builder pattern struct for constructing `ArcLoader`s.
 pub struct ArcLoaderBuilder<'a, 'b> {
     location: &'a Path,
     fallback: LanguageIdentifier,
@@ -85,13 +86,11 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// ```no_run
 /// use fluent_templates::{ArcLoader, FluentHelper};
 ///
-/// let mut handlebars = handlebars::Handlebars::new();
 /// let loader = ArcLoader::new("locales/", unic_langid::langid!("en-US"))
 ///     .shared_resources(Some(&["locales/core.ftl".into()]))
 ///     .customize(|bundle| bundle.set_use_isolating(false))
 ///     .build()
 ///     .unwrap();
-/// handlebars.register_helper("fluent", Box::new(FluentHelper::new(loader)));
 /// ```
 pub struct ArcLoader {
     bundles: HashMap<LanguageIdentifier, FluentBundle<Arc<FluentResource>>>,

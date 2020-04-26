@@ -1,24 +1,23 @@
 use fluent_templates::*;
-use handlebars::*;
 
 static_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
     bundle.set_use_isolating(false)
 });
-
-use serde_json::json;
 
 /// Generates tests for each loader in different locales.
 macro_rules! generate_tests {
     ($(fn $locale_test_fn:ident ($locale:expr) {
         $($assert_macro:ident ! ( $lhs:expr , $rhs:expr ) );* $(;)?
     })+) => {
+        use serde_json::json;
         $(
             #[test]
+            #[cfg(feature = "handlebars")]
             fn $locale_test_fn() {
                 let data = json!({"lang": $locale});
                 // Test the static loader.
                 {
-                    let mut handlebars = Handlebars::new();
+                    let mut handlebars = handlebars::Handlebars::new();
                     handlebars.register_helper("fluent", Box::new(FluentHelper::new(load())));
                     $(
                         $assert_macro ! (
@@ -31,7 +30,7 @@ macro_rules! generate_tests {
                 }
                 // Test the arc loader.
                 {
-                    let mut handlebars = Handlebars::new();
+                    let mut handlebars = handlebars::Handlebars::new();
                     let loader = ArcLoader::new("./tests/locales", unic_langid::langid!("en-US"))
                         .shared_resources(Some(&["./tests/locales/core.ftl".into()]))
                         .customize(|bundle| bundle.set_use_isolating(false))

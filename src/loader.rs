@@ -1,3 +1,7 @@
+//! This modules contains both the `static_loader` and `ArcLoader`
+//! implementations, as well as the `Loader` trait. Which provides a loader
+//! agnostic interface.
+
 use std::collections::HashMap;
 use std::fs::read_dir;
 
@@ -13,10 +17,9 @@ mod static_loader;
 pub use arc_loader::{ArcLoader, ArcLoaderBuilder};
 pub use static_loader::StaticLoader;
 
-/// Something capable of looking up Fluent keys given a language.
-///
-/// Use [SimpleLoader] if you just need the basics
+/// A loader capable of looking up Fluent keys given a language.
 pub trait Loader {
+    /// Look up `text_id` for `lang` in Fluent and, provides any `args` if present.
     fn lookup(
         &self,
         lang: &LanguageIdentifier,
@@ -25,6 +28,7 @@ pub trait Loader {
     ) -> String;
 }
 
+/// Constructs a map of languages with a list of potential fallback languages.
 pub fn build_fallbacks(
     locales: &[LanguageIdentifier],
 ) -> HashMap<LanguageIdentifier, Vec<LanguageIdentifier>> {
@@ -48,6 +52,9 @@ pub fn build_fallbacks(
     map
 }
 
+/// Creates a new static `FluentBundle` for `lang` using `resources`. Optionally
+/// shared resources can be specified with `core_resource` and the bundle can
+/// be customized with `customizer`.
 pub fn create_bundle(
     lang: LanguageIdentifier,
     resources: &'static [FluentResource],
@@ -70,7 +77,10 @@ pub fn create_bundle(
     bundle
 }
 
-pub fn build_resources(dir: &str) -> HashMap<LanguageIdentifier, Vec<FluentResource>> {
+/// Builds a map of languages and their available resources based on `dir`.
+pub fn build_resources(
+    dir: impl AsRef<std::path::Path>,
+) -> HashMap<LanguageIdentifier, Vec<FluentResource>> {
     let mut all_resources = HashMap::new();
     let entries = read_dir(dir).unwrap();
     for entry in entries {
@@ -85,6 +95,8 @@ pub fn build_resources(dir: &str) -> HashMap<LanguageIdentifier, Vec<FluentResou
     all_resources
 }
 
+/// Maps from map of languages containing a list of resources to a map of
+/// languages containing a `FluentBundle` of those resources.
 pub fn build_bundles(
     resources: &'static HashMap<LanguageIdentifier, Vec<FluentResource>>,
     core_resource: Option<&'static FluentResource>,
@@ -100,6 +112,7 @@ pub fn build_bundles(
     bundles
 }
 
+/// Attempts to load a core resource and panicks if not found.
 pub fn load_core_resource(path: &str) -> FluentResource {
     crate::fs::read_from_file(path).expect("cannot find core resource")
 }
