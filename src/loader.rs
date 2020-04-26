@@ -61,22 +61,6 @@ fn read_from_file<P: AsRef<Path>>(filename: P) -> io::Result<FluentResource> {
     Ok(FluentResource::try_new(string).expect("File did not parse!"))
 }
 
-fn read_from_dir<P: AsRef<Path>>(dirname: P) -> io::Result<Vec<FluentResource>> {
-    let mut result = Vec::new();
-    for dir_entry in read_dir(dirname)? {
-        let entry = dir_entry?;
-
-        // Prevent loading non-FTL files as translations, such as VIM temporary files.
-        if entry.path().extension().and_then(|e| e.to_str()) != Some("ftl") {
-            continue;
-        }
-
-        let resource = read_from_file(entry.path())?;
-        result.push(resource);
-    }
-    Ok(result)
-}
-
 pub fn create_bundle(
     lang: LanguageIdentifier,
     resources: &'static [FluentResource],
@@ -106,7 +90,7 @@ pub fn build_resources(dir: &str) -> HashMap<LanguageIdentifier, Vec<FluentResou
         let entry = entry.unwrap();
         if entry.file_type().unwrap().is_dir() {
             if let Ok(lang) = entry.file_name().into_string() {
-                let resources = read_from_dir(entry.path()).unwrap();
+                let resources = crate::fs::read_from_dir(entry.path()).unwrap();
                 all_resources.insert(lang.parse().unwrap(), resources);
             }
         }
@@ -131,52 +115,4 @@ pub fn build_bundles(
 
 pub fn load_core_resource(path: &str) -> FluentResource {
     read_from_file(path).expect("cannot find core resource")
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use fluent_bundle::concurrent::FluentBundle;
-    use std::error::Error;
-
-    #[test]
-    fn test_load_from_dir() -> Result<(), Box<dyn Error>> {
-        let dir = tempfile::tempdir()?;
-        std::fs::write(dir.path().join("core.ftl"), "foo = bar\n".as_bytes())?;
-        std::fs::write(dir.path().join("other.ftl"), "bar = baz\n".as_bytes())?;
-        std::fs::write(dir.path().join("invalid.txt"), "baz = foo\n".as_bytes())?;
-        std::fs::write(dir.path().join(".binary_file.swp"), &[0, 1, 2, 3, 4, 5])?;
-
-        let result = read_from_dir(dir.path())?;
-        assert_eq!(2, result.len()); // Doesn't include the binary file or the txt file
-
-        let mut bundle = FluentBundle::new(&[unic_langid::langid!("en-US")]);
-        for resource in &result {
-            bundle.add_resource(resource).unwrap();
-        }
-
-        let mut errors = Vec::new();
-
-        // Ensure the correct files were loaded
-        assert_eq!(
-            "bar",
-            bundle.format_pattern(
-                bundle.get_message("foo").and_then(|m| m.value).unwrap(),
-                None,
-                &mut errors
-            )
-        );
-
-        assert_eq!(
-            "baz",
-            bundle.format_pattern(
-                bundle.get_message("bar").and_then(|m| m.value).unwrap(),
-                None,
-                &mut errors
-            )
-        );
-        assert_eq!(None, bundle.get_message("baz")); // The extension was txt
-
-        Ok(())
-    }
 }

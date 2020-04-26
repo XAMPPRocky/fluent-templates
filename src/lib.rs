@@ -75,5 +75,10 @@ pub extern crate fluent_bundle;
 pub use helper::FluentHelper;
 pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, StaticLoader};
 
+mod fs;
+mod error;
 mod helper;
 pub mod loader;
+
+pub type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
+

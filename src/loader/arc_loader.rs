@@ -37,7 +37,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             let entry = entry?;
             if entry.file_type()?.is_dir() {
                 if let Ok(lang) = entry.file_name().into_string() {
-                    let lang_resources = super::read_from_dir(entry.path())?
+                    let lang_resources = crate::fs::read_from_dir(entry.path())?
                         .into_iter()
                         .map(Arc::new)
                         .collect::<Vec<_>>();
