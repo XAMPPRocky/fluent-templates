@@ -83,7 +83,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// mainly useful for when you need to load fluent at run time. You can
 /// configure the initialisation with `ArcLoaderBuilder`.
 /// ```no_run
-/// use fluent_template_helper::{ArcLoader, FluentHelper};
+/// use fluent_templates::{ArcLoader, FluentHelper};
 ///
 /// let mut handlebars = handlebars::Handlebars::new();
 /// let loader = ArcLoader::new("locales/", unic_langid::langid!("en-US"))

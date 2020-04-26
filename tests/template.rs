@@ -1,5 +1,5 @@
 use handlebars::*;
-use fluent_template_helper::*;
+use fluent_templates::*;
 
 static_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
     bundle.set_use_isolating(false)

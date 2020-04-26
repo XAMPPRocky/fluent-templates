@@ -1,12 +1,12 @@
 [package]
-name = "fluent-template-helper"
+name = "fluent-templates"
 version = "0.4.5"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
-description = "Template helpers for the Fluent internationalization framework"
+description = "Templating for the Fluent localization framework"
 license = "MIT/Apache-2.0"
-documentation = "https://docs.rs/fluent-template-helper/"
-repository = "https://github.com/XAMPPRocky/fluent-template-helper"
+documentation = "https://docs.rs/fluent-templates/"
+repository = "https://github.com/XAMPPRocky/fluent-templates"
 keywords = ["handlebars", "tera", "fluent", "internationalization", "localization"]
 categories = ["internationalization", "localization", "template-engine"]
 

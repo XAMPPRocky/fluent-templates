@@ -8,7 +8,7 @@
 //! The easiest way to use this is to use the [`simple_loader!()`] macro:
 //!
 //! ```rust
-//! use fluent_template_helper::*;
+//! use fluent_templates::*;
 //! use handlebars::*;
 //! use serde_json::*;
 //!
