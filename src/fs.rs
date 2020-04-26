@@ -3,16 +3,20 @@ use std::path::Path;
 
 use fluent_bundle::FluentResource;
 
-pub use unic_langid::{langid, langids, LanguageIdentifier};
-use snafu::*;
 use crate::error;
+use snafu::*;
+pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> crate::Result<FluentResource> {
     let path = path.as_ref();
-    Ok(FluentResource::try_new(fs::read_to_string(path).context(error::Fs { path })?).map_err(|(_, errs)| errs).context(error::Fluent)?)
+    Ok(
+        FluentResource::try_new(fs::read_to_string(path).context(error::Fs { path })?)
+            .map_err(|(_, errs)| errs)
+            .context(error::Fluent)?,
+    )
 }
 
-pub (crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
+pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
     let path = path.as_ref();
     let mut result = Vec::new();
     for dir_entry in fs::read_dir(path).context(error::Fs { path })? {

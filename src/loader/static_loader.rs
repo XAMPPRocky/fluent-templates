@@ -163,5 +163,3 @@ impl super::Loader for StaticLoader {
         format!("Unknown localization {}", text_id)
     }
 }
-
-
