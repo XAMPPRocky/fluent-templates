@@ -7,6 +7,11 @@
 This crate provides you with the ability to create [Fluent] loaders for use
 in templating engines such as handlebars and tera.
 
+## Features/Template Engines
+
+- [`handlebars`](https://docs.rs/handlebars)
+- [`tera`](https://docs.rs/tera)
+
 ## Basic handlebars example
 ```rust
 //! Requires `--features handlebars`.
