@@ -52,15 +52,6 @@ pub fn build_fallbacks(
     map
 }
 
-fn read_from_file<P: AsRef<Path>>(filename: P) -> io::Result<FluentResource> {
-    let mut file = File::open(filename)?;
-    let mut string = String::new();
-
-    file.read_to_string(&mut string)?;
-
-    Ok(FluentResource::try_new(string).expect("File did not parse!"))
-}
-
 pub fn create_bundle(
     lang: LanguageIdentifier,
     resources: &'static [FluentResource],
@@ -114,5 +105,5 @@ pub fn build_bundles(
 }
 
 pub fn load_core_resource(path: &str) -> FluentResource {
-    read_from_file(path).expect("cannot find core resource")
+    crate::fs::read_from_file(path).expect("cannot find core resource")
 }

@@ -51,7 +51,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             let mut bundle = FluentBundle::new(&[lang.clone()][..]);
 
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
-                bundle.add_resource(Arc::new(super::read_from_file(shared_resource)?))
+                bundle.add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
                     .expect("Failed to add core FTL resources to the bundle.");
             }
 
