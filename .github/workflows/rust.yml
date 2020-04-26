@@ -1,4 +1,4 @@
-name: Rust
+name: Build & Test
 
 on: [push, pull_request]
 
@@ -6,17 +6,17 @@ jobs:
   no_and_all_features:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: rustup component add rustfmt
-    - run: cargo fmt -- --check
-    - run: cargo build && cargo build --all-features
-    - run: cargo test && cargo test --all-features
+      - uses: actions/checkout@v2
+      - run: cargo fmt -- --check
+      - run: cargo build && cargo build --all-features
+      - run: cargo test && cargo test --all-features
   feature_tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
+        os: [ubuntu, macos, windows]
         feature: [handlebars, tera]
     steps:
-    - uses: actions/checkout@v2
-    - run: cargo build --feature ${{ matrix.feature }}
-    - run: cargo test --verbose --feature ${{ matrix.feature }}
+      - uses: actions/checkout@v2
+      - run: cargo build --feature ${{ matrix.feature }}
+      - run: cargo test --verbose --feature ${{ matrix.feature }}
