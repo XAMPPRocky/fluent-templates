@@ -1,9 +1,5 @@
 use std::collections::HashMap;
 use std::fs::read_dir;
-use std::fs::File;
-use std::io;
-use std::io::prelude::*;
-use std::path::Path;
 
 use fluent_bundle::concurrent::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
