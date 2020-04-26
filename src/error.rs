@@ -3,6 +3,7 @@ use std::fmt;
 #[derive(Debug, snafu::Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub enum LoaderError {
+    Fs { path: std::path::PathBuf, source: std::io::Error },
     Fluent {
        #[snafu(source(from(Vec<fluent_syntax::parser::ParserError>, FluentError::from)))]
        source: FluentError

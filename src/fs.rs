@@ -5,15 +5,18 @@ use fluent_bundle::FluentResource;
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 use snafu::*;
+use crate::error;
 
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> crate::Result<FluentResource> {
-    Ok(FluentResource::try_new(fs::read_to_string(path)?).map_err(|(_, errs)| errs).context(crate::error::Fluent)?)
+    let path = path.as_ref();
+    Ok(FluentResource::try_new(fs::read_to_string(path).context(error::Fs { path })?).map_err(|(_, errs)| errs).context(error::Fluent)?)
 }
 
-pub (crate) fn read_from_dir<P: AsRef<Path>>(dirname: P) -> crate::Result<Vec<FluentResource>> {
+pub (crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
+    let path = path.as_ref();
     let mut result = Vec::new();
-    for dir_entry in fs::read_dir(dirname)? {
-        let entry = dir_entry?;
+    for dir_entry in fs::read_dir(path).context(error::Fs { path })? {
+        let entry = dir_entry.context(error::Fs { path })?;
 
         // Prevent loading non-FTL files as translations, such as VIM temporary files.
         if entry.path().extension().and_then(|e| e.to_str()) != Some("ftl") {

@@ -80,5 +80,5 @@ mod error;
 mod helper;
 pub mod loader;
 
-pub type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
+pub type Result<T, E = error::LoaderError> = std::result::Result<T, E>;
 
