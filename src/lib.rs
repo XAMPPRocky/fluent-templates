@@ -16,26 +16,48 @@
 //!   localisations. Useful for when your localisations are only known at
 //!   **run-time**.
 //!
-//! ## Handlebars Example
+//! ## Example
 //! The easiest way to use `fluent-templates` is to use the [`static_loader!`]
 //! macro:
 //!
 //! ```rust
-//! # #[cfg(feature = "handlebars")] {
-//! use fluent_templates::*;
-//! use handlebars::*;
-//! use serde_json::*;
+//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
+//! ```
 //!
-//! static_loader!(create_loader, "./locales/", "en-US");
+//! ### Tera
+//! ```rust
+//! # #[cfg(feature = "handlebars")] {
+//! use tera::Tera;
+//!
+//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
+//!
+//! fn init(tera: &mut Tera) {
+//!     let loader = create_loader();
+//!     let helper = fluent_templates::FluentHelper::new(loader);
+//!     tera.register_function("fluent", helper);
+//! }
+//!
+//! fn render_page(tera: &mut Tera, ctx: &tera::Context) -> String {
+//!     tera.render_str(r#"{{ fluent(key="foo-bar", lang="en") }} baz"#, ctx).unwrap()
+//! }
+//! # }
+//! ```
+//!
+//! ### Handlebars
+//! ```rust
+//! # #[cfg(feature = "handlebars")] {
+//! use handlebars::Handlebars;
+//!
+//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
 //!
 //! fn init(handlebars: &mut Handlebars) {
 //!     let loader = create_loader();
-//!     let helper = FluentHelper::new(loader);
+//!     let helper = fluent_templates::FluentHelper::new(loader);
 //!     handlebars.register_helper("fluent", Box::new(helper));
 //! }
 //!
 //! fn render_page(handlebars: &Handlebars) -> String {
-//!     let data = json!({"lang": "zh-CN"});
+//!     let data = serde_json::json!({"lang": "zh-CN"});
 //!     handlebars.render_template("{{fluent \"foo-bar\"}} baz", &data).unwrap()
 //! }
 //! # }
