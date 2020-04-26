@@ -107,7 +107,7 @@ impl StaticLoader {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
                 let mut errors = Vec::new();
 
-                let value = bundle.format_pattern(&message, dbg!(args), &mut errors);
+                let value = bundle.format_pattern(&message, args, &mut errors);
 
                 if errors.is_empty() {
                     Some(value.into())
