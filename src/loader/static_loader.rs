@@ -12,12 +12,11 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 /// ```rust
 /// use fluent_templates::*;
 ///
-/// static_loader!(create_loader, "./tests/locales/", "en-US");
+/// static_loader!(create_loader, "./locales", "en-US");
 ///
-/// fn init() {
-///     let loader = create_loader();
-///     let helper = FluentHelper::new(loader);
-/// }
+/// # fn run() {
+/// let loader = create_loader();
+/// # }
 /// ```
 ///
 /// `$constructor` is the name of the constructor function for the loader, `$location` is
@@ -32,16 +31,15 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 /// ```rust
 /// use fluent_templates::*;
 ///
-/// static_loader!(create_loader, "./tests/locales/", "en-US", core: "./tests/core.ftl",
-///                customizer: |bundle| {bundle.add_function("FOOBAR", |_values, _named| {unimplemented!()}); });
+/// static_loader!(create_loader, "./locales", "en-US", core: "./locales/core.ftl", customizer: |bundle| {
+///     bundle.add_function("FOOBAR", |_values, _named| todo!());
+/// });
 ///
-/// fn init() {
-///     let loader = create_loader();
-///     let helper = FluentHelper::new(loader);
-/// }
+/// # fn run() {
+/// let loader = create_loader();
+/// # }
 /// ```
 ///
-/// The constructor function is cheap to call multiple times since all the heavy duty stuff is stored in shared statics.
 ///
 #[macro_export]
 macro_rules! static_loader {
@@ -81,9 +79,10 @@ pub struct StaticLoader {
 }
 
 impl StaticLoader {
-    /// Construct a StaticLoader
+    /// Construct a new `StaticLoader`.
     ///
-    /// You should probably be using the constructor from `static_loader!()`
+    /// This is exposed as publicly so that it can be used inside the
+    /// `static_loader!` macro. it's not meant to be called directly.
     pub fn new(
         bundles: &'static HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>>,
         fallbacks: &'static HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
@@ -101,13 +100,14 @@ impl StaticLoader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> Option<String> {
         if let Some(bundle) = self.bundles.get(lang) {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
                 let mut errors = Vec::new();
 
-                let value = bundle.format_pattern(&message, args, &mut errors);
+                let args = super::map_to_str_map(args);
+                let value = bundle.format_pattern(&message, args.as_ref(), &mut errors);
 
                 if errors.is_empty() {
                     Some(value.into())
@@ -130,7 +130,7 @@ impl StaticLoader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> Option<String> {
         for l in self.fallbacks.get(lang).expect("language not found") {
             if let Some(val) = self.lookup_single_language(l, text_id, args) {
@@ -148,7 +148,7 @@ impl super::Loader for StaticLoader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
         for l in self.fallbacks.get(lang).expect("language not found") {
             if let Some(val) = self.lookup_single_language(l, text_id, args) {

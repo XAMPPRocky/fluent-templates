@@ -86,7 +86,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// ```no_run
 /// use fluent_templates::{ArcLoader, FluentHelper};
 ///
-/// let loader = ArcLoader::new("locales/", unic_langid::langid!("en-US"))
+/// let loader = ArcLoader::builder("locales/", unic_langid::langid!("en-US"))
 ///     .shared_resources(Some(&["locales/core.ftl".into()]))
 ///     .customize(|bundle| bundle.set_use_isolating(false))
 ///     .build()
@@ -105,7 +105,7 @@ impl super::Loader for ArcLoader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
         for l in self.fallbacks.get(lang).expect("language not found") {
             if let Some(val) = self.lookup_single_language(l, text_id, args) {
@@ -123,7 +123,7 @@ impl super::Loader for ArcLoader {
 
 impl ArcLoader {
     /// Creates a new `ArcLoaderBuilder`
-    pub fn new<P: AsRef<Path> + ?Sized>(
+    pub fn builder<P: AsRef<Path> + ?Sized>(
         location: &P,
         fallback: LanguageIdentifier,
     ) -> ArcLoaderBuilder {
@@ -145,13 +145,14 @@ impl ArcLoader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> Option<String> {
         if let Some(bundle) = self.bundles.get(lang) {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
                 let mut errors = Vec::new();
 
-                let value = bundle.format_pattern(&message, args, &mut errors);
+                let args = super::map_to_str_map(args);
+                let value = bundle.format_pattern(&message, args.as_ref(), &mut errors);
 
                 if errors.is_empty() {
                     Some(value.into())

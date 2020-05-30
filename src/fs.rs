@@ -9,11 +9,14 @@ pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> crate::Result<FluentResource> {
     let path = path.as_ref();
-    Ok(
-        FluentResource::try_new(fs::read_to_string(path).context(error::Fs { path })?)
-            .map_err(|(_, errs)| errs)
-            .context(error::Fluent)?,
-    )
+    resource_from_string(fs::read_to_string(path).context(error::Fs { path })?)
+}
+
+pub fn resource_from_string(src: String) -> crate::Result<FluentResource> {
+    FluentResource::try_new(src)
+        .map_err(|(_, errs)| errs)
+        .context(error::Fluent)
+
 }
 
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {

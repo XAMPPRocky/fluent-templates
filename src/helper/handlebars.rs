@@ -51,7 +51,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
             return Err(RenderError::new("{{fluent}} takes a string parameter"));
         };
 
-        let mut args = if h.hash().is_empty() {
+        let mut args: Option<HashMap<String, FluentValue>> = if h.hash().is_empty() {
             None
         } else {
             let map = h
@@ -67,7 +67,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
                         Json::String(s) => s.to_owned().into(),
                         _ => return None,
                     };
-                    Some((&**k, val))
+                    Some((k.to_string(), val))
                 })
                 .collect();
             Some(map)
@@ -106,7 +106,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
                     if let Some(ref tpl) = block.template {
                         let mut s = StringOutput::default();
                         tpl.render(reg, context, rcx, &mut s)?;
-                        args.insert(&*id, FluentValue::String(s.s.into()));
+                        args.insert(String::from(id), FluentValue::String(s.s.into()));
                     }
                 }
             }

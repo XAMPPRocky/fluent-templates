@@ -3,7 +3,6 @@
 //! agnostic interface.
 
 use std::collections::HashMap;
-use std::fs::read_dir;
 
 use fluent_bundle::concurrent::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
@@ -24,7 +23,7 @@ pub trait Loader {
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<&str, FluentValue>>,
+        args: Option<&HashMap<String, FluentValue>>,
     ) -> String;
 }
 
@@ -82,9 +81,7 @@ pub fn build_resources(
     dir: impl AsRef<std::path::Path>,
 ) -> HashMap<LanguageIdentifier, Vec<FluentResource>> {
     let mut all_resources = HashMap::new();
-    let entries = read_dir(dir).unwrap();
-    for entry in entries {
-        let entry = entry.unwrap();
+    for entry in std::fs::read_dir(dir).unwrap().map(Result::unwrap) {
         if entry.file_type().unwrap().is_dir() {
             if let Ok(lang) = entry.file_name().into_string() {
                 let resources = crate::fs::read_from_dir(entry.path()).unwrap();
@@ -115,4 +112,16 @@ pub fn build_bundles(
 /// Attempts to load a core resource and panicks if not found.
 pub fn load_core_resource(path: &str) -> FluentResource {
     crate::fs::read_from_file(path).expect("cannot find core resource")
+}
+
+fn map_to_str_map<'a>(map: Option<&'a HashMap<String, FluentValue>>) -> Option<HashMap<&'a str, FluentValue<'a>>> {
+    let mut new = HashMap::with_capacity(map.map(HashMap::len).unwrap_or(0));
+
+    if let Some(map) = map {
+        for (key, value) in map.iter() {
+            new.insert(&**key, value.clone());
+        }
+    }
+
+    Some(new)
 }
