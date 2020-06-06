@@ -2,10 +2,11 @@ use std::fs;
 use std::path::Path;
 
 use fluent_bundle::FluentResource;
-
-use crate::error;
+use ignore::{WalkBuilder, WalkState};
 use snafu::*;
 pub use unic_langid::{langid, langids, LanguageIdentifier};
+
+use crate::error;
 
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> crate::Result<FluentResource> {
     let path = path.as_ref();
@@ -16,24 +17,44 @@ pub fn resource_from_string(src: String) -> crate::Result<FluentResource> {
     FluentResource::try_new(src)
         .map_err(|(_, errs)| errs)
         .context(error::Fluent)
+}
 
+pub fn resources_from_vec(srcs: Vec<String>) -> crate::Result<Vec<FluentResource>> {
+    let mut vec = Vec::with_capacity(srcs.len());
+
+    for src in srcs {
+        vec.push(resource_from_string(src)?);
+    }
+
+    Ok(vec)
 }
 
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
-    let path = path.as_ref();
-    let mut result = Vec::new();
-    for dir_entry in fs::read_dir(path).context(error::Fs { path })? {
-        let entry = dir_entry.context(error::Fs { path })?;
+    let (tx, rx) = flume::unbounded();
 
-        // Prevent loading non-FTL files as translations, such as VIM temporary files.
-        if entry.path().extension().and_then(|e| e.to_str()) != Some("ftl") {
-            continue;
-        }
+    WalkBuilder::new(path).build_parallel().run(|| {
+        Box::new(|result| {
+            let tx = tx.clone();
+            if let Ok(entry) = result {
+                if entry
+                    .file_type()
+                    .as_ref()
+                    .map_or(false, fs::FileType::is_file)
+                    && entry.path().extension().map_or(false, |e| e == "ftl")
+                {
+                    if let Ok(string) = std::fs::read_to_string(entry.path()) {
+                        let _ = tx.send(string);
+                    } else {
+                        log::warn!("Couldn't read {}", entry.path().display());
+                    }
+                }
+            }
 
-        result.push(read_from_file(entry.path())?);
-    }
+            WalkState::Continue
+        })
+    });
 
-    Ok(result)
+    resources_from_vec(rx.drain().collect())
 }
 
 #[cfg(test)]

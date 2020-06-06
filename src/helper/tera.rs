@@ -58,7 +58,10 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentHelper<L> {
         let mut fluent_args = HashMap::new();
 
         for (key, value) in args.iter().filter(is_not_tera_key) {
-            fluent_args.insert(heck::KebabCase::to_kebab_case(&**key), json_to_fluent(value.clone())?);
+            fluent_args.insert(
+                heck::KebabCase::to_kebab_case(&**key),
+                json_to_fluent(value.clone())?,
+            );
         }
 
         let response = self.loader.lookup(&lang, &id, Some(&fluent_args));

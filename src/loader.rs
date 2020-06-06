@@ -114,7 +114,9 @@ pub fn load_core_resource(path: &str) -> FluentResource {
     crate::fs::read_from_file(path).expect("cannot find core resource")
 }
 
-fn map_to_str_map<'a>(map: Option<&'a HashMap<String, FluentValue>>) -> Option<HashMap<&'a str, FluentValue<'a>>> {
+fn map_to_str_map<'a>(
+    map: Option<&'a HashMap<String, FluentValue>>,
+) -> Option<HashMap<&'a str, FluentValue<'a>>> {
     let mut new = HashMap::with_capacity(map.map(HashMap::len).unwrap_or(0));
 
     if let Some(map) = map {
