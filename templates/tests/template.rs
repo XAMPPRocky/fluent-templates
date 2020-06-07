@@ -1,19 +1,34 @@
 #![allow(unused)]
 
-fluent_templates::static_loader!(load, "./tests/locales", "en-US", core: "./tests/locales/core.ftl", customizer: |bundle| {
-    bundle.set_use_isolating(false)
-});
+fluent_templates::static_loader! {
+    static LOCALES = {
+        locales: "./templates/tests/locales",
+        fallback_language: "en-US",
+        core_locales: "./templates/tests/locales/core.ftl",
+        customise: |bundle| bundle.set_use_isolating(false),
+    };
+}
+
+fluent_templates::static_loader! {
+    static _LOCALES = {
+        locales: "./templates/tests/locales",
+        fallback_language: "en-US",
+        core_locales: "./templates/tests/locales/core.ftl",
+    };
+}
 
 macro_rules! make_loaders {
     () => {{
-        let static_loader = super::load();
         let arc = ArcLoader::builder("tests/locales", unic_langid::langid!("en-US"))
             .shared_resources(Some(&["./tests/locales/core.ftl".into()]))
             .customize(|bundle| bundle.set_use_isolating(false))
             .build()
             .unwrap();
 
-        (FluentHelper::new(static_loader), FluentHelper::new(arc))
+        (
+            FluentHelper::new(crate::LOCALES.clone()),
+            FluentHelper::new(arc),
+        )
     }};
 }
 

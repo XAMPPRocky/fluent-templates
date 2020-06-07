@@ -27,6 +27,20 @@ pub trait Loader {
     ) -> String;
 }
 
+impl<L> Loader for std::sync::Arc<L>
+where
+    L: Loader,
+{
+    fn lookup(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<String, FluentValue>>,
+    ) -> String {
+        L::lookup(self, lang, text_id, args)
+    }
+}
+
 /// Constructs a map of languages with a list of potential fallback languages.
 pub fn build_fallbacks(
     locales: &[LanguageIdentifier],
@@ -54,7 +68,7 @@ pub fn build_fallbacks(
 /// Creates a new static `FluentBundle` for `lang` using `resources`. Optionally
 /// shared resources can be specified with `core_resource` and the bundle can
 /// be customized with `customizer`.
-pub fn create_bundle(
+fn create_bundle(
     lang: LanguageIdentifier,
     resources: &'static [FluentResource],
     core_resource: Option<&'static FluentResource>,
@@ -76,22 +90,6 @@ pub fn create_bundle(
     bundle
 }
 
-/// Builds a map of languages and their available resources based on `dir`.
-pub fn build_resources(
-    dir: impl AsRef<std::path::Path>,
-) -> HashMap<LanguageIdentifier, Vec<FluentResource>> {
-    let mut all_resources = HashMap::new();
-    for entry in std::fs::read_dir(dir).unwrap().map(Result::unwrap) {
-        if entry.file_type().unwrap().is_dir() {
-            if let Ok(lang) = entry.file_name().into_string() {
-                let resources = crate::fs::read_from_dir(entry.path()).unwrap();
-                all_resources.insert(lang.parse().unwrap(), resources);
-            }
-        }
-    }
-    all_resources
-}
-
 /// Maps from map of languages containing a list of resources to a map of
 /// languages containing a `FluentBundle` of those resources.
 pub fn build_bundles(
@@ -107,11 +105,6 @@ pub fn build_bundles(
         );
     }
     bundles
-}
-
-/// Attempts to load a core resource and panicks if not found.
-pub fn load_core_resource(path: &str) -> FluentResource {
-    crate::fs::read_from_file(path).expect("cannot find core resource")
 }
 
 fn map_to_str_map<'a>(

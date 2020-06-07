@@ -9,50 +9,92 @@
 //! Currently this crate provides two different kinds of loaders that cover two
 //! main use cases.
 //!
-//! - [`static_loader!`] — A macro that generates a loader that loads the
-//!   localisations into static memory. Useful for when your localisations are
-//!   known at **compile-time**.
-//! - [`ArcLoader`] — A struct that atomically stores and reference counts the
-//!   localisations. Useful for when your localisations are only known at
-//!   **run-time**.
+//! - [`static_loader!`] — A procedural macro that loads your fluent resources
+//!   at **compile-time** into your binary and creates a new
+//!   [`StaticLoader`] static variable that allows you to access the
+//!   localisations. `static_loader!` is most useful when you want to localise
+//!   your application and want to ship your fluent resources with your binary.
 //!
-//! ## Example
+//! - [`ArcLoader`] — A struct that loads your fluent resources at run-time
+//!   using `Arc` as its backing storage. `ArcLoader` is most useful for when
+//!   you want to be able to change and/or update localisations at run-time, or
+//!   if you're writing a developer tool that wants to provide fluent
+//!   localisation in your own application such as a static site generator.
+//!
+//!
+//! ## `static_loader!`
 //! The easiest way to use `fluent-templates` is to use the [`static_loader!`]
-//! macro:
+//! procedural macro that will create a new [`StaticLoader`] static variable
+//! behind a `Arc` pointer.
 //!
+//! ```
+//! fluent_templates::static_loader! {
+//!     // Declare our `StaticLoader` named `LOCALES`.
+//!     static LOCALES = {
+//!         // The directory of localisations and fluent resources.
+//!         locales: "./tests/locales",
+//!         // The language to falback on if something is not present.
+//!         fallback_language: "en-US",
+//!         // Optional: A shared fluent resource
+//!         core_locales: "./tests/locales/core.ftl",
+//!         // Optional: A function that is run over each fluent bundle.
+//!         customise: |bundle| bundle.set_use_isolating(false),
+//!     };
+//! }
+//! # fn main() {}
+//! ```
+//!
+//! ### Looking up fluent resources
 //! ```rust
-//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
+//! fluent_templates::static_loader! {
+//!     static LOCALES = {
+//!         locales: "./tests/locales",
+//!         fallback_language: "en-US",
+//!     };
+//! }
+//!
+//! # fn main() {}
 //! ```
 //!
 //! ### Tera
 //! ```rust
-//! # #[cfg(feature = "handlebars")] {
+//! fluent_templates::static_loader! {
+//!     static LOCALES = {
+//!         locales: "./tests/locales",
+//!         fallback_language: "en-US",
+//!     };
+//! }
+//!
+//!
+//! # #[cfg(feature = "tera")] const _: () = {
 //! use tera::Tera;
 //!
-//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
-//!
 //! fn init(tera: &mut Tera) {
-//!     let loader = create_loader();
-//!     let helper = fluent_templates::FluentHelper::new(loader);
+//!     let helper = fluent_templates::FluentHelper::new(LOCALES.clone());
 //!     tera.register_function("fluent", helper);
 //! }
 //!
 //! fn render_page(tera: &mut Tera, ctx: &tera::Context) -> String {
 //!     tera.render_str(r#"{{ fluent(key="foo-bar", lang="en") }} baz"#, ctx).unwrap()
 //! }
-//! # }
+//! # };
+//! # fn main() { }
 //! ```
 //!
 //! ### Handlebars
 //! ```rust
-//! # #[cfg(feature = "handlebars")] {
+//! fluent_templates::static_loader! {
+//!     static LOCALES = {
+//!         locales: "./tests/locales",
+//!         fallback_language: "en-US",
+//!     };
+//! }
+//!
+//! # #[cfg(feature = "handlebars")] const _: () = {
 //! use handlebars::Handlebars;
 //!
-//! fluent_templates::static_loader!(create_loader, "./locales/", "en-US");
-//!
 //! fn init(handlebars: &mut Handlebars) {
-//!     let loader = create_loader();
-//!     let helper = fluent_templates::FluentHelper::new(loader);
+//!     let helper = fluent_templates::FluentHelper::new(LOCALES.clone());
 //!     handlebars.register_helper("fluent", Box::new(helper));
 //! }
 //!
@@ -60,7 +102,8 @@
 //!     let data = serde_json::json!({"lang": "zh-CN"});
 //!     handlebars.render_template("{{fluent \"foo-bar\"}} baz", &data).unwrap()
 //! }
-//! # }
+//! # };
+//! # fn main() { }
 //! ```
 //!
 //! You should have a `locales/` folder somewhere with one folder per language
@@ -115,9 +158,16 @@ pub use helper::FluentHelper;
 pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, StaticLoader};
 
 mod error;
-mod fs;
+#[doc(hidden)]
+pub mod fs;
 mod helper;
 pub mod loader;
+
+#[cfg(feature = "macros")]
+pub use fluent_template_macros::static_loader;
+
+pub use arc_swap;
+pub use once_cell;
 
 /// A convenience `Result` type that defaults to `error::Loader`.
 pub type Result<T, E = error::LoaderError> = std::result::Result<T, E>;

@@ -12,6 +12,9 @@ categories = ["internationalization", "localization", "template-engine"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+macros = ["fluent-template-macros"]
+
 [dependencies]
 handlebars = { version = "3", optional = true }
 lazy_static = "1.2.0"
@@ -27,6 +30,9 @@ heck = "0.3.1"
 ignore = "0.4.16"
 flume = "0.7.1"
 log = "0.4.8"
+fluent-template-macros = { path = "../macros", optional = true }
+once_cell = "1.4.0"
+arc-swap = "0.4.7"
 
 [dev-dependencies]
 tempfile = "3.1.0"
