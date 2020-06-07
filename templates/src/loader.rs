@@ -8,7 +8,6 @@ mod handlebars;
 #[cfg(feature = "tera")]
 mod tera;
 
-
 use std::collections::HashMap;
 
 use fluent_bundle::concurrent::FluentBundle;

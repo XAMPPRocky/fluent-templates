@@ -155,11 +155,13 @@ pub extern crate lazy_static;
 pub extern crate fluent_bundle;
 
 pub use error::LoaderError;
-pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, FluentLoader, StaticLoader};
+pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, StaticLoader};
 
-#[doc(hidden)] pub mod fs;
-#[doc(hidden)] pub mod loader;
 mod error;
+#[doc(hidden)]
+pub mod fs;
+#[doc(hidden)]
+pub mod loader;
 
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;
