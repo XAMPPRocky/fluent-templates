@@ -12,7 +12,7 @@ use syn::{
 struct StaticLoader {
     name: Ident,
     locales_directory: syn::LitStr,
-    fallback_language: Option<syn::LitStr>,
+    fallback_language: syn::LitStr,
     core_locales: Option<syn::LitStr>,
     customise: Option<syn::ExprClosure>,
 }
@@ -53,6 +53,8 @@ impl Parse for StaticLoader {
         input.parse::<token::Semi>()?;
         let locales_directory = locales_directory
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `locales` field"))?;
+        let fallback_language = fallback_language
+            .ok_or_else(|| syn::Error::new(name.span(), "Missing `fallback_language` field"))?;
 
         Ok(Self {
             name,
@@ -203,6 +205,8 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
             )
         });
     };
+
+    // println!("{}", quote);
 
     proc_macro::TokenStream::from(quote)
 }
