@@ -1,10 +1,12 @@
 //! # Fluent Templates: Templating for Fluent
 //!
-//! This crate provides "loaders" that are able to load fluent strings based on
-//! simple language negotiation, and the `FluentLoader` which is a `Loader`
-//! agnostic container type that has optional trait implementations for popular
-//! templating engines such as handlebars or tera that allow it to be able to
-//! be used a function in your templates directly.
+//! `fluent-templates` lets you to easily integrate Fluent localisation into
+//! your Rust application or library. It does this by providing a high level
+//! "loader" API that loads fluent strings based on simple language negotiation,
+//! and the `FluentLoader` struct which is a `Loader` agnostic container type
+//! that comes with optional trait implementations for popular templating
+//! engines such as handlebars or tera that allow you to be able to use your
+//! localisations in your templates with no boilerplate.
 //!
 //! ## Loaders
 //! Currently this crate provides two different kinds of loaders that cover two
@@ -46,15 +48,31 @@
 //! ```
 //!
 //! ### Looking up fluent resources
-//! ```rust
-//! fluent_templates::static_loader! {
+//!
+//! #### Hello World
+//! ```fluent
+//!  # In `locales/en-US/main.ftl`
+//!  hello = Hello World!
+//!  # In `locales/fr/main.ftl`
+//!  hello = Bonjour le monde!
+//!  # In `locales/de/main.ftl`
+//!  hello = Hallo Welt!
+//! ```
+//!
+//! ```no_run
+//! use unic_langid::langid;
+//! use fluent_templates::{Loader, static_loader};
+//!
+//! static_loader! {
 //!     static LOCALES = {
 //!         locales: "./tests/locales",
 //!         fallback_language: "en-US",
 //!     };
 //! }
 //!
-//! # fn main() {}
+//! fn main() {
+//!     println!("{}", LOCALES.lookup(&langid!("en-US"), "hello", None));
+//! }
 //! ```
 //!
 //! ### Tera
@@ -146,6 +164,8 @@
 //!
 //! [variables]: https://projectfluent.org/fluent/guide/variables.html
 //! [`static_loader!`]: ./macro.static_loader.html
+//! [`StaticLoader`]: ./struct.StaticLoader.html
+//! [`ArcLoader`]: ./struct.ArcLoader.html
 #![warn(missing_docs)]
 
 #[doc(hidden)]
@@ -166,7 +186,9 @@ pub mod loader;
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;
 
+#[doc(hidden)]
 pub use arc_swap;
+#[doc(hidden)]
 pub use once_cell;
 
 /// A convenience `Result` type that defaults to `error::Loader`.
