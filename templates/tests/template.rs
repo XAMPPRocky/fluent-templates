@@ -26,8 +26,8 @@ macro_rules! make_loaders {
             .unwrap();
 
         (
-            FluentHelper::new(crate::LOCALES.clone()),
-            FluentHelper::new(arc),
+            FluentLoader::new(crate::LOCALES.clone()),
+            FluentLoader::new(arc),
         )
     }};
 }

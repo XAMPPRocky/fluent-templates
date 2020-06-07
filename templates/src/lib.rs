@@ -1,21 +1,22 @@
 //! # Fluent Templates: Templating for Fluent
 //!
 //! This crate provides "loaders" that are able to load fluent strings based on
-//! simple language negotiation, and the `FluentHelper` which is an opague
-//! type that provides the integration between a given templating engine such as
-//! handlebars or tera.
+//! simple language negotiation, and the `FluentLoader` which is a `Loader`
+//! agnostic container type that has optional trait implementations for popular
+//! templating engines such as handlebars or tera that allow it to be able to
+//! be used a function in your templates directly.
 //!
 //! ## Loaders
 //! Currently this crate provides two different kinds of loaders that cover two
 //! main use cases.
 //!
 //! - [`static_loader!`] — A procedural macro that loads your fluent resources
-//!   at **compile-time** into your binary and creates a new
-//!   [`StaticLoader`] static variable that allows you to access the
-//!   localisations. `static_loader!` is most useful when you want to localise
-//!   your application and want to ship your fluent resources with your binary.
+//!   at *compile-time* into your binary and creates a new [`StaticLoader`]
+//!   static variable that allows you to access the localisations.
+//!   `static_loader!` is most useful when you want to localise your
+//!   application and want to ship your fluent resources with your binary.
 //!
-//! - [`ArcLoader`] — A struct that loads your fluent resources at run-time
+//! - [`ArcLoader`] — A struct that loads your fluent resources at *run-time*
 //!   using `Arc` as its backing storage. `ArcLoader` is most useful for when
 //!   you want to be able to change and/or update localisations at run-time, or
 //!   if you're writing a developer tool that wants to provide fluent
@@ -70,7 +71,7 @@
 //! use tera::Tera;
 //!
 //! fn init(tera: &mut Tera) {
-//!     let helper = fluent_templates::FluentHelper::new(LOCALES.clone());
+//!     let helper = fluent_templates::FluentLoader::new(LOCALES.clone());
 //!     tera.register_function("fluent", helper);
 //! }
 //!
@@ -94,7 +95,7 @@
 //! use handlebars::Handlebars;
 //!
 //! fn init(handlebars: &mut Handlebars) {
-//!     let helper = fluent_templates::FluentHelper::new(LOCALES.clone());
+//!     let helper = fluent_templates::FluentLoader::new(LOCALES.clone());
 //!     handlebars.register_helper("fluent", Box::new(helper));
 //! }
 //!
@@ -154,14 +155,11 @@ pub extern crate lazy_static;
 pub extern crate fluent_bundle;
 
 pub use error::LoaderError;
-pub use helper::FluentHelper;
-pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, StaticLoader};
+pub use loader::{ArcLoader, ArcLoaderBuilder, Loader, FluentLoader, StaticLoader};
 
+#[doc(hidden)] pub mod fs;
+#[doc(hidden)] pub mod loader;
 mod error;
-#[doc(hidden)]
-pub mod fs;
-mod helper;
-pub mod loader;
 
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;

@@ -35,7 +35,7 @@ fn json_to_fluent(json: Json) -> crate::Result<FluentValue<'static>, Error> {
     }
 }
 
-impl<L: Loader + Send + Sync> tera::Function for crate::FluentHelper<L> {
+impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
     fn call(&self, args: &HashMap<String, Json>) -> Result<Json, tera::Error> {
         let lang = args
             .get(LANG_KEY)

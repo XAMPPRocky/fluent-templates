@@ -2,6 +2,13 @@
 //! implementations, as well as the `Loader` trait. Which provides a loader
 //! agnostic interface.
 
+#[cfg(feature = "handlebars")]
+mod handlebars;
+
+#[cfg(feature = "tera")]
+mod tera;
+
+
 use std::collections::HashMap;
 
 use fluent_bundle::concurrent::FluentBundle;
@@ -38,6 +45,19 @@ where
         args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
         L::lookup(self, lang, text_id, args)
+    }
+}
+
+/// A `Loader` agnostic container type.
+#[allow(dead_code)]
+pub struct FluentLoader<L> {
+    loader: L,
+}
+
+impl<L> FluentLoader<L> {
+    /// Create a new `FluentLoader`.
+    pub fn new(loader: L) -> Self {
+        Self { loader }
     }
 }
 

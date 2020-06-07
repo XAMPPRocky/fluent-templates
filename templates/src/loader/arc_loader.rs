@@ -84,7 +84,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// mainly useful for when you need to load fluent at run time. You can
 /// configure the initialisation with `ArcLoaderBuilder`.
 /// ```no_run
-/// use fluent_templates::{ArcLoader, FluentHelper};
+/// use fluent_templates::ArcLoader;
 ///
 /// let loader = ArcLoader::builder("locales/", unic_langid::langid!("en-US"))
 ///     .shared_resources(Some(&["locales/core.ftl".into()]))

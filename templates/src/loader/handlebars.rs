@@ -8,7 +8,7 @@ use handlebars::template::{Parameter, TemplateElement};
 use serde_json::Value as Json;
 use std::collections::HashMap;
 
-use crate::{FluentHelper, Loader};
+use crate::{FluentLoader, Loader};
 
 #[derive(Default)]
 struct StringOutput {
@@ -22,7 +22,7 @@ impl Output for StringOutput {
     }
 }
 
-impl<L: Loader + Send + Sync> HelperDef for FluentHelper<L> {
+impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
     fn call<'reg: 'rc, 'rc>(
         &self,
         h: &Helper<'reg, 'rc>,
