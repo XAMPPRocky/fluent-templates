@@ -265,9 +265,9 @@ especially if you need them to be multiline.
 
 
 [variables]: https://projectfluent.org/fluent/guide/variables.html
-[`static_loader!`]: https://docs.rs/fluent-templates/0.5.1/fluent-templates/macro.static_loader.html
-[`StaticLoader`]: https://docs.rs/fluent-templates/0.5.1/fluent-templates/struct.StaticLoader.html
-[`ArcLoader`]: https://docs.rs/fluent-templates/0.5.1/fluent-templates/struct.ArcLoader.html
-[`Loader`]:https://docs.rs/fluent-templates/0.5.1/fluent-templates/trait.Loader.html
+[`static_loader!`]: https://docs.rs/fluent-templates/0.5.1/fluent_templates/macro.static_loader.html
+[`StaticLoader`]: https://docs.rs/fluent-templates/0.5.1/fluent_templates/struct.StaticLoader.html
+[`ArcLoader`]: https://docs.rs/fluent-templates/0.5.1/fluent_templates/struct.ArcLoader.html
+[`Loader`]:https://docs.rs/fluent-templates/0.5.1/fluent_templates/trait.Loader.html
 [`handlebars::Context`]: https://docs.rs/handlebars/3.1.0/handlebars/struct.Context.html
 [fluent]: https://projectfluent.org
