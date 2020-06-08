@@ -36,7 +36,7 @@ The easiest way to use `fluent-templates` is to use the [`static_loader!`]
 procedural macro that will create a new [`StaticLoader`] static variable.
 
 ### Basic Example
-```
+```rust
 fluent_templates::static_loader! {
     // Declare our `StaticLoader` named `LOCALES`.
     static LOCALES = {
@@ -48,13 +48,12 @@ fluent_templates::static_loader! {
         core_locales: "./tests/locales/core.ftl",
     };
 }
-# fn main() {}
 ```
 
 ### Customise Example
 You can also modify each `FluentBundle` on initialisation to be able to
 change configuration or add resources from Rust.
-```
+```rust
 use fluent_bundle::FluentResource;
 use fluent_templates::static_loader;
 use once_cell::sync::Lazy;
@@ -86,7 +85,6 @@ static_loader! {
         }
     };
 }
-# fn main() {}
 ```
 
 ## Locales Directory
@@ -131,7 +129,7 @@ provide any additional arguments as needed with `lookup_with_args`.
  greeting = Hallo { $name }!
 ```
 
-```
+```rust
 use std::collections::HashMap;
 
 use unic_langid::{LanguageIdentifier, langid};
