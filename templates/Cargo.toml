@@ -1,6 +1,6 @@
 [package]
 name = "fluent-templates"
-version = "0.5.3"
+version = "0.5.4"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
 description = "Templating for the Fluent localization framework"
