@@ -7,9 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cargo fmt -- --check
-      - run: cargo build && cargo build --all-features
-      - run: cargo test && cargo test --all-features
+      - run: cargo build --workspace && cargo build --all-features --workspace 
+      - run: cargo test --workspace  && cargo test --all-features --workspace 
   feature_tests:
     runs-on: ${{ matrix.os }}-latest
     strategy:
@@ -18,5 +17,5 @@ jobs:
         feature: [handlebars, tera]
     steps:
       - uses: actions/checkout@v2
-      - run: cargo build --feature ${{ matrix.feature }}
-      - run: cargo test --verbose --feature ${{ matrix.feature }}
+      - run: cargo build --workspace --feature ${{ matrix.feature }}
+      - run: cargo test --workspace --verbose --feature ${{ matrix.feature }}
