@@ -135,9 +135,9 @@ use std::collections::HashMap;
 use unic_langid::{LanguageIdentifier, langid};
 use fluent_templates::{Loader, static_loader};
 
-onst US_ENGLISH: LanguageIdentifier = langid!("en-US");
-onst FRENCH: LanguageIdentifier = langid!("fr");
-onst GERMAN: LanguageIdentifier = langid!("de");
+const US_ENGLISH: LanguageIdentifier = langid!("en-US");
+const FRENCH: LanguageIdentifier = langid!("fr");
+const GERMAN: LanguageIdentifier = langid!("de");
 
 static_loader! {
     static LOCALES = {
