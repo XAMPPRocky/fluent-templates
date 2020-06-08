@@ -18,6 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-        cd fluent-templates
-        cargo build --features ${{ matrix.feature }}
-        cargo test --features ${{ matrix.feature }} --verbose
+          cd fluent-templates
+          cargo build --features ${{ matrix.feature }}
+          cargo test --features ${{ matrix.feature }} --verbose
