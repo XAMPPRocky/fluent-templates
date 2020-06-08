@@ -188,7 +188,6 @@ static_loader! {
 }
 
 fn main() {
-#   #[cfg(feature = "tera")] {
         let mut tera = tera::Tera::default();
         let ctx = tera::Context::default();
         tera.register_function("fluent", FluentLoader::new(&*LOCALES));
@@ -201,7 +200,6 @@ fn main() {
             tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
         );
     }
-# }
 ```
 
 ### Handlebars
@@ -222,13 +220,11 @@ static_loader! {
 }
 
 fn main() {
-# #[cfg(feature = "handlebars")] {
     let mut handlebars = handlebars::Handlebars::new();
     handlebars.register_helper("fluent", Box::new(FluentLoader::new(&*LOCALES)));
     let data = serde_json::json!({"lang": "zh-CN"});
     assert_eq!("Hello World!", handlebars.render_template(r#"{{fluent "hello-world"}}"#, &data).unwrap());
     assert_eq!("Hello Alice!", handlebars.render_template(r#"{{fluent "greeting" name="Alice"}}"#, &data).unwrap());
-# }
 }
 ```
 
