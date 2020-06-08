@@ -188,18 +188,18 @@ static_loader! {
 }
 
 fn main() {
-        let mut tera = tera::Tera::default();
-        let ctx = tera::Context::default();
-        tera.register_function("fluent", FluentLoader::new(&*LOCALES));
-        assert_eq!(
-            "Hello World!",
-            tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
-        );
-        assert_eq!(
-            "Hello Alice!",
-            tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
-        );
-    }
+    let mut tera = tera::Tera::default();
+    let ctx = tera::Context::default();
+    tera.register_function("fluent", FluentLoader::new(&*LOCALES));
+    assert_eq!(
+        "Hello World!",
+        tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
+    );
+    assert_eq!(
+        "Hello Alice!",
+        tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
+    );
+}
 ```
 
 ### Handlebars
