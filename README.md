@@ -1,6 +1,6 @@
 # Fluent Templates: A High level Fluent API.
 
-![CI Status](https://github.com/XAMPPRocky/fluent-templates/workflows/Rust/badge.svg?branch=master&event=push)
+![Build & Test](https://github.com/XAMPPRocky/fluent-templates/workflows/Build%20&%20Test/badge.svg)
 [![crates.io](https://img.shields.io/crates/d/fluent-templates.svg)](https://crates.io/crates/fluent-templates)
 [![Help Wanted](https://img.shields.io/github/issues/XAMPPRocky/fluent-templates/help%20wanted?color=green)](https://github.com/XAMPPRocky/fluent-templates/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/fluent-templates?category=code)](https://github.com/XAMPPRocky/tokei)
