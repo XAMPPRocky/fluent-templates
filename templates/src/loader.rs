@@ -25,11 +25,7 @@ pub use static_loader::StaticLoader;
 /// A loader capable of looking up Fluent keys given a language.
 pub trait Loader {
     /// Look up `text_id` for `lang` in Fluent.
-    fn lookup(
-        &self,
-        lang: &LanguageIdentifier,
-        text_id: &str,
-    ) -> String {
+    fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> String {
         self.lookup_complete(lang, text_id, None)
     }
 

@@ -24,10 +24,7 @@ macro_rules! make_loaders {
             .build()
             .unwrap();
 
-        (
-            FluentLoader::new(&*crate::LOCALES),
-            FluentLoader::new(arc),
-        )
+        (FluentLoader::new(&*crate::LOCALES), FluentLoader::new(arc))
     }};
 }
 
