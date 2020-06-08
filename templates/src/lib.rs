@@ -90,6 +90,8 @@
 //! `fluent-templates` will recurse through each language directory as needed
 //! and will respect any `.gitignore` or `.ignore` files present.
 //!
+//! [uli]: https://docs.rs/unic-langid/0.9.0/unic_langid/
+//!
 //! ### Example Layout
 //! ```text
 //! locales
