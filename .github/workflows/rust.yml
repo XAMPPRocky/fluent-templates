@@ -17,5 +17,7 @@ jobs:
         feature: [handlebars, tera]
     steps:
       - uses: actions/checkout@v2
-      - run: cargo build -p fluent-templates --features ${{ matrix.feature }}
-      - run: cargo test -p fluent-templates --features ${{ matrix.feature }} --verbose
+      - run: |
+        cd fluent-templates
+        cargo build --features ${{ matrix.feature }}
+        cargo test fluent-templates --features ${{ matrix.feature }} --verbose
