@@ -10,7 +10,7 @@ fluent_templates::static_loader! {
 }
 
 fluent_templates::static_loader! {
-    static _LOCALES = {
+    pub(crate) static _LOCALES = {
         locales: "./templates/tests/locales",
         fallback_language: "en-US"
     };

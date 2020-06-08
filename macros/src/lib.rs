@@ -10,6 +10,7 @@ use syn::{
 };
 
 struct StaticLoader {
+    vis: Option<syn::Visibility>,
     name: Ident,
     locales_directory: syn::LitStr,
     fallback_language: syn::LitStr,
@@ -19,6 +20,7 @@ struct StaticLoader {
 
 impl Parse for StaticLoader {
     fn parse(input: ParseStream) -> Result<Self> {
+        let vis = input.parse::<syn::Visibility>().ok();
         input.parse::<token::Static>()?;
         let name = input.parse::<Ident>()?;
         input.parse::<token::Eq>()?;
@@ -57,6 +59,7 @@ impl Parse for StaticLoader {
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `fallback_language` field"))?;
 
         Ok(Self {
+            vis,
             name,
             locales_directory,
             fallback_language,
@@ -145,6 +148,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         fallback_language,
         locales_directory,
         name,
+        vis,
         ..
     } = parse_macro_input!(input as StaticLoader);
     let CRATE_NAME: TokenStream = quote!(fluent_templates);
@@ -184,7 +188,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     };
 
     let quote = quote! {
-        static #name : #LAZY<#CRATE_NAME::StaticLoader> = #LAZY::new(|| {
+        #vis static #name : #LAZY<#CRATE_NAME::StaticLoader> = #LAZY::new(|| {
             static CORE_RESOURCE:
                 #LAZY<#FLUENT_RESOURCE> =
                 #LAZY::new(|| #CRATE_NAME::fs::resource_from_str(#core_contents).expect("Couldn't load core resources"),);
