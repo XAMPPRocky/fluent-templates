@@ -25,7 +25,7 @@ macro_rules! make_loaders {
             .unwrap();
 
         (
-            FluentLoader::new(crate::LOCALES.clone()),
+            FluentLoader::new(&*crate::LOCALES),
             FluentLoader::new(arc),
         )
     }};

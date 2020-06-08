@@ -115,6 +115,27 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
     rx.drain().collect::<Vec<_>>()
 }
 
+/// Loads all of your fluent resources at compile time as `&'static str`s and
+/// and creates a new `StaticLoader` static variable that you can use in your
+/// program. This allows you to easily ship your localisations as part of a
+/// single binary.
+///
+/// ### Example
+/// ```no_compile
+/// fluent_templates::static_loader! {
+///     // Declare our `StaticLoader` named `LOCALES`.
+///     static LOCALES = {
+///         // The directory of localisations and fluent resources.
+///         locales: "./tests/locales",
+///         // The language to falback on if something is not present.
+///         fallback_language: "en-US",
+///         // Optional: A shared fluent resource
+///         core_locales: "./tests/locales/core.ftl",
+///         // Optional: A function that is run over each fluent bundle.
+///         customise: |bundle| {},
+///     };
+/// }
+/// ```
 #[proc_macro]
 #[allow(non_snake_case)]
 pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -127,7 +148,6 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         ..
     } = parse_macro_input!(input as StaticLoader);
     let CRATE_NAME: TokenStream = quote!(fluent_templates);
-    let ARC: TokenStream = quote!(std::sync::Arc);
     let LAZY: TokenStream = quote!(#CRATE_NAME::once_cell::sync::Lazy);
     let LANGUAGE_IDENTIFIER: TokenStream = quote!(#CRATE_NAME::loader::LanguageIdentifier);
     let FLUENT_BUNDLE: TokenStream = quote!(#CRATE_NAME::fluent_bundle::concurrent::FluentBundle);
@@ -164,7 +184,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     };
 
     let quote = quote! {
-        static #name : #LAZY<#ARC<#CRATE_NAME::StaticLoader>> = #LAZY::new(|| {
+        static #name : #LAZY<#CRATE_NAME::StaticLoader> = #LAZY::new(|| {
             static CORE_RESOURCE:
                 #LAZY<#FLUENT_RESOURCE> =
                 #LAZY::new(|| #CRATE_NAME::fs::resource_from_str(#core_contents).expect("Couldn't load core resources"),);
@@ -196,12 +216,10 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
                 #LAZY<#HASHMAP<#LANGUAGE_IDENTIFIER, Vec<#LANGUAGE_IDENTIFIER>>> =
                 #LAZY::new(|| #CRATE_NAME::loader::build_fallbacks(&*LOCALES));
 
-            #ARC::new(
-                #CRATE_NAME::StaticLoader::new(
-                    &BUNDLES,
-                    &FALLBACKS,
-                    #fallback_language.parse().expect("invalid fallback language")
-                )
+            #CRATE_NAME::StaticLoader::new(
+                &BUNDLES,
+                &FALLBACKS,
+                #fallback_language.parse().expect("invalid fallback language")
             )
         });
     };

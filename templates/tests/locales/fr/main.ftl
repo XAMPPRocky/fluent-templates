@@ -1,3 +1,5 @@
+hello-world = Bonjour le monde!
+greeting = Bonjour { $name }!
 simple = texte simple
 reference = texte simple avec une référence: { -something }
 

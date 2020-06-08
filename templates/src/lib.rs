@@ -1,4 +1,4 @@
-//! # Fluent Templates: Templating for Fluent
+//! # Fluent Templates: A High level Fluent API.
 //!
 //! `fluent-templates` lets you to easily integrate Fluent localisation into
 //! your Rust application or library. It does this by providing a high level
@@ -27,9 +27,9 @@
 //!
 //! ## `static_loader!`
 //! The easiest way to use `fluent-templates` is to use the [`static_loader!`]
-//! procedural macro that will create a new [`StaticLoader`] static variable
-//! behind a `Arc` pointer.
+//! procedural macro that will create a new [`StaticLoader`] static variable.
 //!
+//! ### Basic Example
 //! ```
 //! fluent_templates::static_loader! {
 //!     // Declare our `StaticLoader` named `LOCALES`.
@@ -38,134 +38,235 @@
 //!         locales: "./tests/locales",
 //!         // The language to falback on if something is not present.
 //!         fallback_language: "en-US",
-//!         // Optional: A shared fluent resource
+//!         // Optional: A fluent resource that is shared with every locale.
 //!         core_locales: "./tests/locales/core.ftl",
-//!         // Optional: A function that is run over each fluent bundle.
-//!         customise: |bundle| bundle.set_use_isolating(false),
 //!     };
 //! }
 //! # fn main() {}
 //! ```
 //!
-//! ### Looking up fluent resources
+//! ### Customise Example
+//! You can also modify each `FluentBundle` on initialisation to be able to
+//! change configuration or add resources from Rust.
+//! ```
+//! use fluent_bundle::FluentResource;
+//! use fluent_templates::static_loader;
+//! use once_cell::sync::Lazy;
 //!
-//! #### Hello World
-//! ```fluent
-//!  # In `locales/en-US/main.ftl`
-//!  hello = Hello World!
-//!  # In `locales/fr/main.ftl`
-//!  hello = Bonjour le monde!
-//!  # In `locales/de/main.ftl`
-//!  hello = Hallo Welt!
+//! static_loader! {
+//!     // Declare our `StaticLoader` named `LOCALES`.
+//!     static LOCALES = {
+//!         // The directory of localisations and fluent resources.
+//!         locales: "./tests/locales",
+//!         // The language to falback on if something is not present.
+//!         fallback_language: "en-US",
+//!         // Optional: A fluent resource that is shared with every locale.
+//!         core_locales: "./tests/locales/core.ftl",
+//!         // Optional: A function that is run over each fluent bundle.
+//!         customise: |bundle| {
+//!             // Since this will be called for each locale bundle and
+//!             // `FluentResource`s need to be either `&'static` or behind an
+//!             // `Arc` it's recommended you use lazily initialised
+//!             // static variables.
+//!             static CRATE_VERSION_FTL: Lazy<FluentResource> = Lazy::new(|| {
+//!                 let ftl_string = String::from(
+//!                     concat!("-crate-version = {}", env!("CARGO_PKG_VERSION"))
+//!                 );
+//!
+//!                 FluentResource::try_new(ftl_string).unwrap()
+//!             });
+//!
+//!             bundle.add_resource(&CRATE_VERSION_FTL);
+//!         }
+//!     };
+//! }
+//! # fn main() {}
 //! ```
 //!
-//! ```no_run
-//! use unic_langid::langid;
+//! ## Locales Directory
+//! `fluent-templates` will collect all subdirectories that match a valid
+//! [Unicode Language Identifier][uli] and bundle all fluent files found in
+//! those directories and map those resources to the respective identifier.
+//! `fluent-templates` will recurse through each language directory as needed
+//! and will respect any `.gitignore` or `.ignore` files present.
+//!
+//! ### Example Layout
+//! ```text
+//! locales
+//! ├── core.ftl
+//! ├── en-US
+//! │   └── main.ftl
+//! ├── fr
+//! │   └── main.ftl
+//! ├── zh-CN
+//! │   └── main.ftl
+//! └── zh-TW
+//!     └── main.ftl
+//! ```
+//!
+//! ### Looking up fluent resources
+//! You can use the [`Loader`] trait to `lookup` a given fluent resource, and
+//! provide any additional arguments as needed with `lookup_with_args`.
+//!
+//! #### Example
+//! ```fluent
+//!  # In `locales/en-US/main.ftl`
+//!  hello-world = Hello World!
+//!  greeting = Hello { $name }!
+//!
+//!  # In `locales/fr/main.ftl`
+//!  hello-world = Bonjour le monde!
+//!  greeting = Bonjour { $name }!
+//!
+//!  # In `locales/de/main.ftl`
+//!  hello-world = Hallo Welt!
+//!  greeting = Hallo { $name }!
+//! ```
+//!
+//! ```
+//! use std::collections::HashMap;
+//!
+//! use unic_langid::{LanguageIdentifier, langid};
 //! use fluent_templates::{Loader, static_loader};
+//!
+//!const US_ENGLISH: LanguageIdentifier = langid!("en-US");
+//!const FRENCH: LanguageIdentifier = langid!("fr");
+//!const GERMAN: LanguageIdentifier = langid!("de");
 //!
 //! static_loader! {
 //!     static LOCALES = {
 //!         locales: "./tests/locales",
 //!         fallback_language: "en-US",
+//!         // Removes unicode isolating marks around arguments, you typically
+//!         // should only set to false when testing.
+//!         customise: |bundle| bundle.set_use_isolating(false),
 //!     };
 //! }
 //!
 //! fn main() {
-//!     println!("{}", LOCALES.lookup(&langid!("en-US"), "hello", None));
+//!     assert_eq!("Hello World!", LOCALES.lookup(&US_ENGLISH, "hello-world"));
+//!     assert_eq!("Bonjour le monde!", LOCALES.lookup(&FRENCH, "hello-world"));
+//!     assert_eq!("Hallo Welt!", LOCALES.lookup(&GERMAN, "hello-world"));
+//!
+//!     let args = {
+//!         let mut map = HashMap::new();
+//!         map.insert(String::from("name"), "Alice".into());
+//!         map
+//!     };
+//!
+//!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
+//!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
+//!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
 //! }
 //! ```
 //!
 //! ### Tera
+//! With the `tera` feature you can use `FluentLoader` as a Tera function.
+//! It accepts a `key` parameter pointing to a fluent resource and `lang` for
+//! what language to get that key for. Optionally you can pass extra arguments
+//! to the function as arguments to the resource. `fluent-templates` will
+//! automatically convert argument keys from Tera's `snake_case` to the fluent's
+//! preferred `kebab-case` arguments.
+//!
 //! ```rust
-//! fluent_templates::static_loader! {
+//! use fluent_templates::{FluentLoader, static_loader};
+//!
+//! static_loader! {
 //!     static LOCALES = {
 //!         locales: "./tests/locales",
 //!         fallback_language: "en-US",
+//!         // Removes unicode isolating marks around arguments, you typically
+//!         // should only set to false when testing.
+//!         customise: |bundle| bundle.set_use_isolating(false),
 //!     };
 //! }
 //!
-//!
-//! # #[cfg(feature = "tera")] const _: () = {
-//! use tera::Tera;
-//!
-//! fn init(tera: &mut Tera) {
-//!     let helper = fluent_templates::FluentLoader::new(LOCALES.clone());
-//!     tera.register_function("fluent", helper);
-//! }
-//!
-//! fn render_page(tera: &mut Tera, ctx: &tera::Context) -> String {
-//!     tera.render_str(r#"{{ fluent(key="foo-bar", lang="en") }} baz"#, ctx).unwrap()
-//! }
-//! # };
-//! # fn main() { }
+//! fn main() {
+//! #   #[cfg(feature = "tera")] {
+//!         let mut tera = tera::Tera::default();
+//!         let ctx = tera::Context::default();
+//!         tera.register_function("fluent", FluentLoader::new(&*LOCALES));
+//!         assert_eq!(
+//!             "Hello World!",
+//!             tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
+//!         );
+//!         assert_eq!(
+//!             "Hello Alice!",
+//!             tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
+//!         );
+//!     }
+//! # }
 //! ```
 //!
 //! ### Handlebars
+//! In handlebars, `fluent-templates` will read the `lang` field in your
+//! [`handlebars::Context`] while rendering.
+//!
 //! ```rust
-//! fluent_templates::static_loader! {
+//! use fluent_templates::{FluentLoader, static_loader};
+//!
+//! static_loader! {
 //!     static LOCALES = {
 //!         locales: "./tests/locales",
 //!         fallback_language: "en-US",
+//!         // Removes unicode isolating marks around arguments, you typically
+//!         // should only set to false when testing.
+//!         customise: |bundle| bundle.set_use_isolating(false),
 //!     };
 //! }
 //!
-//! # #[cfg(feature = "handlebars")] const _: () = {
-//! use handlebars::Handlebars;
-//!
-//! fn init(handlebars: &mut Handlebars) {
-//!     let helper = fluent_templates::FluentLoader::new(LOCALES.clone());
-//!     handlebars.register_helper("fluent", Box::new(helper));
-//! }
-//!
-//! fn render_page(handlebars: &Handlebars) -> String {
+//! fn main() {
+//! # #[cfg(feature = "handlebars")] {
+//!     let mut handlebars = handlebars::Handlebars::new();
+//!     handlebars.register_helper("fluent", Box::new(FluentLoader::new(&*LOCALES)));
 //!     let data = serde_json::json!({"lang": "zh-CN"});
-//!     handlebars.render_template("{{fluent \"foo-bar\"}} baz", &data).unwrap()
+//!     assert_eq!("Hello World!", handlebars.render_template(r#"{{fluent "hello-world"}}"#, &data).unwrap());
+//!     assert_eq!("Hello Alice!", handlebars.render_template(r#"{{fluent "greeting" name="Alice"}}"#, &data).unwrap());
+//! # }
 //! }
-//! # };
-//! # fn main() { }
 //! ```
 //!
-//! You should have a `locales/` folder somewhere with one folder per language
-//! code, containing all of your FTL files. See the [`static_loader!`] macro
-//! for more options.
-//!
-//! Make sure the [`handlebars::Context`] has a top-level `"lang"` field when rendering.
-//!
 //! ### Handlebars helper syntax.
-//!
-//! The main helper provided is the `{{fluent}}` helper. If you have the following Fluent
-//! file:
+//! The main helper provided is the `{{fluent}}` helper. If you have the
+//! following Fluent file:
 //!
 //! ```fluent
 //! foo-bar = "foo bar"
 //! placeholder = this has a placeholder { $variable }
+//! placeholder2 = this has { $variable1 } { $variable2 }
 //! ```
 //!
 //! You can include the strings in your template with
 //!
 //! ```hbs
-//! {{fluent "foo-bar"}} <!-- will render "foo bar" -->
-//! {{fluent "placeholder" variable="baz"}} <!-- will render "this has a placeholder baz" -->
+//! <!-- will render "foo bar" -->
+//! {{fluent "foo-bar"}}
+//! <!-- will render "this has a placeholder baz" -->
+//! {{fluent "placeholder" variable="baz"}}
 //!```
 //!
-//! You may also use the `{{fluentparam}}` helper to specify [variables], especially if you need
-//! them to be multiline, like so:
+//! You may also use the `{{fluentparam}}` helper to specify [variables],
+//! especially if you need them to be multiline.
 //!
 //! ```hbs
-//! {{#fluent "placeholder"}}
-//!     {{#fluentparam "variable"}}
+//! {{#fluent "placeholder2"}}
+//!     {{#fluentparam "variable1"}}
+//!         first line
+//!         second line
+//!     {{/fluentparam}}
+//!     {{#fluentparam "variable2"}}
 //!         first line
 //!         second line
 //!     {{/fluentparam}}
 //! {{/fluent}}
 //! ```
 //!
-//! Multiple `{{fluentparam}}`s may be specified
 //!
 //! [variables]: https://projectfluent.org/fluent/guide/variables.html
 //! [`static_loader!`]: ./macro.static_loader.html
 //! [`StaticLoader`]: ./struct.StaticLoader.html
 //! [`ArcLoader`]: ./struct.ArcLoader.html
+//! [`handlebars::Context`]: https://docs.rs/handlebars/3.1.0/handlebars/struct.Context.html
 #![warn(missing_docs)]
 
 #[doc(hidden)]

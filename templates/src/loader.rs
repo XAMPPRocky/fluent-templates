@@ -24,8 +24,27 @@ pub use static_loader::StaticLoader;
 
 /// A loader capable of looking up Fluent keys given a language.
 pub trait Loader {
-    /// Look up `text_id` for `lang` in Fluent and, provides any `args` if present.
+    /// Look up `text_id` for `lang` in Fluent.
     fn lookup(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+    ) -> String {
+        self.lookup_complete(lang, text_id, None)
+    }
+
+    /// Look up `text_id` for `lang` with `args` in Fluent.
+    fn lookup_with_args(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: &HashMap<String, FluentValue>,
+    ) -> String {
+        self.lookup_complete(lang, text_id, Some(args))
+    }
+
+    /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
@@ -37,18 +56,32 @@ impl<L> Loader for std::sync::Arc<L>
 where
     L: Loader,
 {
-    fn lookup(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
-        L::lookup(self, lang, text_id, args)
+        L::lookup_complete(self, lang, text_id, args)
     }
 }
 
-/// A `Loader` agnostic container type.
-#[allow(dead_code)]
+impl<'a, L> Loader for &'a L
+where
+    L: Loader,
+{
+    fn lookup_complete(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<String, FluentValue>>,
+    ) -> String {
+        L::lookup_complete(self, lang, text_id, args)
+    }
+}
+
+/// A `Loader` agnostic container type with optional trait implementations
+/// for integrating with different libraries.
 pub struct FluentLoader<L> {
     loader: L,
 }

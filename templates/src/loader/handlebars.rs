@@ -120,7 +120,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             .parse()
             .expect("Language not valid identifier");
 
-        let response = self.loader.lookup(&lang, &id, args.as_ref());
+        let response = self.loader.lookup_complete(&lang, &id, args.as_ref());
         out.write(&response).map_err(RenderError::with)
     }
 }

@@ -6,7 +6,9 @@ use fluent_bundle::{FluentResource, FluentValue};
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 /// A simple Loader implementation, with statically-loaded fluent data.
-/// Typically created with the [`static_loader!()`] macro
+/// Typically created with the [`static_loader!`] macro
+///
+/// [`static_loader!`]: ./macro.static_loader.html
 pub struct StaticLoader {
     bundles: &'static HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>>,
     fallbacks: &'static HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
@@ -79,7 +81,7 @@ impl StaticLoader {
 
 impl super::Loader for StaticLoader {
     // Traverse the fallback chain,
-    fn lookup(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,

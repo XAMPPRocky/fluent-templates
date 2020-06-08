@@ -101,7 +101,7 @@ pub struct ArcLoader {
 
 impl super::Loader for ArcLoader {
     // Traverse the fallback chain,
-    fn lookup(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
