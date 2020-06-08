@@ -6,7 +6,7 @@
 [![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/fluent-templates?category=code)](https://github.com/XAMPPRocky/tokei)
 [![Documentation](https://docs.rs/fluent-templates/badge.svg)](https://docs.rs/fluent-templates/)
 
-`fluent-templates` lets you to easily integrate Fluent localisation into
+`fluent-templates` lets you to easily integrate [Fluent] localisation into
 your Rust application or library. It does this by providing a high level
 "loader" API that loads fluent strings based on simple language negotiation,
 and the `FluentLoader` struct which is a `Loader` agnostic container type
