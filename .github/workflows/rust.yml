@@ -5,10 +5,13 @@ on: [push, pull_request]
 jobs:
   no_and_all_features:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-gnu, wasm32-unknown-unknown]
     steps:
       - uses: actions/checkout@v2
-      - run: cargo build --workspace && cargo build --all-features --workspace 
-      - run: cargo test --workspace && cargo test --all-features --workspace 
+      - run: cargo build --workspace --target ${{ matrix.target }} && cargo test --workspace --target ${{ matrix.target }} 
+      - run: cargo build --all-features --workspace  --target ${{ matrix.target }} && cargo test --all-features --workspace ${{ matrix.target }}
   feature_tests:
     runs-on: ${{ matrix.os }}-latest
     strategy:
