@@ -10,6 +10,7 @@ jobs:
         target: [x86_64-unknown-linux-gnu, wasm32-unknown-unknown]
     steps:
       - uses: actions/checkout@v2
+      - run: rustup target add ${{ matrix.target }}
       - run: cargo build --workspace --target ${{ matrix.target }} && cargo test --workspace --target ${{ matrix.target }} 
       - run: cargo build --all-features --workspace  --target ${{ matrix.target }} && cargo test --all-features --workspace ${{ matrix.target }}
   feature_tests:
