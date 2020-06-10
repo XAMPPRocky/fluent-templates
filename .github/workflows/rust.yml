@@ -8,16 +8,13 @@ jobs:
     strategy:
       matrix:
         target: [x86_64-unknown-linux-gnu, wasm32-unknown-unknown]
-        include: 
-          - target: wasm32-unknown-unknown
-            no_test: true
     steps:
       - uses: actions/checkout@v2
       - run: rustup target add ${{ matrix.target }}
       - run: cargo build --workspace --target ${{ matrix.target }}
       - run: cargo build --workspace --target ${{ matrix.target }} --all-features
       - run: cargo test --workspace --target ${{ matrix.target }} && cargo test --workspace --target ${{ matrix.target }} --all-features
-        if: ${{ matrix.no_test }}
+        if: !contains(matrix.target, 'wasm')
   feature_tests:
     runs-on: ${{ matrix.os }}-latest
     strategy:
