@@ -14,7 +14,7 @@ jobs:
       - run: cargo build --workspace --target ${{ matrix.target }}
       - run: cargo build --workspace --target ${{ matrix.target }} --all-features
       - run: cargo test --workspace --target ${{ matrix.target }} && cargo test --workspace --target ${{ matrix.target }} --all-features
-        if: !contains(matrix.target, 'wasm')
+        if: contains(matrix.target, 'linux')
   feature_tests:
     runs-on: ${{ matrix.os }}-latest
     strategy:
