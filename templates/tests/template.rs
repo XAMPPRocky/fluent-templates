@@ -2,16 +2,16 @@
 
 fluent_templates::static_loader! {
     static LOCALES = {
-        locales: "./templates/tests/locales",
+        locales: "./tests/locales",
         fallback_language: "en-US",
-        core_locales: "./templates/tests/locales/core.ftl",
+        core_locales: "./tests/locales/core.ftl",
         customise: |bundle| bundle.set_use_isolating(false),
     };
 }
 
 fluent_templates::static_loader! {
     pub(crate) static _LOCALES = {
-        locales: "./templates/tests/locales",
+        locales: "./tests/locales",
         fallback_language: "en-US"
     };
 }

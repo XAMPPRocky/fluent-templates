@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use ignore::WalkBuilder;
 use proc_macro2::TokenStream;
@@ -12,14 +16,17 @@ use syn::{
 struct StaticLoader {
     vis: Option<syn::Visibility>,
     name: Ident,
-    locales_directory: syn::LitStr,
+    locales_directory: PathBuf,
     fallback_language: syn::LitStr,
-    core_locales: Option<syn::LitStr>,
+    core_locales: Option<PathBuf>,
     customise: Option<syn::ExprClosure>,
 }
 
 impl Parse for StaticLoader {
     fn parse(input: ParseStream) -> Result<Self> {
+        let workspace_path = std::path::PathBuf::from(
+            std::env::var("CARGO_MANIFEST_DIR").unwrap_or("./".to_owned()),
+        );
         let vis = input.parse::<syn::Visibility>().ok();
         input.parse::<token::Static>()?;
         let name = input.parse::<Ident>()?;
@@ -57,16 +64,21 @@ impl Parse for StaticLoader {
         let locales_directory = locales_directory
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `locales` field"))?;
 
-        if std::fs::metadata(locales_directory.value()).is_err() {
-            return Err(syn::Error::new(locales_directory.span(), "Couldn't read locales directory, this path should be relative to your crate's `Cargo.toml`."))
+        let locales_directory_path = workspace_path.join(locales_directory.value());
+
+        if std::fs::metadata(&locales_directory_path).is_err() {
+            return Err(syn::Error::new(locales_directory.span(), &format!("Couldn't read locales directory, this path should be relative to your crate's `Cargo.toml`. Looking for: {:?}", locales_directory_path)));
         }
 
-        if let Some(core_locales) = &core_locales {
-            if std::fs::metadata(core_locales.value()).is_err() {
-                return Err(syn::Error::new(core_locales.span(), "Couldn't read core fluent resource, this path should be relative to your crate's `Cargo.toml`."))
+        let core_locales = if let Some(core_locales) = &core_locales {
+            let core_locales_path = workspace_path.join(core_locales.value());
+            if std::fs::metadata(&core_locales_path).is_err() {
+                return Err(syn::Error::new(core_locales.span(), "Couldn't read core fluent resource, this path should be relative to your crate's `Cargo.toml`."));
             }
-
-        }
+            Some(core_locales_path)
+        } else {
+            None
+        };
 
         let fallback_language = fallback_language
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `fallback_language` field"))?;
@@ -74,7 +86,7 @@ impl Parse for StaticLoader {
         Ok(Self {
             vis,
             name,
-            locales_directory,
+            locales_directory: locales_directory_path,
             fallback_language,
             core_locales,
             customise,
@@ -172,15 +184,15 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     let HASHMAP: TokenStream = quote!(std::collections::HashMap);
 
     let core_contents = if let Some(core_locales) = &core_locales {
-        match std::fs::read_to_string(core_locales.value()) {
+        match std::fs::read_to_string(core_locales) {
             Ok(string) => string,
-            Err(_) => panic!("Couldn't read {}", core_locales.value()),
+            Err(_) => panic!("Couldn't read {:?}", core_locales),
         }
     } else {
         String::new()
     };
 
-    let insert_resources = build_resources(locales_directory.value())
+    let insert_resources = build_resources(locales_directory)
         .into_iter()
         .map(|(locale, resources)| {
             quote!(
