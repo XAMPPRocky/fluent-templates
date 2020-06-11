@@ -26,10 +26,10 @@ impl Parse for StaticLoader {
         input.parse::<token::Eq>()?;
         let fields;
         braced!(fields in input);
-        let mut core_locales = None;
+        let mut core_locales: Option<syn::LitStr> = None;
         let mut customise = None;
         let mut fallback_language = None;
-        let mut locales_directory = None;
+        let mut locales_directory: Option<syn::LitStr> = None;
 
         while !fields.is_empty() {
             let k = fields.parse::<Ident>()?;
@@ -53,8 +53,21 @@ impl Parse for StaticLoader {
             fields.parse::<token::Comma>()?;
         }
         input.parse::<token::Semi>()?;
+
         let locales_directory = locales_directory
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `locales` field"))?;
+
+        if std::fs::metadata(locales_directory.value()).is_err() {
+            return Err(syn::Error::new(locales_directory.span(), "Couldn't read locales directory, this path should be relative to your crate's `Cargo.toml`."))
+        }
+
+        if let Some(core_locales) = &core_locales {
+            if std::fs::metadata(core_locales.value()).is_err() {
+                return Err(syn::Error::new(core_locales.span(), "Couldn't read core fluent resource, this path should be relative to your crate's `Cargo.toml`."))
+            }
+
+        }
+
         let fallback_language = fallback_language
             .ok_or_else(|| syn::Error::new(name.span(), "Missing `fallback_language` field"))?;
 
