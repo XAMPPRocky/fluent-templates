@@ -25,7 +25,7 @@ struct StaticLoader {
 impl Parse for StaticLoader {
     fn parse(input: ParseStream) -> Result<Self> {
         let workspace_path = std::path::PathBuf::from(
-            std::env::var("CARGO_MANIFEST_DIR").unwrap_or("./".to_owned()),
+            std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| String::from("./")),
         );
         let vis = input.parse::<syn::Visibility>().ok();
         input.parse::<token::Static>()?;
