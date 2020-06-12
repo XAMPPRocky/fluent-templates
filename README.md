@@ -253,7 +253,7 @@ You can include the strings in your template with
 {{fluent "foo-bar"}}
 <!-- will render "this has a placeholder baz" -->
 {{fluent "placeholder" variable="baz"}}
-``
+```
 
 You may also use the `{{fluentparam}}` helper to specify [variables],
 especially if you need them to be multiline.
