@@ -131,8 +131,7 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
                     .map_or(false, fs::FileType::is_file)
                     && entry.path().extension().map_or(false, |e| e == "ftl")
                 {
-                    tx.send(std::fs::read_to_string(entry.path()).unwrap())
-                        .unwrap();
+                    tx.send(entry.path().display().to_string()).unwrap();
                 }
             }
 
@@ -198,7 +197,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
             quote!(
                 resources.insert(
                     #locale.parse().unwrap(),
-                    vec![#(#CRATE_NAME::fs::resource_from_str(#resources).unwrap(),)*]
+                    vec![#(#CRATE_NAME::fs::resource_from_str(include_str!(#resources)).unwrap(),)*]
                 );
             )
         })
