@@ -182,13 +182,16 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     let FLUENT_RESOURCE: TokenStream = quote!(#CRATE_NAME::fluent_bundle::FluentResource);
     let HASHMAP: TokenStream = quote!(std::collections::HashMap);
 
-    let core_contents = if let Some(core_locales) = &core_locales {
-        match std::fs::read_to_string(core_locales) {
-            Ok(string) => string,
-            Err(_) => panic!("Couldn't read {:?}", core_locales),
-        }
+    let core_resource = if let Some(core_locales) = &core_locales {
+        let core_locales = core_locales.display().to_string();
+        quote!(
+            Some(
+                #CRATE_NAME::fs::resource_from_str(include_str!(#core_locales))
+                    .expect("Couldn't load core resources")
+            )
+        )
     } else {
-        String::new()
+        quote!(None)
     };
 
     let insert_resources = build_resources(locales_directory)
@@ -214,8 +217,8 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     let quote = quote! {
         #vis static #name : #LAZY<#CRATE_NAME::StaticLoader> = #LAZY::new(|| {
             static CORE_RESOURCE:
-                #LAZY<#FLUENT_RESOURCE> =
-                #LAZY::new(|| #CRATE_NAME::fs::resource_from_str(#core_contents).expect("Couldn't load core resources"),);
+                #LAZY<Option<#FLUENT_RESOURCE>> =
+                #LAZY::new(|| { #core_resource });
 
             static RESOURCES:
                 #LAZY<#HASHMAP<#LANGUAGE_IDENTIFIER, Vec<#FLUENT_RESOURCE>>> =
@@ -231,7 +234,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
                 #LAZY::new(||  {
                     #CRATE_NAME::loader::build_bundles(
                         &*RESOURCES,
-                        Some(&CORE_RESOURCE),
+                        CORE_RESOURCE.as_ref(),
                         #customise
                     )
                 });
