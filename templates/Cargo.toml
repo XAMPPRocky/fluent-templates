@@ -1,6 +1,6 @@
 [package]
 name = "fluent-templates"
-version = "0.5.6"
+version = "0.5.9"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
 description = "Templating for the Fluent localization framework"
@@ -34,7 +34,7 @@ heck = "0.3.1"
 ignore = "0.4.16"
 flume = "0.7.1"
 log = "0.4.8"
-fluent-template-macros = { path = "../macros", optional = true, version = "=0.5.8" }
+fluent-template-macros = { path = "../macros", optional = true, version = "=0.5.9" }
 once_cell = "1.4.0"
 arc-swap = "0.4.7"
 
