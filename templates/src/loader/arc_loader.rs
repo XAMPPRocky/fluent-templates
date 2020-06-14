@@ -6,6 +6,8 @@ use std::sync::Arc;
 use fluent_bundle::concurrent::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
+use crate::error::LoaderError;
+
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 /// A builder pattern struct for constructing `ArcLoader`s.
@@ -53,13 +55,13 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle
                     .add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
-                    .expect("Failed to add core FTL resources to the bundle.");
+                    .map_err(LoaderError::from)?;
             }
 
             for res in v {
                 bundle
                     .add_resource(res.clone())
-                    .expect("Failed to add FTL resources to the bundle.");
+                    .map_err(LoaderError::from)?;
             }
 
             if let Some(customize) = self.customize {
