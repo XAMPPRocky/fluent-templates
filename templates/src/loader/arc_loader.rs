@@ -55,7 +55,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle
                     .add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
-                    .map_err(|errors| LoaderError::FluentSharedBundle{errors, path: shared_resource.clone()})?;
+                    .map_err(|errors| LoaderError::FluentBundle{errors})?;
             }
 
             for res in v {
