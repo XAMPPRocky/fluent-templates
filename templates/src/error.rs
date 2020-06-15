@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::fmt;
 
 /// Errors that can occur when loading or parsing fluent resources.
@@ -20,17 +21,19 @@ pub enum LoaderError {
         source: FluentError,
     },
     /// An error was found whilst loading a bundle at runtime.
+    #[snafu(display("Failed to add shared FTL resources to the bundle"))]
+    FluentSharedBundle {
+        /// The original bundle errors
+        errors: Vec<fluent_bundle::FluentError>,
+        /// The path to the shared bundle
+        path: PathBuf,
+    },
+    /// An error was found whilst loading a bundle at runtime.
     #[snafu(display("Failed to add FTL resources to the bundle"))]
     FluentBundle {
         /// The original bundle errors
         errors: Vec<fluent_bundle::FluentError>
     },
-}
-
-impl From<Vec<fluent_bundle::FluentError>> for LoaderError {
-    fn from(errors: Vec<fluent_bundle::FluentError>) -> Self {
-        LoaderError::FluentBundle{errors}
-    }
 }
 
 /// A wrapper struct around `Vec<fluent_syntax::parser::ParserError>`.

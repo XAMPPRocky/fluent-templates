@@ -55,13 +55,13 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle
                     .add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
-                    .map_err(LoaderError::from)?;
+                    .map_err(|errors| LoaderError::FluentSharedBundle{errors, path: shared_resource.clone()})?;
             }
 
             for res in v {
                 bundle
                     .add_resource(res.clone())
-                    .map_err(LoaderError::from)?;
+                    .map_err(|errors| LoaderError::FluentBundle{errors})?;
             }
 
             if let Some(customize) = self.customize {
