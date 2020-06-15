@@ -19,6 +19,12 @@ pub enum LoaderError {
         #[snafu(source(from(Vec<fluent_syntax::parser::ParserError>, FluentError::from)))]
         source: FluentError,
     },
+    /// An error was found whilst loading a bundle at runtime.
+    #[snafu(display("Failed to add FTL resources to the bundle"))]
+    FluentBundle {
+        /// The original bundle errors
+        errors: Vec<fluent_bundle::FluentError>
+    },
 }
 
 /// A wrapper struct around `Vec<fluent_syntax::parser::ParserError>`.
