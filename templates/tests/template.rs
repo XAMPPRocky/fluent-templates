@@ -154,4 +154,35 @@ mod tera {
             assert_eq!(r#"{{ fluent(key="fallback", lang="{lang}") }}"#, "this should fall back");
         }
     }
+
+    /// Default lang argument works
+    #[test]
+    fn use_default_lang() {
+        let loader = FluentLoader::new(&*super::LOCALES).with_default_lang("de".parse().unwrap());
+        let mut tera = tera::Tera::default();
+        tera.register_function("fluent", loader);
+        let context = tera::Context::new();
+        assert_eq!(
+            tera.render_str(r#"{{ fluent(key="hello-world") }}"#, &context)
+                .unwrap(),
+            "Hallo Welt!"
+        );
+        assert_eq!(
+            tera.render_str(r#"{{ fluent(key="hello-world", lang="fr") }}"#, &context)
+                .unwrap(),
+            "Bonjour le monde!"
+        );
+    }
+
+    /// Rendering fails when no default and no explicit lang argument is provided
+    #[test]
+    fn no_default_and_no_argument_error() {
+        let loader = FluentLoader::new(&*super::LOCALES);
+        let mut tera = tera::Tera::default();
+        tera.register_function("fluent", loader);
+        let context = tera::Context::new();
+        assert!(tera
+            .render_str(r#"{{ fluent(key="hellow-world") }}"#, &context)
+            .is_err());
+    }
 }
