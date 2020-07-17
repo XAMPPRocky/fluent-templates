@@ -80,12 +80,23 @@ where
 /// for integrating with different libraries.
 pub struct FluentLoader<L> {
     loader: L,
+    default_lang: Option<LanguageIdentifier>,
 }
 
 impl<L> FluentLoader<L> {
     /// Create a new `FluentLoader`.
     pub fn new(loader: L) -> Self {
-        Self { loader }
+        Self {
+            loader,
+            default_lang: None,
+        }
+    }
+
+    pub fn with_default_lang(self, lang: LanguageIdentifier) -> Self {
+        Self {
+            loader: self.loader,
+            default_lang: Some(lang),
+        }
     }
 }
 
