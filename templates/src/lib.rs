@@ -170,6 +170,10 @@
 //! automatically convert argument keys from Tera's `snake_case` to the fluent's
 //! preferred `kebab-case` arguments.
 //!
+//! ```toml
+//!fluent-templates = { version = "*", features = ["tera"] }
+//!```
+//!
 //! ```rust
 //! use fluent_templates::{FluentLoader, static_loader};
 //!
@@ -203,6 +207,10 @@
 //! ### Handlebars
 //! In handlebars, `fluent-templates` will read the `lang` field in your
 //! [`handlebars::Context`] while rendering.
+//!
+//! ```toml
+//!fluent-templates = { version = "*", features = ["handlebars"] }
+//!```
 //!
 //! ```rust
 //! use fluent_templates::{FluentLoader, static_loader};
