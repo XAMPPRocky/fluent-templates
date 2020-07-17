@@ -96,6 +96,7 @@ macro_rules! generate_tests {
     };
 }
 
+#[cfg(feature = "handlebars")]
 mod handlebars {
     generate_tests! {
         fn english(handlebars, "en-US") {
@@ -127,6 +128,7 @@ mod handlebars {
     }
 }
 
+#[cfg(feature = "tera")]
 mod tera {
     generate_tests! {
         fn english(tera, "en-US") {
