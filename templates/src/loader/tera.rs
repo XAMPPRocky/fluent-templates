@@ -2,6 +2,7 @@ use fluent_bundle::FluentValue;
 use serde_json::Value as Json;
 use snafu::OptionExt;
 use std::collections::HashMap;
+use unic_langid::LanguageIdentifier;
 
 use crate::Loader;
 
@@ -35,15 +36,22 @@ fn json_to_fluent(json: Json) -> crate::Result<FluentValue<'static>, Error> {
     }
 }
 
+fn parse_language(arg: &Json) -> crate::Result<LanguageIdentifier, Error> {
+    arg.as_str()
+        .context(self::LangArgumentInvalid)?
+        .parse::<LanguageIdentifier>()
+        .ok()
+        .context(self::LangArgumentInvalid)
+}
+
 impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
     fn call(&self, args: &HashMap<String, Json>) -> Result<Json, tera::Error> {
-        let lang = args
-            .get(LANG_KEY)
-            .and_then(Json::as_str)
-            .context(self::NoLangArgument)?
-            .parse::<unic_langid::LanguageIdentifier>()
-            .ok()
-            .context(self::LangArgumentInvalid)?;
+        let lang_arg = args.get(LANG_KEY).map(parse_language).transpose()?;
+        let lang = lang_arg
+            .as_ref()
+            .or(self.default_lang.as_ref())
+            .context(self::NoLangArgument)?;
+
         let id = args
             .get(FLUENT_KEY)
             .and_then(Json::as_str)
@@ -64,7 +72,7 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
             );
         }
 
-        let response = self.loader.lookup_with_args(&lang, &id, &fluent_args);
+        let response = self.loader.lookup_with_args(lang, &id, &fluent_args);
 
         Ok(Json::String(response))
     }

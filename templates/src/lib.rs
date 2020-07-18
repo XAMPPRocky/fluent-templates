@@ -168,7 +168,9 @@
 //! what language to get that key for. Optionally you can pass extra arguments
 //! to the function as arguments to the resource. `fluent-templates` will
 //! automatically convert argument keys from Tera's `snake_case` to the fluent's
-//! preferred `kebab-case` arguments.
+//! preferred `kebab-case` arguments. 
+//! The `lang` parameter is optional when the default language of the corresponding
+//! `FluentLoader` is set (see [`FluentLoader::with_default_lang`]).
 //!
 //! ```toml
 //!fluent-templates = { version = "*", features = ["tera"] }
@@ -276,6 +278,7 @@
 //! [`static_loader!`]: ./macro.static_loader.html
 //! [`StaticLoader`]: ./struct.StaticLoader.html
 //! [`ArcLoader`]: ./struct.ArcLoader.html
+//! [`FluentLoader::with_default_lang`]: ./struct.FluentLoader.html#method.with_default_lang
 //! [`handlebars::Context`]: https://docs.rs/handlebars/3.1.0/handlebars/struct.Context.html
 #![warn(missing_docs)]
 
