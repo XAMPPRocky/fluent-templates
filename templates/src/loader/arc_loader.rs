@@ -109,9 +109,11 @@ impl super::Loader for ArcLoader {
         text_id: &str,
         args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
-        for l in self.fallbacks.get(lang).expect("language not found") {
-            if let Some(val) = self.lookup_single_language(l, text_id, args) {
-                return val;
+        if let Some(fallbacks) = self.fallbacks.get(lang) {
+            for l in fallbacks {
+                if let Some(val) = self.lookup_single_language(l, text_id, args) {
+                    return val;
+                }
             }
         }
         if *lang != self.fallback {
@@ -168,7 +170,7 @@ impl ArcLoader {
                 None
             }
         } else {
-            panic!("Unknown language {}", lang)
+            None
         }
     }
 }
