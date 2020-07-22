@@ -121,9 +121,9 @@ fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<Stri
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
     let (tx, rx) = flume::unbounded();
 
-    WalkBuilder::new(path).build_parallel().run(|| {
-        Box::new(|result| {
-            let tx = tx.clone();
+    WalkBuilder::new(path).build_parallel().run( || {
+        let tx = tx.clone();
+        Box::new(move |result| {
             if let Ok(entry) = result {
                 if entry
                     .file_type()
