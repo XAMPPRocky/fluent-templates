@@ -46,6 +46,9 @@ pub trait Loader {
         text_id: &str,
         args: Option<&HashMap<String, FluentValue>>,
     ) -> String;
+
+    /// Returns an Iterator over the locales that are present.
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_>;
 }
 
 impl<L> Loader for std::sync::Arc<L>
@@ -60,6 +63,10 @@ where
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
     }
+
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
+        L::locales(self)
+    }
 }
 
 impl<'a, L> Loader for &'a L
@@ -73,6 +80,10 @@ where
         args: Option<&HashMap<String, FluentValue>>,
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
+    }
+
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
+        L::locales(self)
     }
 }
 

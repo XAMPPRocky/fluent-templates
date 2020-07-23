@@ -123,6 +123,10 @@ impl super::Loader for ArcLoader {
         }
         format!("Unknown localization {}", text_id)
     }
+
+    fn locales(&self) -> Box<dyn Iterator<Item=&LanguageIdentifier> + '_> {
+        Box::new(self.fallbacks.keys())
+    }
 }
 
 impl ArcLoader {
@@ -139,10 +143,6 @@ impl ArcLoader {
         }
     }
 
-    /// Returns a Vec over the locales that were detected.
-    pub fn locales(&self) -> Vec<LanguageIdentifier> {
-        self.resources.keys().cloned().collect()
-    }
 
     /// Convenience function to look up a string for a single language
     pub fn lookup_single_language(

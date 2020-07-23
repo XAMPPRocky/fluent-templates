@@ -103,4 +103,8 @@ impl super::Loader for StaticLoader {
         }
         format!("Unknown localization {}", text_id)
     }
+
+    fn locales(&self) -> Box<dyn Iterator<Item=&LanguageIdentifier> + '_> {
+        Box::new(self.fallbacks.keys())
+    }
 }
