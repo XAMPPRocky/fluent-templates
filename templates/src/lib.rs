@@ -299,6 +299,7 @@ pub mod loader;
 
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;
+pub use unic_langid::LanguageIdentifier;
 
 #[doc(hidden)]
 pub use arc_swap;

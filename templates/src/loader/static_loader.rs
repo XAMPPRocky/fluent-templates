@@ -20,6 +20,7 @@ impl StaticLoader {
     ///
     /// This is exposed as publicly so that it can be used inside the
     /// `static_loader!` macro. it's not meant to be called directly.
+    #[doc(hidden)]
     pub fn new(
         bundles: &'static HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>>,
         fallbacks: &'static HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
