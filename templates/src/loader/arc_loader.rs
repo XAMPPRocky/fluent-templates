@@ -74,7 +74,6 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
         let fallbacks = super::build_fallbacks(&*resources.keys().cloned().collect::<Vec<_>>());
 
         Ok(ArcLoader {
-            resources,
             bundles,
             fallbacks,
             fallback: self.fallback,
@@ -98,7 +97,6 @@ pub struct ArcLoader {
     bundles: HashMap<LanguageIdentifier, FluentBundle<Arc<FluentResource>>>,
     fallback: LanguageIdentifier,
     fallbacks: HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
-    resources: HashMap<LanguageIdentifier, Vec<Arc<FluentResource>>>,
 }
 
 impl super::Loader for ArcLoader {
