@@ -105,7 +105,7 @@ impl<L> FluentLoader<L> {
 
     /// Set default language for this `FluentLoader`.
     /// Template engines can use this value when rendering translations.
-    /// Sofar this feature is only implemented for Tera.
+    /// So far this feature is only implemented for Tera.
     pub fn with_default_lang(self, lang: LanguageIdentifier) -> Self {
         Self {
             loader: self.loader,
