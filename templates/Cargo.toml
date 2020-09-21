@@ -9,6 +9,7 @@ documentation = "https://docs.rs/fluent-templates/"
 repository = "https://github.com/XAMPPRocky/fluent-templates"
 keywords = ["handlebars", "tera", "fluent", "internationalization", "localization"]
 categories = ["internationalization", "localization", "template-engine"]
+readme = "../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package.metadata.docs.rs]
