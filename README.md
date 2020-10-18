@@ -271,6 +271,22 @@ especially if you need them to be multiline.
 {{/fluent}}
 ```
 
+### FAQ
+
+#### Why is there extra characters around the values of arguments?
+These are called "Unicode Isolating Marks" that used to allow the text to be bidirectional.
+You can disable this with `FluentBundle::set_isolating_marks` being set to `false`.
+
+```rust
+static_loader! {
+    static LOCALES = {
+        locales: "./tests/locales",
+        fallback_language: "en-US",
+        // Removes unicode isolating marks around arguments.
+        customise: |bundle| bundle.set_use_isolating(false),
+    };
+}
+```
 
 [variables]: https://projectfluent.org/fluent/guide/variables.html
 [`static_loader!`]: https://docs.rs/fluent-templates/0.5.4/fluent_templates/macro.static_loader.html
