@@ -126,7 +126,7 @@
 //! ```
 //!
 //! ```
-//! use std::collections::HashMap;
+//! use std::{borrow::Cow, collections::HashMap};
 //!
 //! use unic_langid::{LanguageIdentifier, langid};
 //! use fluent_templates::{Loader, static_loader};
@@ -159,6 +159,26 @@
 //!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
 //!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
 //!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
+//!
+//!     let args = {
+//!         let mut map = HashMap::new();
+//!         map.insert("name", "Alice".into());
+//!         map
+//!     };
+//!
+//!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
+//!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
+//!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
+//!
+//!     let args = {
+//!         let mut map = HashMap::new();
+//!         map.insert(Cow::Borrowed("param"), "1".into());
+//!         map.insert(Cow::Owned(format!("{}-param", "multi-word")), "2".into());
+//!         map
+//!     };
+//!
+//!     assert_eq!("text one 1 second 2", LOCALES.lookup_with_args(&US_ENGLISH, "parameter2", &args));
+//!     assert_eq!("texte une 1 seconde 2", LOCALES.lookup_with_args(&FRENCH, "parameter2", &args));
 //! }
 //! ```
 //!
@@ -168,7 +188,7 @@
 //! what language to get that key for. Optionally you can pass extra arguments
 //! to the function as arguments to the resource. `fluent-templates` will
 //! automatically convert argument keys from Tera's `snake_case` to the fluent's
-//! preferred `kebab-case` arguments. 
+//! preferred `kebab-case` arguments.
 //! The `lang` parameter is optional when the default language of the corresponding
 //! `FluentLoader` is set (see [`FluentLoader::with_default_lang`]).
 //!

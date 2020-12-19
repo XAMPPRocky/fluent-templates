@@ -26,25 +26,25 @@ pub use static_loader::StaticLoader;
 pub trait Loader {
     /// Look up `text_id` for `lang` in Fluent.
     fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> String {
-        self.lookup_complete(lang, text_id, None)
+        self.lookup_complete::<&str>(lang, text_id, None)
     }
 
     /// Look up `text_id` for `lang` with `args` in Fluent.
-    fn lookup_with_args(
+    fn lookup_with_args<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: &HashMap<String, FluentValue>,
+        args: &HashMap<T, FluentValue>,
     ) -> String {
         self.lookup_complete(lang, text_id, Some(args))
     }
 
     /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
-    fn lookup_complete(
+    fn lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> String;
 
     /// Returns an Iterator over the locales that are present.
@@ -55,11 +55,11 @@ impl<L> Loader for std::sync::Arc<L>
 where
     L: Loader,
 {
-    fn lookup_complete(
+    fn lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
     }
@@ -73,11 +73,11 @@ impl<'a, L> Loader for &'a L
 where
     L: Loader,
 {
-    fn lookup_complete(
+    fn lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
     }
@@ -180,14 +180,14 @@ pub fn build_bundles(
     bundles
 }
 
-fn map_to_fluent_args<'map>(
-    map: Option<&'map HashMap<String, FluentValue>>,
+fn map_to_fluent_args<'map, T: AsRef<str>>(
+    map: Option<&'map HashMap<T, FluentValue>>,
 ) -> Option<FluentArgs<'map>> {
     let mut new = FluentArgs::new();
 
     if let Some(map) = map {
         for (key, value) in map {
-            new.add(key, value.clone());
+            new.add(key.as_ref(), value.clone());
         }
     }
 
