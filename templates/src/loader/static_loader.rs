@@ -34,11 +34,11 @@ impl StaticLoader {
     }
 
     /// Convenience function to look up a string for a single language
-    pub fn lookup_single_language(
+    pub fn lookup_single_language<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
         if let Some(bundle) = self.bundles.get(lang) {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
@@ -84,11 +84,11 @@ impl StaticLoader {
 
 impl super::Loader for StaticLoader {
     // Traverse the fallback chain,
-    fn lookup_complete(
+    fn lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         if let Some(fallbacks) = self.fallbacks.get(lang) {
             for l in fallbacks {
@@ -105,7 +105,7 @@ impl super::Loader for StaticLoader {
         format!("Unknown localization {}", text_id)
     }
 
-    fn locales(&self) -> Box<dyn Iterator<Item=&LanguageIdentifier> + '_> {
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
         Box::new(self.fallbacks.keys())
     }
 }

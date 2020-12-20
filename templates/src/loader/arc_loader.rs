@@ -55,13 +55,13 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle
                     .add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
-                    .map_err(|errors| LoaderError::FluentBundle{errors})?;
+                    .map_err(|errors| LoaderError::FluentBundle { errors })?;
             }
 
             for res in v {
                 bundle
                     .add_resource(res.clone())
-                    .map_err(|errors| LoaderError::FluentBundle{errors})?;
+                    .map_err(|errors| LoaderError::FluentBundle { errors })?;
             }
 
             if let Some(customize) = self.customize {
@@ -101,11 +101,11 @@ pub struct ArcLoader {
 
 impl super::Loader for ArcLoader {
     // Traverse the fallback chain,
-    fn lookup_complete(
+    fn lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         if let Some(fallbacks) = self.fallbacks.get(lang) {
             for l in fallbacks {
@@ -122,7 +122,7 @@ impl super::Loader for ArcLoader {
         format!("Unknown localization {}", text_id)
     }
 
-    fn locales(&self) -> Box<dyn Iterator<Item=&LanguageIdentifier> + '_> {
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
         Box::new(self.fallbacks.keys())
     }
 }
@@ -141,13 +141,12 @@ impl ArcLoader {
         }
     }
 
-
     /// Convenience function to look up a string for a single language
-    pub fn lookup_single_language(
+    pub fn lookup_single_language<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
         if let Some(bundle) = self.bundles.get(lang) {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
