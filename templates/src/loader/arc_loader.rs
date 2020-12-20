@@ -153,7 +153,7 @@ impl ArcLoader {
             if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
                 let mut errors = Vec::new();
 
-                let args = super::map_to_str_map(args);
+                let args = super::map_to_fluent_args(args);
                 let value = bundle.format_pattern(&message, args.as_ref(), &mut errors);
 
                 if errors.is_empty() {

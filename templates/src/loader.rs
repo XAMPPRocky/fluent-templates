@@ -11,7 +11,7 @@ mod tera;
 use std::collections::HashMap;
 
 use fluent_bundle::concurrent::FluentBundle;
-use fluent_bundle::{FluentResource, FluentValue};
+use fluent_bundle::{FluentArgs, FluentResource, FluentValue};
 use fluent_langneg::negotiate_languages;
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
@@ -180,14 +180,14 @@ pub fn build_bundles(
     bundles
 }
 
-fn map_to_str_map<'a>(
-    map: Option<&'a HashMap<String, FluentValue>>,
-) -> Option<HashMap<&'a str, FluentValue<'a>>> {
-    let mut new = HashMap::with_capacity(map.map(HashMap::len).unwrap_or(0));
+fn map_to_fluent_args<'map>(
+    map: Option<&'map HashMap<String, FluentValue>>,
+) -> Option<FluentArgs<'map>> {
+    let mut new = FluentArgs::new();
 
     if let Some(map) = map {
-        for (key, value) in map.iter() {
-            new.insert(&**key, value.clone());
+        for (key, value) in map {
+            new.add(key, value.clone());
         }
     }
 
