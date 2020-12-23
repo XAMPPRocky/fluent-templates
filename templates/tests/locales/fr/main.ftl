@@ -1,5 +1,6 @@
 hello-world = Bonjour le monde!
 greeting = Bonjour { $name }!
+        .placeholder = Salut l'ami!
 simple = texte simple
 reference = texte simple avec une référence: { -something }
 

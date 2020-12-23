@@ -8,6 +8,8 @@ mod handlebars;
 #[cfg(feature = "tera")]
 mod tera;
 
+mod shared;
+
 use std::collections::HashMap;
 
 use fluent_bundle::concurrent::FluentBundle;
@@ -91,6 +93,7 @@ where
 /// for integrating with different libraries.
 pub struct FluentLoader<L> {
     loader: L,
+    #[allow(unused)]
     default_lang: Option<LanguageIdentifier>,
 }
 

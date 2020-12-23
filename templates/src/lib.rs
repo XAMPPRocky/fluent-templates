@@ -108,21 +108,25 @@
 //!
 //! ### Looking up fluent resources
 //! You can use the [`Loader`] trait to `lookup` a given fluent resource, and
-//! provide any additional arguments as needed with `lookup_with_args`.
+//! provide any additional arguments as needed with `lookup_with_args`. You
+//! can also look up attributes by appending a `.` to the name of the message.
 //!
 //! #### Example
 //! ```fluent
 //!  # In `locales/en-US/main.ftl`
 //!  hello-world = Hello World!
 //!  greeting = Hello { $name }!
+//!         .placeholder = Hello Friend!
 //!
 //!  # In `locales/fr/main.ftl`
 //!  hello-world = Bonjour le monde!
 //!  greeting = Bonjour { $name }!
+//!         .placeholder = Salut l'ami!
 //!
 //!  # In `locales/de/main.ftl`
 //!  hello-world = Hallo Welt!
 //!  greeting = Hallo { $name }!
+//!         .placeholder = Hallo Fruend!
 //! ```
 //!
 //! ```
@@ -156,19 +160,13 @@
 //!         map
 //!     };
 //!
+//!     assert_eq!("Hello Friend!", LOCALES.lookup(&US_ENGLISH, "greeting.placeholder"));
 //!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
+//!     assert_eq!("Salut l'ami!", LOCALES.lookup(&FRENCH, "greeting.placeholder"));
 //!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
+//!     assert_eq!("Hallo Fruend!", LOCALES.lookup(&GERMAN, "greeting.placeholder"));
 //!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
 //!
-//!     let args = {
-//!         let mut map = HashMap::new();
-//!         map.insert("name", "Alice".into());
-//!         map
-//!     };
-//!
-//!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
-//!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
-//!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
 //!
 //!     let args = {
 //!         let mut map = HashMap::new();

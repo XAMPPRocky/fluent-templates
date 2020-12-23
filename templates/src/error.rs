@@ -23,7 +23,7 @@ pub enum LoaderError {
     #[snafu(display("Failed to add FTL resources to the bundle"))]
     FluentBundle {
         /// The original bundle errors
-        errors: Vec<fluent_bundle::FluentError>
+        errors: Vec<fluent_bundle::FluentError>,
     },
 }
 

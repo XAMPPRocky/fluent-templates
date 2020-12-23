@@ -148,26 +148,23 @@ impl ArcLoader {
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
-        if let Some(bundle) = self.bundles.get(lang) {
-            if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
-                let mut errors = Vec::new();
+        super::shared::lookup_single_language(&self.bundles, lang, text_id, args)
+    }
 
-                let args = super::map_to_fluent_args(args);
-                let value = bundle.format_pattern(&message, args.as_ref(), &mut errors);
-
-                if errors.is_empty() {
-                    Some(value.into())
-                } else {
-                    panic!(
-                        "Failed to format a message for locale {} and id {}.\nErrors\n{:?}",
-                        lang, text_id, errors
-                    )
-                }
-            } else {
-                None
-            }
-        } else {
-            None
-        }
+    /// Convenience function to look up a string without falling back to the
+    /// default fallback language
+    pub fn lookup_no_default_fallback<S: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<S, FluentValue>>,
+    ) -> Option<String> {
+        super::shared::lookup_no_default_fallback(
+            &self.bundles,
+            &self.fallbacks,
+            lang,
+            text_id,
+            args,
+        )
     }
 }

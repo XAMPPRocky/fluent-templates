@@ -34,51 +34,24 @@ impl StaticLoader {
     }
 
     /// Convenience function to look up a string for a single language
-    pub fn lookup_single_language<T: AsRef<str>>(
+    pub fn lookup_single_language<S: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<S, FluentValue>>,
     ) -> Option<String> {
-        if let Some(bundle) = self.bundles.get(lang) {
-            if let Some(message) = bundle.get_message(text_id).and_then(|m| m.value) {
-                let mut errors = Vec::new();
-
-                let args = super::map_to_fluent_args(args);
-                let value = bundle.format_pattern(&message, args.as_ref(), &mut errors);
-
-                if errors.is_empty() {
-                    Some(value.into())
-                } else {
-                    panic!(
-                        "Failed to format a message for locale {} and id {}.\nErrors\n{:?}",
-                        lang, text_id, errors
-                    )
-                }
-            } else {
-                None
-            }
-        } else {
-            panic!("Unknown language {}", lang)
-        }
+        super::shared::lookup_single_language(self.bundles, lang, text_id, args)
     }
 
-    /// Convenience function to look up a string without falling back to the default fallback language
-    pub fn lookup_no_default_fallback(
+    /// Convenience function to look up a string without falling back to the
+    /// default fallback language
+    pub fn lookup_no_default_fallback<S: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<String, FluentValue>>,
+        args: Option<&HashMap<S, FluentValue>>,
     ) -> Option<String> {
-        if let Some(fallbacks) = self.fallbacks.get(lang) {
-            for l in fallbacks {
-                if let Some(val) = self.lookup_single_language(l, text_id, args) {
-                    return Some(val);
-                }
-            }
-        }
-
-        None
+        super::shared::lookup_no_default_fallback(self.bundles, self.fallbacks, lang, text_id, args)
     }
 }
 
