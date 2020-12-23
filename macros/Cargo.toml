@@ -1,6 +1,6 @@
 [package]
 name = "fluent-template-macros"
-version = "0.5.13"
+version = "0.6.0"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 edition = "2018"
 description = "Macro Templating for the Fluent localization framework"
