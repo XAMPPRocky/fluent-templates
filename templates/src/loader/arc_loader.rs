@@ -50,7 +50,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
         let mut bundles = HashMap::new();
         for (lang, v) in resources.iter() {
-            let mut bundle = FluentBundle::new(&[lang.clone()][..]);
+            let mut bundle = FluentBundle::new(vec![lang.clone()]);
 
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle

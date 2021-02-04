@@ -23,8 +23,8 @@ macros = ["fluent-template-macros"]
 [dependencies]
 handlebars = { version = "3", optional = true }
 lazy_static = "1.2.0"
-fluent = "0.13"
-fluent-bundle = "0.13.2"
+fluent = "0.14"
+fluent-bundle = "0.14"
 fluent-syntax = "0.10"
 fluent-langneg = "0.13"
 serde_json = "1.0"
