@@ -74,7 +74,7 @@ mod tests {
         let result = read_from_dir(dir.path())?;
         assert_eq!(2, result.len()); // Doesn't include the binary file or the txt file
 
-        let mut bundle = FluentBundle::new(&[unic_langid::langid!("en-US")]);
+        let mut bundle = FluentBundle::new(vec![unic_langid::langid!("en-US")]);
         for resource in &result {
             bundle.add_resource(resource).unwrap();
         }
