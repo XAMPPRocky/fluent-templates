@@ -24,6 +24,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          cd templates
           cargo build --features ${{ matrix.feature }}
           cargo test --features ${{ matrix.feature }} --verbose
