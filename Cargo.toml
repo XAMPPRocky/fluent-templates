@@ -23,7 +23,7 @@ default = ["macros"]
 macros = ["fluent-template-macros"]
 
 [dependencies]
-handlebars = { version = "3", optional = true }
+handlebars = { version = "4", optional = true }
 lazy_static = "1.2.0"
 fluent = "0.16"
 fluent-bundle = "0.15.2"
@@ -31,9 +31,9 @@ fluent-syntax = "0.11"
 fluent-langneg = "0.13"
 serde_json = "1.0.79"
 unic-langid = { version = "0.9.0", features = ["macros"] }
-snafu = "0.6.6"
-tera = { version = "1.2.0", optional = true }
-heck = "0.3.1"
+snafu = "0.7.0"
+tera = { version = "1.15.0", optional = true }
+heck = "0.4.0"
 ignore = "0.4.18"
 flume = "0.10.12"
 log = "0.4.14"
@@ -43,5 +43,5 @@ arc-swap = "1.5.0"
 intl-memoizer = "0.5.1"
 
 [dev-dependencies]
-tempfile = "3.1.0"
+tempfile = "3.3.0"
 getrandom = { version = "0.2.0", features = ["js"] }

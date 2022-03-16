@@ -38,10 +38,10 @@ fn json_to_fluent(json: Json) -> crate::Result<FluentValue<'static>, Error> {
 
 fn parse_language(arg: &Json) -> crate::Result<LanguageIdentifier, Error> {
     arg.as_str()
-        .context(self::LangArgumentInvalid)?
+        .context(self::LangArgumentInvalidSnafu)?
         .parse::<LanguageIdentifier>()
         .ok()
-        .context(self::LangArgumentInvalid)
+        .context(self::LangArgumentInvalidSnafu)
 }
 
 impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
@@ -50,12 +50,12 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
         let lang = lang_arg
             .as_ref()
             .or(self.default_lang.as_ref())
-            .context(self::NoLangArgument)?;
+            .context(self::NoLangArgumentSnafu)?;
 
         let id = args
             .get(FLUENT_KEY)
             .and_then(Json::as_str)
-            .context(self::NoFluentArgument)?;
+            .context(self::NoFluentArgumentSnafu)?;
 
         /// Filters kwargs to exclude ones used by this function and tera.
         fn is_not_tera_key((k, _): &(&String, &Json)) -> bool {
@@ -67,7 +67,7 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
 
         for (key, value) in args.iter().filter(is_not_tera_key) {
             fluent_args.insert(
-                heck::KebabCase::to_kebab_case(&**key),
+                heck::ToKebabCase::to_kebab_case(&**key),
                 json_to_fluent(value.clone())?,
             );
         }
