@@ -12,7 +12,7 @@ mod shared;
 
 use std::collections::HashMap;
 
-use fluent_bundle::concurrent::FluentBundle;
+use crate::FluentBundle;
 use fluent_bundle::{FluentArgs, FluentResource, FluentValue};
 use fluent_langneg::negotiate_languages;
 
@@ -150,7 +150,7 @@ fn create_bundle(
     core_resource: Option<&'static FluentResource>,
     customizer: &impl Fn(&mut FluentBundle<&'static FluentResource>),
 ) -> FluentBundle<&'static FluentResource> {
-    let mut bundle: FluentBundle<&'static FluentResource> = FluentBundle::new(vec![lang]);
+    let mut bundle: FluentBundle<&'static FluentResource> = FluentBundle::new_concurrent(vec![lang]);
     if let Some(core) = core_resource {
         bundle
             .add_resource(core)
@@ -190,7 +190,7 @@ fn map_to_fluent_args<'map, T: AsRef<str>>(
 
     if let Some(map) = map {
         for (key, value) in map {
-            new.add(key.as_ref(), value.clone());
+            new.set(key.as_ref(), value.clone());
         }
     }
 

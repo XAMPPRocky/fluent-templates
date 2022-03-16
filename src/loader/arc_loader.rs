@@ -3,7 +3,7 @@ use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use fluent_bundle::concurrent::FluentBundle;
+use crate::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
 use crate::error::LoaderError;
@@ -50,7 +50,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
         let mut bundles = HashMap::new();
         for (lang, v) in resources.iter() {
-            let mut bundle = FluentBundle::new(vec![lang.clone()]);
+            let mut bundle = FluentBundle::new_concurrent(vec![lang.clone()]);
 
             for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
                 bundle

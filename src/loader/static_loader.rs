@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use fluent_bundle::concurrent::FluentBundle;
+use crate::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};

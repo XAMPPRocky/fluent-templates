@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use std::collections::HashMap;
 
-use fluent_bundle::concurrent::FluentBundle;
+use crate::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
@@ -19,12 +19,11 @@ pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
         let ids: Vec<_> = text_id.splitn(2, '.').collect();
         bundle
             .get_message(ids[0])?
-            .attributes
-            .iter()
-            .find(|attribute| attribute.id == ids[1])?
-            .value
+            .attributes()
+            .find(|attribute| attribute.id() == ids[1])?
+            .value()
     } else {
-        bundle.get_message(text_id)?.value?
+        bundle.get_message(text_id)?.value()?
     };
 
     let args = super::map_to_fluent_args(args);

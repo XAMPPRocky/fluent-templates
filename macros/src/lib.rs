@@ -178,7 +178,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     let CRATE_NAME: TokenStream = quote!(fluent_templates);
     let LAZY: TokenStream = quote!(#CRATE_NAME::once_cell::sync::Lazy);
     let LANGUAGE_IDENTIFIER: TokenStream = quote!(#CRATE_NAME::loader::LanguageIdentifier);
-    let FLUENT_BUNDLE: TokenStream = quote!(#CRATE_NAME::fluent_bundle::concurrent::FluentBundle);
+    let FLUENT_BUNDLE: TokenStream = quote!(#CRATE_NAME::FluentBundle);
     let FLUENT_RESOURCE: TokenStream = quote!(#CRATE_NAME::fluent_bundle::FluentResource);
     let HASHMAP: TokenStream = quote!(std::collections::HashMap);
 

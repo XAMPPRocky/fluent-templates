@@ -60,7 +60,7 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<Fluent
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fluent_bundle::concurrent::FluentBundle;
+    use crate::FluentBundle;
     use std::error::Error;
 
     #[test]
@@ -74,7 +74,7 @@ mod tests {
         let result = read_from_dir(dir.path())?;
         assert_eq!(2, result.len()); // Doesn't include the binary file or the txt file
 
-        let mut bundle = FluentBundle::new(vec![unic_langid::langid!("en-US")]);
+        let mut bundle = FluentBundle::new_concurrent(vec![unic_langid::langid!("en-US")]);
         for resource in &result {
             bundle.add_resource(resource).unwrap();
         }
@@ -85,7 +85,7 @@ mod tests {
         assert_eq!(
             "bar",
             bundle.format_pattern(
-                bundle.get_message("foo").and_then(|m| m.value).unwrap(),
+                bundle.get_message("foo").and_then(|m| m.value()).unwrap(),
                 None,
                 &mut errors
             )
@@ -94,7 +94,7 @@ mod tests {
         assert_eq!(
             "baz",
             bundle.format_pattern(
-                bundle.get_message("bar").and_then(|m| m.value).unwrap(),
+                bundle.get_message("bar").and_then(|m| m.value()).unwrap(),
                 None,
                 &mut errors
             )
