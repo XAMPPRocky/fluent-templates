@@ -150,9 +150,9 @@
 //! }
 //!
 //! fn main() {
-//!     assert_eq!("Hello World!", LOCALES.lookup(&US_ENGLISH, "hello-world"));
-//!     assert_eq!("Bonjour le monde!", LOCALES.lookup(&FRENCH, "hello-world"));
-//!     assert_eq!("Hallo Welt!", LOCALES.lookup(&GERMAN, "hello-world"));
+//!     assert_eq!("Hello World!", LOCALES.lookup(&US_ENGLISH, "hello-world").unwrap());
+//!     assert_eq!("Bonjour le monde!", LOCALES.lookup(&FRENCH, "hello-world").unwrap());
+//!     assert_eq!("Hallo Welt!", LOCALES.lookup(&GERMAN, "hello-world").unwrap());
 //!
 //!     let args = {
 //!         let mut map = HashMap::new();
@@ -160,12 +160,12 @@
 //!         map
 //!     };
 //!
-//!     assert_eq!("Hello Friend!", LOCALES.lookup(&US_ENGLISH, "greeting.placeholder"));
-//!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
-//!     assert_eq!("Salut l'ami!", LOCALES.lookup(&FRENCH, "greeting.placeholder"));
-//!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
-//!     assert_eq!("Hallo Fruend!", LOCALES.lookup(&GERMAN, "greeting.placeholder"));
-//!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
+//!     assert_eq!("Hello Friend!", LOCALES.lookup(&US_ENGLISH, "greeting.placeholder").unwrap());
+//!     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args).unwrap());
+//!     assert_eq!("Salut l'ami!", LOCALES.lookup(&FRENCH, "greeting.placeholder").unwrap());
+//!     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args).unwrap());
+//!     assert_eq!("Hallo Fruend!", LOCALES.lookup(&GERMAN, "greeting.placeholder").unwrap());
+//!     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args).unwrap());
 //!
 //!
 //!     let args = {
@@ -175,8 +175,8 @@
 //!         map
 //!     };
 //!
-//!     assert_eq!("text one 1 second 2", LOCALES.lookup_with_args(&US_ENGLISH, "parameter2", &args));
-//!     assert_eq!("texte une 1 seconde 2", LOCALES.lookup_with_args(&FRENCH, "parameter2", &args));
+//!     assert_eq!("text one 1 second 2", LOCALES.lookup_with_args(&US_ENGLISH, "parameter2", &args).unwrap());
+//!     assert_eq!("texte une 1 seconde 2", LOCALES.lookup_with_args(&FRENCH, "parameter2", &args).unwrap());
 //! }
 //! ```
 //!
