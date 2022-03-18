@@ -106,20 +106,20 @@ impl super::Loader for ArcLoader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> String {
+    ) -> Option<String> {
         if let Some(fallbacks) = self.fallbacks.get(lang) {
             for l in fallbacks {
                 if let Some(val) = self.lookup_single_language(l, text_id, args) {
-                    return val;
+                    return Some(val);
                 }
             }
         }
         if *lang != self.fallback {
             if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
-                return val;
+                return Some(val);
             }
         }
-        format!("Unknown localization {}", text_id)
+        None
     }
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {

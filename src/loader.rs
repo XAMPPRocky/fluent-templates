@@ -27,7 +27,7 @@ pub use static_loader::StaticLoader;
 /// A loader capable of looking up Fluent keys given a language.
 pub trait Loader {
     /// Look up `text_id` for `lang` in Fluent.
-    fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> String {
+    fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> Option<String> {
         self.lookup_complete::<&str>(lang, text_id, None)
     }
 
@@ -37,7 +37,7 @@ pub trait Loader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: &HashMap<T, FluentValue>,
-    ) -> String {
+    ) -> Option<String> {
         self.lookup_complete(lang, text_id, Some(args))
     }
 
@@ -47,7 +47,7 @@ pub trait Loader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> String;
+    ) -> Option<String>;
 
     /// Returns an Iterator over the locales that are present.
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_>;
@@ -62,7 +62,7 @@ where
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> String {
+    ) -> Option<String> {
         L::lookup_complete(self, lang, text_id, args)
     }
 
@@ -80,7 +80,7 @@ where
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> String {
+    ) -> Option<String> {
         L::lookup_complete(self, lang, text_id, args)
     }
 
