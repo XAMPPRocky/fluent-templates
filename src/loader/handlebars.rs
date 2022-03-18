@@ -121,6 +121,12 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             .expect("Language not valid identifier");
 
         let response = self.loader.lookup_complete(&lang, &id, args.as_ref());
-        out.write(&response).map_err(|error| RenderError::from_error("Failed to write", error))
+
+        match response {
+            Some(response) => out
+                .write(&response)
+                .map_err(|error| RenderError::from_error("Failed to write", error)),
+            None => Err(RenderError::new(format!("Unknown localization {}", id))),
+        }
     }
 }
