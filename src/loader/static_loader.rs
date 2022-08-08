@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::FluentBundle;
+use crate::{languages::negotiate_languages, FluentBundle};
 use fluent_bundle::{FluentResource, FluentValue};
 
 pub use unic_langid::{langid, langids, LanguageIdentifier};
@@ -63,13 +63,12 @@ impl super::Loader for StaticLoader {
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
-        if let Some(fallbacks) = self.fallbacks.get(lang) {
-            for l in fallbacks {
-                if let Some(val) = self.lookup_single_language(l, text_id, args) {
-                    return Some(val);
-                }
+        for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
+            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+                return Some(val);
             }
         }
+
         if *lang != self.fallback {
             if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return Some(val);

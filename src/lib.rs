@@ -315,6 +315,7 @@ pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, StaticLoader
 mod error;
 #[doc(hidden)]
 pub mod fs;
+mod languages;
 #[doc(hidden)]
 pub mod loader;
 

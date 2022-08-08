@@ -1,0 +1,1 @@
+fallback-zh = 气
