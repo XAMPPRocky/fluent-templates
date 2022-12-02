@@ -16,7 +16,7 @@ pub struct ArcLoaderBuilder<'a, 'b> {
     location: &'a Path,
     fallback: LanguageIdentifier,
     shared: Option<&'b [PathBuf]>,
-    customize: Option<fn(&mut FluentBundle<Arc<FluentResource>>)>,
+    customize: Option<Box<dyn FnMut(&mut FluentBundle<Arc<FluentResource>>)>>,
 }
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
@@ -27,13 +27,16 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
     }
 
     /// Allows you to customise each `FluentBundle`.
-    pub fn customize(mut self, customize: fn(&mut FluentBundle<Arc<FluentResource>>)) -> Self {
-        self.customize = Some(customize);
+    pub fn customize(
+        mut self,
+        customize: impl FnMut(&mut FluentBundle<Arc<FluentResource>>) + 'static,
+    ) -> Self {
+        self.customize = Some(Box::new(customize));
         self
     }
 
     /// Constructs an `ArcLoader` from the settings provided.
-    pub fn build(self) -> Result<ArcLoader, Box<dyn std::error::Error>> {
+    pub fn build(mut self) -> Result<ArcLoader, Box<dyn std::error::Error>> {
         let mut resources = HashMap::new();
 
         for entry in read_dir(self.location)? {
@@ -65,7 +68,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
                     .map_err(|errors| LoaderError::FluentBundle { errors })?;
             }
 
-            if let Some(customize) = self.customize {
+            if let Some(customize) = self.customize.as_mut() {
                 (customize)(&mut bundle);
             }
 
