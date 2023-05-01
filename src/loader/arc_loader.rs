@@ -110,6 +110,26 @@ impl super::Loader for ArcLoader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
+    ) -> String {
+        for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
+            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+                return val;
+            }
+        }
+        if *lang != self.fallback {
+            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
+                return val;
+            }
+        }
+        format!("Unknown localization {}", text_id)
+    }
+
+    // Traverse the fallback chain,
+    fn try_lookup_complete<T: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
             if let Some(val) = self.lookup_single_language(lang, text_id, args) {

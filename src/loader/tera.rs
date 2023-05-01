@@ -73,10 +73,6 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
         }
 
         let response = self.loader.lookup_with_args(lang, &id, &fluent_args);
-
-        match response {
-            Some(response) => Ok(Json::String(response)),
-            None => Err(tera::Error::msg(format!("Unknown localization {}", id))),
-        }
+        Ok(Json::String(response))
     }
 }
