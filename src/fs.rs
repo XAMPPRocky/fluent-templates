@@ -31,6 +31,9 @@ pub fn resources_from_vec(srcs: &[String]) -> crate::Result<Vec<FluentResource>>
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
     let (tx, rx) = flume::unbounded();
 
+    #[cfg(not(any(feature = "use-ignore", feature = "walkdir",)))]
+    compile_error!("one of the features `use-ignore` or `walkdir` must be enabled.");
+
     #[cfg(feature = "use-ignore")]
     ignore::WalkBuilder::new(path).build_parallel().run(|| {
         let tx = tx.clone();
