@@ -27,7 +27,7 @@ pub use static_loader::StaticLoader;
 /// A loader capable of looking up Fluent keys given a language.
 pub trait Loader {
     /// Look up `text_id` for `lang` in Fluent.
-    fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> Option<String> {
+    fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> String {
         self.lookup_complete::<&str>(lang, text_id, None)
     }
 
@@ -37,12 +37,35 @@ pub trait Loader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: &HashMap<T, FluentValue>,
-    ) -> Option<String> {
+    ) -> String {
         self.lookup_complete(lang, text_id, Some(args))
     }
 
     /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
     fn lookup_complete<T: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<T, FluentValue>>,
+    ) -> String;
+
+    /// Look up `text_id` for `lang` in Fluent.
+    fn try_lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> Option<String> {
+        self.try_lookup_complete::<&str>(lang, text_id, None)
+    }
+
+    /// Look up `text_id` for `lang` with `args` in Fluent.
+    fn try_lookup_with_args<T: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: &HashMap<T, FluentValue>,
+    ) -> Option<String> {
+        self.try_lookup_complete(lang, text_id, Some(args))
+    }
+
+    /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
+    fn try_lookup_complete<T: AsRef<str>>(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
@@ -62,8 +85,17 @@ where
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> Option<String> {
+    ) -> String {
         L::lookup_complete(self, lang, text_id, args)
+    }
+
+    fn try_lookup_complete<T: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<T, FluentValue>>,
+    ) -> Option<String> {
+        L::try_lookup_complete(self, lang, text_id, args)
     }
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
@@ -80,8 +112,17 @@ where
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> Option<String> {
+    ) -> String {
         L::lookup_complete(self, lang, text_id, args)
+    }
+
+    fn try_lookup_complete<T: AsRef<str>>(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<T, FluentValue>>,
+    ) -> Option<String> {
+        L::try_lookup_complete(self, lang, text_id, args)
     }
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
