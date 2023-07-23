@@ -4,7 +4,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ignore::WalkBuilder;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
@@ -121,7 +120,11 @@ fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<Stri
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
     let (tx, rx) = flume::unbounded();
 
-    WalkBuilder::new(path).build_parallel().run(|| {
+    #[cfg(not(any(feature = "ignore", feature = "walkdir",)))]
+    compile_error!("one of the features `ignore` or `walkdir` must be enabled.");
+
+    #[cfg(feature = "ignore")]
+    ignore::WalkBuilder::new(path).build_parallel().run(|| {
         let tx = tx.clone();
         Box::new(move |result| {
             if let Ok(entry) = result {
@@ -138,6 +141,20 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
             ignore::WalkState::Continue
         })
     });
+
+    #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
+    walkdir::WalkDir::new(path)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .filter(|e| e.path().extension().map_or(false, |e| e == "ftl"))
+        .for_each(|e| {
+            if let Ok(string) = std::fs::read_to_string(e.path()) {
+                let _ = tx.send(string);
+            } else {
+                log::warn!("Couldn't read {}", e.path().display());
+            }
+        });
 
     rx.drain().collect::<Vec<_>>()
 }
