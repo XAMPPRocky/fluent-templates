@@ -9,14 +9,16 @@ use fluent_bundle::{FluentResource, FluentValue};
 
 use crate::error::LoaderError;
 
-pub use unic_langid::{langid, langids, LanguageIdentifier};
+pub use unic_langid::LanguageIdentifier;
+
+type Customize = Option<Box<dyn FnMut(&mut FluentBundle<Arc<FluentResource>>)>>;
 
 /// A builder pattern struct for constructing `ArcLoader`s.
 pub struct ArcLoaderBuilder<'a, 'b> {
     location: &'a Path,
     fallback: LanguageIdentifier,
     shared: Option<&'b [PathBuf]>,
-    customize: Option<Box<dyn FnMut(&mut FluentBundle<Arc<FluentResource>>)>>,
+    customize: Customize,
 }
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
@@ -56,7 +58,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
         for (lang, v) in resources.iter() {
             let mut bundle = FluentBundle::new_concurrent(vec![lang.clone()]);
 
-            for shared_resource in self.shared.as_deref().unwrap_or(&[]) {
+            for shared_resource in self.shared.unwrap_or(&[]) {
                 bundle
                     .add_resource(Arc::new(crate::fs::read_from_file(shared_resource)?))
                     .map_err(|errors| LoaderError::FluentBundle { errors })?;
@@ -75,7 +77,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
             bundles.insert(lang.clone(), bundle);
         }
 
-        let fallbacks = super::build_fallbacks(&*resources.keys().cloned().collect::<Vec<_>>());
+        let fallbacks = super::build_fallbacks(&resources.keys().cloned().collect::<Vec<_>>());
 
         Ok(ArcLoader {
             bundles,

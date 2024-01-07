@@ -22,7 +22,7 @@ pub fn resources_from_vec(srcs: &[String]) -> crate::Result<Vec<FluentResource>>
     let mut vec = Vec::with_capacity(srcs.len());
 
     for src in srcs {
-        vec.push(resource_from_str(&src)?);
+        vec.push(resource_from_str(src)?);
     }
 
     Ok(vec)

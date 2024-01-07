@@ -72,7 +72,7 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
             );
         }
 
-        let response = self.loader.lookup_with_args(lang, &id, &fluent_args);
+        let response = self.loader.lookup_with_args(lang, id, &fluent_args);
         Ok(Json::String(response))
     }
 }

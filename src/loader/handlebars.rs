@@ -93,18 +93,9 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
                         ))
                         .into());
                     }
-                    let id = if let Some(el) = block.params.get(0) {
-                        if let Parameter::Literal(ref s) = *el {
-                            if let Json::String(ref s) = *s {
-                                s
-                            } else {
-                                return Err(RenderErrorReason::ParamTypeMismatchForName(
-                                    "fluentparam",
-                                    "0".into(),
-                                    "string".into(),
-                                )
-                                .into());
-                            }
+                    let id = if let Some(el) = block.params.first() {
+                        if let Parameter::Literal(Json::String(ref s)) = *el {
+                            s
                         } else {
                             return Err(RenderErrorReason::ParamTypeMismatchForName(
                                 "fluentparam",
@@ -135,7 +126,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             .parse()
             .expect("Language not valid identifier");
 
-        let response = self.loader.lookup_complete(&lang, &id, args.as_ref());
+        let response = self.loader.lookup_complete(&lang, id, args.as_ref());
         out.write(&response)
             .map_err(|error| RenderErrorReason::NestedError(Box::new(error)).into())
     }

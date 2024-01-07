@@ -66,7 +66,7 @@ impl Parse for StaticLoader {
         let locales_directory_path = workspace_path.join(locales_directory.value());
 
         if std::fs::metadata(&locales_directory_path).is_err() {
-            return Err(syn::Error::new(locales_directory.span(), &format!("Couldn't read locales directory, this path should be relative to your crate's `Cargo.toml`. Looking for: {:?}", locales_directory_path)));
+            return Err(syn::Error::new(locales_directory.span(), format!("Couldn't read locales directory, this path should be relative to your crate's `Cargo.toml`. Looking for: {:?}", locales_directory_path)));
         }
 
         let core_locales = if let Some(core_locales) = &core_locales {
