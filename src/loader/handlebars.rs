@@ -1,5 +1,5 @@
 use handlebars::{
-    Context, Handlebars, Helper, HelperDef, HelperResult, Output, RenderContext, RenderError,
+    Context, Handlebars, Helper, HelperDef, HelperResult, Output, RenderContext, RenderErrorReason,
     Renderable,
 };
 
@@ -34,21 +34,27 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
         let id = if let Some(id) = h.param(0) {
             id
         } else {
-            return Err(RenderError::new(
-                "{{fluent}} must have at least one parameter",
-            ));
+            return Err(RenderErrorReason::ParamNotFoundForIndex("fluent", 0).into());
         };
 
         if id.relative_path().is_some() {
-            return Err(RenderError::new(
-                "{{fluent}} takes a string parameter with no path",
-            ));
+            return Err(RenderErrorReason::ParamTypeMismatchForName(
+                "fluent",
+                "0".to_string(),
+                "takes a string parameter with no path".to_string(),
+            )
+            .into());
         }
 
         let id = if let Json::String(ref s) = *id.value() {
             s
         } else {
-            return Err(RenderError::new("{{fluent}} takes a string parameter"));
+            return Err(RenderErrorReason::ParamTypeMismatchForName(
+                "fluent",
+                "0".to_string(),
+                "string".to_string(),
+            )
+            .into());
         };
 
         let mut args: Option<HashMap<String, FluentValue>> = if h.hash().is_empty() {
@@ -81,27 +87,36 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             for element in &tpl.elements {
                 if let TemplateElement::HelperBlock(ref block) = element {
                     if block.name != Parameter::Name("fluentparam".into()) {
-                        return Err(RenderError::new(format!(
+                        return Err(RenderErrorReason::Other(format!(
                             "{{{{fluent}}}} can only contain {{{{fluentparam}}}} elements, not {}",
                             block.name.expand_as_name(reg, context, rcx).unwrap()
-                        )));
+                        ))
+                        .into());
                     }
                     let id = if let Some(el) = block.params.get(0) {
                         if let Parameter::Literal(ref s) = *el {
                             if let Json::String(ref s) = *s {
                                 s
                             } else {
-                                return Err(RenderError::new(
-                                    "{{fluentparam}} takes a string parameter",
-                                ));
+                                return Err(RenderErrorReason::ParamTypeMismatchForName(
+                                    "fluentparam",
+                                    "0".into(),
+                                    "string".into(),
+                                )
+                                .into());
                             }
                         } else {
-                            return Err(RenderError::new(
-                                "{{fluentparam}} takes a string parameter",
-                            ));
+                            return Err(RenderErrorReason::ParamTypeMismatchForName(
+                                "fluentparam",
+                                "0".into(),
+                                "string".into(),
+                            )
+                            .into());
                         }
                     } else {
-                        return Err(RenderError::new("{{fluentparam}} must have one parameter"));
+                        return Err(
+                            RenderErrorReason::ParamNotFoundForIndex("fluentparam", 0).into()
+                        );
                     };
                     if let Some(ref tpl) = block.template {
                         let mut s = StringOutput::default();
@@ -121,6 +136,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             .expect("Language not valid identifier");
 
         let response = self.loader.lookup_complete(&lang, &id, args.as_ref());
-        out.write(&response).map_err(|error| RenderError::from_error("Failed to write", error))
+        out.write(&response)
+            .map_err(|error| RenderErrorReason::NestedError(Box::new(error)).into())
     }
 }

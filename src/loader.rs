@@ -191,7 +191,8 @@ fn create_bundle(
     core_resource: Option<&'static FluentResource>,
     customizer: &impl Fn(&mut FluentBundle<&'static FluentResource>),
 ) -> FluentBundle<&'static FluentResource> {
-    let mut bundle: FluentBundle<&'static FluentResource> = FluentBundle::new_concurrent(vec![lang]);
+    let mut bundle: FluentBundle<&'static FluentResource> =
+        FluentBundle::new_concurrent(vec![lang]);
     if let Some(core) = core_resource {
         bundle
             .add_resource(core)

@@ -321,7 +321,8 @@ pub extern crate lazy_static;
 pub extern crate fluent_bundle;
 
 #[doc(hidden)]
-pub type FluentBundle<R> = fluent_bundle::bundle::FluentBundle<R, intl_memoizer::concurrent::IntlLangMemoizer>;
+pub type FluentBundle<R> =
+    fluent_bundle::bundle::FluentBundle<R, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use error::LoaderError;
 pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, StaticLoader};
