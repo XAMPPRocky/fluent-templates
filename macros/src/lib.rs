@@ -211,7 +211,13 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         quote!(None)
     };
 
-    let insert_resources = build_resources(locales_directory)
+    let mut insert_resources: Vec<_> = build_resources(locales_directory).into_iter().collect();
+
+    // Make the output `TokenStream` only depend on the filenames and the file contents,
+    // not hashmap/filesystem iteration order.
+    insert_resources.sort();
+
+    let insert_resources = insert_resources
         .into_iter()
         .map(|(locale, resources)| {
             quote!(
