@@ -9,6 +9,7 @@ documentation.workspace = true
 repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
+resolver = "2"
 
 [lib]
 proc-macro = true

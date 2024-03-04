@@ -12,6 +12,7 @@ keywords.workspace = true
 license.workspace = true
 repository.workspace = true
 version.workspace = true
+resolver = "2"
 
 [workspace.package]
 edition = "2021"
