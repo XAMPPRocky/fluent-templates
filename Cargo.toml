@@ -3,13 +3,24 @@ members = [".", "macros"]
 
 [package]
 name = "fluent-templates"
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+documentation.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[workspace.package]
+edition = "2021"
 version = "0.8.0"
-authors = ["XAMPPRocky <xampprocky@icloud.com>"]
-edition = "2018"
-description = "Templating for the Fluent localization framework"
 license = "MIT/Apache-2.0"
 documentation = "https://docs.rs/fluent-templates/"
 repository = "https://github.com/XAMPPRocky/fluent-templates"
+authors = ["XAMPPRocky <xampprocky@icloud.com>"]
+description = "Templating for the Fluent localization framework"
 keywords = ["handlebars", "tera", "fluent", "internationalization", "localization"]
 categories = ["internationalization", "localization", "template-engine"]
 
