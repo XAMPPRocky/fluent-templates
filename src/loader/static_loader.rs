@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{languages::negotiate_languages, FluentBundle};
 use fluent_bundle::{FluentResource, FluentValue};
 
-pub use unic_langid::{langid, langids, LanguageIdentifier};
+pub use unic_langid::LanguageIdentifier;
 
 /// A simple Loader implementation, with statically-loaded fluent data.
 /// Typically created with the [`static_loader!`] macro

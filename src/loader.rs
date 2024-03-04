@@ -191,7 +191,8 @@ fn create_bundle(
     core_resource: Option<&'static FluentResource>,
     customizer: &impl Fn(&mut FluentBundle<&'static FluentResource>),
 ) -> FluentBundle<&'static FluentResource> {
-    let mut bundle: FluentBundle<&'static FluentResource> = FluentBundle::new_concurrent(vec![lang]);
+    let mut bundle: FluentBundle<&'static FluentResource> =
+        FluentBundle::new_concurrent(vec![lang]);
     if let Some(core) = core_resource {
         bundle
             .add_resource(core)
@@ -215,10 +216,10 @@ pub fn build_bundles(
     customizer: impl Fn(&mut FluentBundle<&'static FluentResource>),
 ) -> HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>> {
     let mut bundles = HashMap::new();
-    for (k, ref v) in resources.iter() {
+    for (k, v) in resources.iter() {
         bundles.insert(
             k.clone(),
-            create_bundle(k.clone(), &v, core_resource, &customizer),
+            create_bundle(k.clone(), v, core_resource, &customizer),
         );
     }
     bundles

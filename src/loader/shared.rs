@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
-pub use unic_langid::{langid, langids, LanguageIdentifier};
+pub use unic_langid::LanguageIdentifier;
 
 pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
     bundles: &HashMap<LanguageIdentifier, FluentBundle<R>>,
@@ -27,7 +27,7 @@ pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
     };
 
     let args = super::map_to_fluent_args(args);
-    let value = bundle.format_pattern(&pattern, args.as_ref(), &mut errors);
+    let value = bundle.format_pattern(pattern, args.as_ref(), &mut errors);
 
     if errors.is_empty() {
         Some(value.into())

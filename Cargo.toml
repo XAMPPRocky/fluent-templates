@@ -24,7 +24,7 @@ macros = ["fluent-template-macros"]
 use-ignore = ["ignore", "fluent-template-macros/ignore"]
 
 [dependencies]
-handlebars = { version = "4", optional = true }
+handlebars = { version = "5", optional = true }
 lazy_static = "1.2.0"
 fluent = "0.16"
 fluent-bundle = "0.15.2"
