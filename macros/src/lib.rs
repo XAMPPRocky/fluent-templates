@@ -213,6 +213,15 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
 
     let mut insert_resources: Vec<_> = build_resources(locales_directory).into_iter().collect();
 
+    if insert_resources.iter().find(|(lang, _)| *lang == fallback_language.value()).is_none() {
+        return syn::Error::new(
+            fallback_language.span(),
+            "Fallback language not found in locales directory",
+        )
+        .to_compile_error()
+        .into();
+    }
+
     // Make the output `TokenStream` only depend on the filenames and the file contents,
     // not hashmap/filesystem iteration order.
     insert_resources.sort();
