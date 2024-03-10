@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.9.0...fluent-template-macros-v0.9.1) - 2024-03-10
+
+### Other
+- Check that `fallback_language` exists between locales building static bundles ([#58](https://github.com/XAMPPRocky/fluent-templates/pull/58))
+
 ## [0.9.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.8.0...fluent-template-macros-v0.9.0) - 2024-03-04
 
 ### Other
