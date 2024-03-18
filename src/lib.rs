@@ -315,9 +315,6 @@
 #![warn(missing_docs)]
 
 #[doc(hidden)]
-pub extern crate lazy_static;
-
-#[doc(hidden)]
 pub extern crate fluent_bundle;
 
 #[doc(hidden)]

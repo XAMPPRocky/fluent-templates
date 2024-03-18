@@ -2,20 +2,23 @@ use std::fs;
 use std::path::Path;
 
 use fluent_bundle::FluentResource;
-use snafu::*;
 pub use unic_langid::{langid, langids, LanguageIdentifier};
 
 use crate::error;
 
 pub fn read_from_file<P: AsRef<Path>>(path: P) -> crate::Result<FluentResource> {
     let path = path.as_ref();
-    resource_from_str(&fs::read_to_string(path).context(error::FsSnafu { path })?)
+    resource_from_str(
+        &fs::read_to_string(path).map_err(|source| error::LoaderError::Fs {
+            path: path.into(),
+            source,
+        })?,
+    )
 }
 
 pub fn resource_from_str(src: &str) -> crate::Result<FluentResource> {
     FluentResource::try_new(src.to_owned())
-        .map_err(|(_, errs)| errs)
-        .context(error::FluentSnafu)
+        .map_err(|(_, errs)| error::FluentError::from(errs).into())
 }
 
 pub fn resources_from_vec(srcs: &[String]) -> crate::Result<Vec<FluentResource>> {

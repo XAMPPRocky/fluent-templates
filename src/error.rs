@@ -1,11 +1,10 @@
 use std::fmt;
 
 /// Errors that can occur when loading or parsing fluent resources.
-#[derive(Debug, snafu::Snafu)]
-#[snafu(visibility(pub(crate)))]
+#[derive(Debug, thiserror::Error)]
 pub enum LoaderError {
     /// An `io::Error` occurred while interacting with `path`.
-    #[snafu(display("Error with {}\n: {}", path.display(), source))]
+    #[error("Error with {}\n: {}", path.display(), source)]
     Fs {
         /// The path to file with the error.
         path: std::path::PathBuf,
@@ -13,14 +12,14 @@ pub enum LoaderError {
         source: std::io::Error,
     },
     /// An error was found in the fluent syntax.
-    #[snafu(display("Error parsing Fluent\n: {}", source))]
+    #[error("Error parsing Fluent\n: {}", source)]
     Fluent {
         /// The original parse errors
-        #[snafu(source(from(Vec<fluent_syntax::parser::ParserError>, FluentError::from)))]
+        #[from]
         source: FluentError,
     },
     /// An error was found whilst loading a bundle at runtime.
-    #[snafu(display("Failed to add FTL resources to the bundle"))]
+    #[error("Failed to add FTL resources to the bundle")]
     FluentBundle {
         /// The original bundle errors
         errors: Vec<fluent_bundle::FluentError>,
