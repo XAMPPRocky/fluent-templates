@@ -225,16 +225,8 @@ pub fn build_bundles(
     bundles
 }
 
-fn map_to_fluent_args<'map, T: AsRef<str>>(
-    map: Option<&'map HashMap<T, FluentValue>>,
-) -> Option<FluentArgs<'map>> {
-    let mut new = FluentArgs::new();
-
-    if let Some(map) = map {
-        for (key, value) in map {
-            new.set(key.as_ref(), value.clone());
-        }
-    }
-
-    Some(new)
+fn map_to_fluent_args<'map, T: AsRef<str>>(map: &'map HashMap<T, FluentValue>) -> FluentArgs<'map> {
+    map.iter()
+        .map(|(key, value)| (key.as_ref(), value.clone()))
+        .collect()
 }

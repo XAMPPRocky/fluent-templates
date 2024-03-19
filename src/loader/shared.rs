@@ -14,28 +14,23 @@ pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
 ) -> Option<String> {
     let bundle = bundles.get(lang)?;
     let mut errors = Vec::new();
-    let pattern = if text_id.contains('.') {
-        // TODO: #![feature(str_split_once)]
-        let ids: Vec<_> = text_id.splitn(2, '.').collect();
+    let pattern = if let Some((msg, attr)) = text_id.split_once('.') {
         bundle
-            .get_message(ids[0])?
+            .get_message(msg)?
             .attributes()
-            .find(|attribute| attribute.id() == ids[1])?
+            .find(|attribute| attribute.id() == attr)?
             .value()
     } else {
         bundle.get_message(text_id)?.value()?
     };
 
-    let args = super::map_to_fluent_args(args);
+    let args = args.map(super::map_to_fluent_args);
     let value = bundle.format_pattern(pattern, args.as_ref(), &mut errors);
 
     if errors.is_empty() {
         Some(value.into())
     } else {
-        panic!(
-            "Failed to format a message for locale {} and id {}.\nErrors\n{:?}",
-            lang, text_id, errors
-        )
+        panic!("Failed to format a message for locale {lang} and id {text_id}.\nErrors\n{errors:?}")
     }
 }
 

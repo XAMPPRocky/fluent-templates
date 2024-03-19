@@ -74,7 +74,7 @@ impl super::Loader for StaticLoader {
                 return val;
             }
         }
-        format!("Unknown localization {}", text_id)
+        format!("Unknown localization {text_id}")
     }
 
     // Traverse the fallback chain,
