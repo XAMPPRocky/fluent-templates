@@ -1,6 +1,5 @@
 use fluent_bundle::FluentValue;
 use serde_json::Value as Json;
-use snafu::OptionExt;
 use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
@@ -9,15 +8,15 @@ use crate::Loader;
 const LANG_KEY: &str = "lang";
 const FLUENT_KEY: &str = "key";
 
-#[derive(Debug, snafu::Snafu)]
+#[derive(Debug, thiserror::Error)]
 enum Error {
-    #[snafu(display("No `lang` argument provided."))]
+    #[error("No `lang` argument provided.")]
     NoLangArgument,
-    #[snafu(display("`lang` must be a valid unicode language identifier."))]
+    #[error("`lang` must be a valid unicode language identifier.")]
     LangArgumentInvalid,
-    #[snafu(display("No `id` argument provided."))]
+    #[error("No `id` argument provided.")]
     NoFluentArgument,
-    #[snafu(display("Couldn't convert JSON to Fluent value."))]
+    #[error("Couldn't convert JSON to Fluent value.")]
     JsonToFluentFail,
 }
 
@@ -38,10 +37,10 @@ fn json_to_fluent(json: Json) -> crate::Result<FluentValue<'static>, Error> {
 
 fn parse_language(arg: &Json) -> crate::Result<LanguageIdentifier, Error> {
     arg.as_str()
-        .context(self::LangArgumentInvalidSnafu)?
+        .ok_or(Error::LangArgumentInvalid)?
         .parse::<LanguageIdentifier>()
         .ok()
-        .context(self::LangArgumentInvalidSnafu)
+        .ok_or(Error::LangArgumentInvalid)
 }
 
 impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
@@ -50,12 +49,12 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
         let lang = lang_arg
             .as_ref()
             .or(self.default_lang.as_ref())
-            .context(self::NoLangArgumentSnafu)?;
+            .ok_or(Error::NoLangArgument)?;
 
         let id = args
             .get(FLUENT_KEY)
             .and_then(Json::as_str)
-            .context(self::NoFluentArgumentSnafu)?;
+            .ok_or(Error::NoFluentArgument)?;
 
         /// Filters kwargs to exclude ones used by this function and tera.
         fn is_not_tera_key((k, _): &(&String, &Json)) -> bool {
