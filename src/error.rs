@@ -1,5 +1,7 @@
 use std::fmt;
 
+use unic_langid::LanguageIdentifier;
+
 /// Errors that can occur when loading or parsing fluent resources.
 #[derive(Debug, thiserror::Error)]
 pub enum LoaderError {
@@ -53,3 +55,19 @@ impl fmt::Display for FluentError {
 }
 
 impl std::error::Error for FluentError {}
+
+/// An error that happened while looking up messages
+#[derive(Debug, thiserror::Error)]
+pub enum LookupError {
+    #[error("Couldn't retrieve message with ID `{0}`")]
+    MessageRetrieval(String),
+    #[error("Couldn't find attribute `{attribute}` for message-id `{message_id}`")]
+    AttributeNotFound {
+        message_id: String,
+        attribute: String,
+    },
+    #[error("Language ID `{0}` has not been loaded")]
+    LangNotLoaded(LanguageIdentifier),
+    #[error("Fluent errors: {0:?}")]
+    FluentError(Vec<fluent_bundle::FluentError>),
+}
