@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    fs,
     path::{Path, PathBuf},
 };
 
@@ -124,26 +123,27 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
     compile_error!("one of the features `ignore` or `walkdir` must be enabled.");
 
     #[cfg(feature = "ignore")]
-    ignore::WalkBuilder::new(path).build_parallel().run(|| {
-        let tx = tx.clone();
-        Box::new(move |result| {
-            if let Ok(entry) = result {
-                if entry
-                    .file_type()
-                    .as_ref()
-                    .map_or(false, fs::FileType::is_file)
-                    && entry.path().extension().map_or(false, |e| e == "ftl")
-                {
-                    tx.send(entry.path().display().to_string()).unwrap();
+    ignore::WalkBuilder::new(path)
+        .follow_links(true)
+        .build_parallel()
+        .run(|| {
+            let tx = tx.clone();
+            Box::new(move |result| {
+                if let Ok(entry) = result {
+                    if entry.file_type().as_ref().map_or(false, |e| e.is_file())
+                        && entry.path().extension().map_or(false, |e| e == "ftl")
+                    {
+                        tx.send(entry.path().display().to_string()).unwrap();
+                    }
                 }
-            }
 
-            ignore::WalkState::Continue
-        })
-    });
+                ignore::WalkState::Continue
+            })
+        });
 
     #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
     walkdir::WalkDir::new(path)
+        .follow_links(true)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
