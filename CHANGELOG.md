@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.1...fluent-templates-v0.9.2) - 2024-04-12
+
+### Other
+- Add follow_links to support builds with Bazel ([#62](https://github.com/XAMPPRocky/fluent-templates/pull/62))
+- remove snafu ([#60](https://github.com/XAMPPRocky/fluent-templates/pull/60))
+
 - Remove unused `lazy_static`, replace `snafu` with `thiserror`, bump `flume` to `0.11`
 
 ## [0.9.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.0...fluent-templates-v0.9.1) - 2024-03-10
