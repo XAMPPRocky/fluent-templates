@@ -48,12 +48,12 @@ handlebars = { version = "5", optional = true }
 fluent = "0.16"
 fluent-bundle = "0.15.2"
 fluent-syntax = "0.11"
-fluent-langneg = "0.13"
+fluent-langneg = "0.14"
 serde_json = "1.0.79"
 unic-langid = { workspace = true, features = ["macros"] }
 thiserror = "1.0.58"
 tera = { version = "1.15.0", optional = true, default-features = false }
-heck = "0.4.0"
+heck = "0.5.0"
 ignore = { workspace = true, optional = true  }
 flume = { workspace = true }
 log = "0.4.14"
