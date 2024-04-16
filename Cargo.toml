@@ -53,7 +53,7 @@ serde_json = "1.0.79"
 unic-langid = { workspace = true, features = ["macros"] }
 thiserror = "1.0.58"
 tera = { version = "1.15.0", optional = true, default-features = false }
-heck = "0.4.0"
+heck = "0.5.0"
 ignore = { workspace = true, optional = true  }
 flume = { workspace = true }
 log = "0.4.14"
