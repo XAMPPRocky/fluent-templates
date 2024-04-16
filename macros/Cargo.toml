@@ -23,8 +23,8 @@ default = ["ignore"]
 quote = "1.0.15"
 syn = { version = "2.0", features = ["full"] }
 proc-macro2 = "1.0.36"
-once_cell = "1.10.0"
-ignore = { version = "0.4.16", optional = true }
-flume = { version = "0.10.12", default-features = false }
-unic-langid = "0.9.0"
-walkdir = { version = "2.3.3", optional = true }
+once_cell = { workspace = true }
+ignore = { workspace = true, optional = true }
+flume = { workspace = true }
+unic-langid = { workspace = true }
+walkdir = { workspace = true, optional = true }
