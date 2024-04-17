@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.2...fluent-templates-v0.9.3) - 2024-04-17
+
+### Other
+- Move common dependencies up to workspace level ([#64](https://github.com/XAMPPRocky/fluent-templates/pull/64))
+
 ## [0.9.2](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.1...fluent-templates-v0.9.2) - 2024-04-12
 
 ### Other
