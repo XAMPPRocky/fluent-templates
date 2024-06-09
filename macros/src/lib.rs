@@ -71,7 +71,7 @@ impl Parse for StaticLoader {
         let core_locales = if let Some(core_locales) = &core_locales {
             let core_locales_path = workspace_path.join(core_locales.value());
             if std::fs::metadata(&core_locales_path).is_err() {
-                return Err(syn::Error::new(core_locales.span(), "Couldn't read core fluent resource, this path should be relative to your crate's `Cargo.toml`."));
+                return Err(syn::Error::new(core_locales.span(), format!("Couldn't read core fluent resource, this path should be relative to your crate's `Cargo.toml`. Looking for: {:?}", core_locales_path)));
             }
             Some(core_locales_path)
         } else {
