@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{languages::negotiate_languages, FluentBundle};
+use crate::{error::LookupError, languages::negotiate_languages, FluentBundle};
 use fluent_bundle::{FluentResource, FluentValue};
 
 pub use unic_langid::LanguageIdentifier;
@@ -39,7 +39,7 @@ impl StaticLoader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<S, FluentValue>>,
-    ) -> Option<String> {
+    ) -> Result<String, LookupError> {
         super::shared::lookup_single_language(self.bundles, lang, text_id, args)
     }
 
@@ -64,13 +64,13 @@ impl super::Loader for StaticLoader {
         args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
-            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
                 return val;
             }
         }
 
         if *lang != self.fallback {
-            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return val;
             }
         }
@@ -85,13 +85,13 @@ impl super::Loader for StaticLoader {
         args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
-            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
                 return Some(val);
             }
         }
 
         if *lang != self.fallback {
-            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return Some(val);
             }
         }

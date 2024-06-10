@@ -7,7 +7,7 @@ use crate::languages::negotiate_languages;
 use crate::FluentBundle;
 use fluent_bundle::{FluentResource, FluentValue};
 
-use crate::error::LoaderError;
+use crate::error::{LoaderError, LookupError};
 
 pub use unic_langid::LanguageIdentifier;
 
@@ -114,12 +114,12 @@ impl super::Loader for ArcLoader {
         args: Option<&HashMap<T, FluentValue>>,
     ) -> String {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
-            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
                 return val;
             }
         }
         if *lang != self.fallback {
-            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return val;
             }
         }
@@ -134,12 +134,12 @@ impl super::Loader for ArcLoader {
         args: Option<&HashMap<T, FluentValue>>,
     ) -> Option<String> {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
-            if let Some(val) = self.lookup_single_language(lang, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
                 return Some(val);
             }
         }
         if *lang != self.fallback {
-            if let Some(val) = self.lookup_single_language(&self.fallback, text_id, args) {
+            if let Ok(val) = self.lookup_single_language(&self.fallback, text_id, args) {
                 return Some(val);
             }
         }
@@ -171,7 +171,7 @@ impl ArcLoader {
         lang: &LanguageIdentifier,
         text_id: &str,
         args: Option<&HashMap<T, FluentValue>>,
-    ) -> Option<String> {
+    ) -> Result<String, LookupError> {
         super::shared::lookup_single_language(&self.bundles, lang, text_id, args)
     }
 
