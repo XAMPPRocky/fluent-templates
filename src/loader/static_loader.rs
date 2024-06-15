@@ -12,7 +12,7 @@ pub use unic_langid::LanguageIdentifier;
 pub struct StaticLoader {
     bundles: &'static HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>>,
     fallbacks: &'static HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
-    fallback: LanguageIdentifier,
+    pub fallback: LanguageIdentifier,
 }
 
 impl StaticLoader {
