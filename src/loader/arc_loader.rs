@@ -101,7 +101,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 /// ```
 pub struct ArcLoader {
     bundles: HashMap<LanguageIdentifier, FluentBundle<Arc<FluentResource>>>,
-    pub fallback: LanguageIdentifier,
+    fallback: LanguageIdentifier,
     fallbacks: HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
 }
 
@@ -190,5 +190,10 @@ impl ArcLoader {
             text_id,
             args,
         )
+    }
+
+    /// Return the fallback language
+    pub fn fallback(&self) -> &LanguageIdentifier {
+        &self.fallback
     }
 }

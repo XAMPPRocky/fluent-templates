@@ -12,7 +12,7 @@ pub use unic_langid::LanguageIdentifier;
 pub struct StaticLoader {
     bundles: &'static HashMap<LanguageIdentifier, FluentBundle<&'static FluentResource>>,
     fallbacks: &'static HashMap<LanguageIdentifier, Vec<LanguageIdentifier>>,
-    pub fallback: LanguageIdentifier,
+    fallback: LanguageIdentifier,
 }
 
 impl StaticLoader {
@@ -52,6 +52,11 @@ impl StaticLoader {
         args: Option<&HashMap<S, FluentValue>>,
     ) -> Option<String> {
         super::shared::lookup_no_default_fallback(self.bundles, self.fallbacks, lang, text_id, args)
+    }
+
+    /// Return the fallback language
+    pub fn fallback(&self) -> &LanguageIdentifier {
+        &self.fallback
     }
 }
 
