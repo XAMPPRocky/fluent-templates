@@ -191,4 +191,9 @@ impl ArcLoader {
             args,
         )
     }
+
+    /// Return the fallback language
+    pub fn fallback(&self) -> &LanguageIdentifier {
+        &self.fallback
+    }
 }

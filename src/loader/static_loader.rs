@@ -53,6 +53,11 @@ impl StaticLoader {
     ) -> Option<String> {
         super::shared::lookup_no_default_fallback(self.bundles, self.fallbacks, lang, text_id, args)
     }
+
+    /// Return the fallback language
+    pub fn fallback(&self) -> &LanguageIdentifier {
+        &self.fallback
+    }
 }
 
 impl super::Loader for StaticLoader {
