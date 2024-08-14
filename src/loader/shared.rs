@@ -12,7 +12,8 @@ pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
     text_id: &str,
     args: Option<&HashMap<T, FluentValue>>,
 ) -> Result<String, LookupError> {
-    let bundle = bundles.get(lang)
+    let bundle = bundles
+        .get(lang)
         .ok_or_else(|| LookupError::LangNotLoaded(lang.clone()))?;
 
     let mut errors = Vec::new();
@@ -30,7 +31,8 @@ pub fn lookup_single_language<T: AsRef<str>, R: Borrow<FluentResource>>(
             })?
             .value()
     } else {
-        bundle.get_message(text_id)
+        bundle
+            .get_message(text_id)
             .ok_or_else(message_retrieve_error)?
             .value()
             .ok_or_else(message_retrieve_error)?

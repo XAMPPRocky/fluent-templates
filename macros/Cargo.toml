@@ -17,7 +17,9 @@ proc-macro = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["ignore"]
+default = []
+ignore = ["dep:ignore", "dep:flume"]
+walkdir = ["dep:walkdir"]
 
 [dependencies]
 quote = "1.0.15"
@@ -25,6 +27,6 @@ syn = { version = "2.0", features = ["full"] }
 proc-macro2 = "1.0.36"
 once_cell = { workspace = true }
 ignore = { workspace = true, optional = true }
-flume = { workspace = true }
+flume = { workspace = true, optional = true }
 unic-langid = { workspace = true }
 walkdir = { workspace = true, optional = true }

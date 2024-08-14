@@ -32,49 +32,55 @@ pub fn resources_from_vec(srcs: &[String]) -> crate::Result<Vec<FluentResource>>
 }
 
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<FluentResource>> {
-    let (tx, rx) = flume::unbounded();
+    #[cfg(not(any(feature = "ignore", feature = "walkdir")))]
+    compile_error!("one of the features `ignore` or `walkdir` must be enabled.");
 
-    #[cfg(not(any(feature = "use-ignore", feature = "walkdir",)))]
-    compile_error!("one of the features `use-ignore` or `walkdir` must be enabled.");
+    #[cfg(feature = "ignore")]
+    {
+        let (tx, rx) = flume::unbounded();
 
-    #[cfg(feature = "use-ignore")]
-    ignore::WalkBuilder::new(path).build_parallel().run(|| {
-        let tx = tx.clone();
-        Box::new(move |result| {
-            if let Ok(entry) = result {
-                if entry
-                    .file_type()
-                    .as_ref()
-                    .map_or(false, fs::FileType::is_file)
-                    && entry.path().extension().map_or(false, |e| e == "ftl")
-                {
-                    if let Ok(string) = std::fs::read_to_string(entry.path()) {
-                        let _ = tx.send(string);
-                    } else {
-                        log::warn!("Couldn't read {}", entry.path().display());
+        ignore::WalkBuilder::new(path).build_parallel().run(|| {
+            let tx = tx.clone();
+            Box::new(move |result| {
+                if let Ok(entry) = result {
+                    if entry
+                        .file_type()
+                        .as_ref()
+                        .map_or(false, fs::FileType::is_file)
+                        && entry.path().extension().map_or(false, |e| e == "ftl")
+                    {
+                        if let Ok(string) = std::fs::read_to_string(entry.path()) {
+                            let _ = tx.send(string);
+                        } else {
+                            log::warn!("Couldn't read {}", entry.path().display());
+                        }
                     }
                 }
-            }
 
-            ignore::WalkState::Continue
-        })
-    });
-
-    #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
-    walkdir::WalkDir::new(path)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_file())
-        .filter(|e| e.path().extension().map_or(false, |e| e == "ftl"))
-        .for_each(|e| {
-            if let Ok(string) = std::fs::read_to_string(e.path()) {
-                let _ = tx.send(string);
-            } else {
-                log::warn!("Couldn't read {}", e.path().display());
-            }
+                ignore::WalkState::Continue
+            })
         });
 
-    resources_from_vec(&rx.drain().collect::<Vec<_>>())
+        return resources_from_vec(&rx.drain().collect::<Vec<_>>());
+    }
+
+    #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
+    {
+        let mut srcs = Vec::new();
+        walkdir::WalkDir::new(path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
+            .filter(|e| e.path().extension().map_or(false, |e| e == "ftl"))
+            .for_each(|e| {
+                if let Ok(string) = std::fs::read_to_string(e.path()) {
+                    srcs.push(string);
+                } else {
+                    log::warn!("Couldn't read {}", e.path().display());
+                }
+            });
+        return resources_from_vec(&srcs);
+    }
 }
 
 #[cfg(test)]
