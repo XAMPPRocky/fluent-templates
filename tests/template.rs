@@ -33,12 +33,11 @@ macro_rules! generate_tests {
     ($(fn $locale_test_fn:ident ($template_engine:ident, $locale:expr) {
         $($assert_macro:ident ! ( $lhs:expr , $rhs:expr ) );* $(;)?
     })+) => {
-        use serde_json::json;
         use fluent_templates::*;
         $(
             #[test]
             fn $locale_test_fn() {
-                let data = json!({"lang": $locale});
+                let data = serde_json::json!({"lang": $locale});
 
                 #[cfg(feature = "handlebars")]
                 if stringify!($template_engine) == "handlebars" {

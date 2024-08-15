@@ -336,8 +336,6 @@ pub use fluent_template_macros::static_loader;
 pub use unic_langid::LanguageIdentifier;
 
 #[doc(hidden)]
-pub use arc_swap;
-#[doc(hidden)]
 pub use once_cell;
 
 /// A convenience `Result` type that defaults to `error::Loader`.
