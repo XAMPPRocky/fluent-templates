@@ -20,9 +20,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-        feature: [handlebars, tera]
+        third-party-integration-feature: [handlebars, tera]
+        file-walker-feature: [walkdir, ignore]
     steps:
       - uses: actions/checkout@v2
       - run: |
-          cargo build --features ${{ matrix.feature }}
-          cargo test --features ${{ matrix.feature }} --verbose
+          cargo build --features ${{ matrix.third-party-integration-feature }},${{ matrix.file-walker-feature }}
+          cargo test --verbose --features ${{ matrix.third-party-integration-feature }},${{ matrix.file-walker-feature }}

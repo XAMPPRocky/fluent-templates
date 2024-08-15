@@ -117,29 +117,33 @@ fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<Stri
 /// Copied from `fluent_templates::fs` to avoid needing a seperate crate to
 /// share the function.
 pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
-    let (tx, rx) = flume::unbounded();
-
     #[cfg(not(any(feature = "ignore", feature = "walkdir",)))]
     compile_error!("one of the features `ignore` or `walkdir` must be enabled.");
 
     #[cfg(feature = "ignore")]
-    ignore::WalkBuilder::new(path)
-        .follow_links(true)
-        .build_parallel()
-        .run(|| {
-            let tx = tx.clone();
-            Box::new(move |result| {
-                if let Ok(entry) = result {
-                    if entry.file_type().as_ref().map_or(false, |e| e.is_file())
-                        && entry.path().extension().map_or(false, |e| e == "ftl")
-                    {
-                        tx.send(entry.path().display().to_string()).unwrap();
-                    }
-                }
+    {
+        let (tx, rx) = flume::unbounded();
 
-                ignore::WalkState::Continue
-            })
-        });
+        ignore::WalkBuilder::new(path)
+            .follow_links(true)
+            .build_parallel()
+            .run(|| {
+                let tx = tx.clone();
+                Box::new(move |result| {
+                    if let Ok(entry) = result {
+                        if entry.file_type().as_ref().map_or(false, |e| e.is_file())
+                            && entry.path().extension().map_or(false, |e| e == "ftl")
+                        {
+                            tx.send(entry.path().display().to_string()).unwrap();
+                        }
+                    }
+
+                    ignore::WalkState::Continue
+                })
+            });
+
+        return rx.drain().collect();
+    }
 
     #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
     walkdir::WalkDir::new(path)
@@ -148,15 +152,8 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
         .filter(|e| e.path().extension().map_or(false, |e| e == "ftl"))
-        .for_each(|e| {
-            if let Ok(string) = std::fs::read_to_string(e.path()) {
-                let _ = tx.send(string);
-            } else {
-                log::warn!("Couldn't read {}", e.path().display());
-            }
-        });
-
-    rx.drain().collect::<Vec<_>>()
+        .map(|e| e.path().display().to_string())
+        .collect()
 }
 
 /// Loads all of your fluent resources at compile time as `&'static str`s and
