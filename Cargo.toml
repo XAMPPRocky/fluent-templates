@@ -17,7 +17,7 @@ rust-version = "1.70.0"
 
 [workspace.package]
 edition = "2021"
-version = "0.9.4"
+version = "0.10.0"
 license = "MIT/Apache-2.0"
 documentation = "https://docs.rs/fluent-templates/"
 repository = "https://github.com/XAMPPRocky/fluent-templates"
@@ -60,7 +60,7 @@ heck = { version = "0.5", optional = true }
 ignore = { workspace = true, optional = true }
 flume = { workspace = true, optional = true }
 log = { version = "0.4", optional = true }
-fluent-template-macros = { path = "./macros", optional = true, version = "0.9.4" }
+fluent-template-macros = { path = "./macros", optional = true, version = "0.10.0" }
 once_cell = { workspace = true }
 intl-memoizer = "0.5"
 walkdir = { workspace = true, optional = true }
