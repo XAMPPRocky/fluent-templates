@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.9.4...fluent-template-macros-v0.10.0) - 2024-08-16
+
+### Other
+- Make `flume` dependency optional and cleanup features ([#73](https://github.com/XAMPPRocky/fluent-templates/pull/73))
+- Show `core_locales` resolved path when file not found in static loader ([#69](https://github.com/XAMPPRocky/fluent-templates/pull/69))
+
 ## [0.9.3](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.9.2...fluent-template-macros-v0.9.3) - 2024-04-17
 
 ### Other

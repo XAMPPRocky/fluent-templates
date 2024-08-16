@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.4...fluent-templates-v0.10.0) - 2024-08-16
+
+### Added
+- [**breaking**] Relax dependencies ([#74](https://github.com/XAMPPRocky/fluent-templates/pull/74))
+- swap panic for error handling ([#63](https://github.com/XAMPPRocky/fluent-templates/pull/63))
+
+### Other
+- Make `flume` dependency optional and cleanup features ([#73](https://github.com/XAMPPRocky/fluent-templates/pull/73))
+- Make `fallback` fields of `StaticLoader` and `ArcLoader` public ([#71](https://github.com/XAMPPRocky/fluent-templates/pull/71))
+
 ## [0.9.4](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.3...fluent-templates-v0.9.4) - 2024-04-22
 
 ### Other
