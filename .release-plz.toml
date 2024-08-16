@@ -1,0 +1,3 @@
+[[package]]
+name = "fluent-template-macros"
+publish_features = ["ignore"]
