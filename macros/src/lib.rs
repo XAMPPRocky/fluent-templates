@@ -281,10 +281,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         };
 
         let language_quote = {
-            let language_as_bytes = fallback_language_identifier.language.as_str().as_bytes();
-            let mut language_buf = [0u8; 8];
-            language_buf[..language_as_bytes.len()].copy_from_slice(language_as_bytes);
-            let language_as_u64 = u64::from_le_bytes(language_buf);
+            let language_as_u64 = str_to_u64(fallback_language_identifier.language.as_str());
             quote! {
                 unsafe { unic_langid::subtags::Language::from_raw_unchecked(#language_as_u64) }
             }
