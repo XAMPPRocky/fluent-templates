@@ -208,11 +208,27 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         quote!(None)
     };
 
+    let fallback_language_value = fallback_language.value();
+    let maybe_fallback_language_identifier =
+        fallback_language_value.parse::<unic_langid::LanguageIdentifier>();
+    if !maybe_fallback_language_identifier.is_ok() {
+        return syn::Error::new(
+            fallback_language.span(),
+            format!(
+                "Invalid language identifier \"{}\" for fallback language",
+                &fallback_language_value
+            ),
+        )
+        .to_compile_error()
+        .into();
+    }
+    let fallback_language_identifier = maybe_fallback_language_identifier.unwrap();
+
     let mut insert_resources: Vec<_> = build_resources(locales_directory).into_iter().collect();
 
     if !insert_resources
         .iter()
-        .any(|(lang, _)| *lang == fallback_language.value())
+        .any(|(lang, _)| *lang == fallback_language_value)
     {
         return syn::Error::new(
             fallback_language.span(),
@@ -246,6 +262,84 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         resources
     };
 
+    let FALLBACK: TokenStream = {
+        // Initialize the language identifier from the fallback language string
+        // using unsafe code from bytes built at compile time.
+
+        let str_to_u32 = |part_str: &str| -> u32 {
+            let script_as_bytes = part_str.as_bytes();
+            let mut script_buf = [0u8; 4];
+            script_buf[..script_as_bytes.len()].copy_from_slice(script_as_bytes);
+            u32::from_le_bytes(script_buf)
+        };
+
+        let str_to_u64 = |part_str: &str| -> u64 {
+            let script_as_bytes = part_str.as_bytes();
+            let mut script_buf = [0u8; 8];
+            script_buf[..script_as_bytes.len()].copy_from_slice(script_as_bytes);
+            u64::from_le_bytes(script_buf)
+        };
+
+        let language_quote = {
+            let language_as_bytes = fallback_language_identifier.language.as_str().as_bytes();
+            let mut language_buf = [0u8; 8];
+            language_buf[..language_as_bytes.len()].copy_from_slice(language_as_bytes);
+            let language_as_u64 = u64::from_le_bytes(language_buf);
+            quote! {
+                unsafe { unic_langid::subtags::Language::from_raw_unchecked(#language_as_u64) }
+            }
+        };
+        let script_quote = match fallback_language_identifier.script {
+            Some(script) => {
+                let script_as_u32 = str_to_u32(script.as_str());
+                quote! {
+                    Some(unsafe { unic_langid::subtags::Script::from_raw_unchecked(#script_as_u32) })
+                }
+            }
+            None => quote!(None),
+        };
+        let region_quote = match fallback_language_identifier.region {
+            Some(region) => {
+                let region_as_u32 = str_to_u32(region.as_str());
+                quote! {
+                    Some(unsafe { unic_langid::subtags::Region::from_raw_unchecked(#region_as_u32) })
+                }
+            }
+            None => quote!(None),
+        };
+        let variants_quote = {
+            let variants_as_str = fallback_language_identifier
+                .variants()
+                .map(|v| v.as_str())
+                .collect::<Vec<_>>();
+            match variants_as_str.is_empty() {
+                false => {
+                    let mut variants_quote = "Some(Box::new([".to_string();
+                    for variant in variants_as_str {
+                        let variant_as_u64 = str_to_u64(variant);
+                        variants_quote.push_str(&format!(
+                            "unsafe {{ unic_langid::subtags::Variant::from_raw_unchecked({}) }},",
+                            variant_as_u64
+                        ));
+                    }
+                    variants_quote.pop();
+                    variants_quote.push_str("]))");
+                    variants_quote.parse::<TokenStream>().unwrap()
+                }
+                true => quote!(None),
+            }
+        };
+
+        quote! {
+            #CRATE_NAME::LanguageIdentifier::from_raw_parts_unchecked(
+                #language_quote,
+                #script_quote,
+                #region_quote,
+                #variants_quote,
+            )
+        }
+    };
+
     let quote = quote! {
         #vis static #name : #LAZY<#CRATE_NAME::StaticLoader> = #LAZY::new(|| {
             static CORE_RESOURCE:
@@ -271,18 +365,16 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
                     )
                 });
 
-            static LOCALES:
-                #LAZY<Vec<#LANGUAGE_IDENTIFIER>> =
-                #LAZY::new(|| RESOURCES.keys().cloned().collect());
-
             static FALLBACKS:
                 #LAZY<#HASHMAP<#LANGUAGE_IDENTIFIER, Vec<#LANGUAGE_IDENTIFIER>>> =
-                #LAZY::new(|| #CRATE_NAME::loader::build_fallbacks(&*LOCALES));
+                #LAZY::new(|| #CRATE_NAME::loader::build_fallbacks(
+                    &RESOURCES.keys().cloned().collect::<Vec<#LANGUAGE_IDENTIFIER>>()
+                ));
 
             #CRATE_NAME::StaticLoader::new(
                 &BUNDLES,
                 &FALLBACKS,
-                #fallback_language.parse().expect("invalid fallback language")
+                #FALLBACK
             )
         });
     };
