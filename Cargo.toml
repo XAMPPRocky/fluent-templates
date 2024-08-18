@@ -48,7 +48,6 @@ tera = ["dep:tera", "dep:heck", "dep:serde_json"]
 
 [dependencies]
 handlebars = { version = "5", optional = true }
-fluent = "0.16"
 fluent-bundle = "0.15"
 fluent-syntax = "0.11"
 fluent-langneg = "0.13"
