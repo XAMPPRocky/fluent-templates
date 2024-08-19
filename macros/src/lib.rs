@@ -209,9 +209,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     };
 
     let fallback_language_value = fallback_language.value();
-    let maybe_fallback_language_identifier =
-        fallback_language_value.parse::<unic_langid::LanguageIdentifier>();
-    if !maybe_fallback_language_identifier.is_ok() {
+    if !fallback_language_value.parse::<unic_langid::LanguageIdentifier>().is_ok() {
         return syn::Error::new(
             fallback_language.span(),
             format!(
