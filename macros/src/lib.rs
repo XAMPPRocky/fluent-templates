@@ -295,7 +295,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
             #CRATE_NAME::StaticLoader::new(
                 &BUNDLES,
                 &FALLBACKS,
-                #CRATE_NAME::LanguageIdentifier::langid!(#fallback_language_value)
+                #CRATE_NAME::langid!(#fallback_language_value)
             )
         });
     };
