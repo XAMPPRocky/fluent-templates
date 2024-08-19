@@ -208,11 +208,24 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         quote!(None)
     };
 
+    let fallback_language_value = fallback_language.value();
+    if !fallback_language_value.parse::<unic_langid::LanguageIdentifier>().is_ok() {
+        return syn::Error::new(
+            fallback_language.span(),
+            format!(
+                "Invalid language identifier \"{}\" for fallback language",
+                &fallback_language_value
+            ),
+        )
+        .to_compile_error()
+        .into();
+    }
+
     let mut insert_resources: Vec<_> = build_resources(locales_directory).into_iter().collect();
 
     if !insert_resources
         .iter()
-        .any(|(lang, _)| *lang == fallback_language.value())
+        .any(|(lang, _)| *lang == fallback_language_value)
     {
         return syn::Error::new(
             fallback_language.span(),
@@ -271,18 +284,16 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
                     )
                 });
 
-            static LOCALES:
-                #LAZY<Vec<#LANGUAGE_IDENTIFIER>> =
-                #LAZY::new(|| RESOURCES.keys().cloned().collect());
-
             static FALLBACKS:
                 #LAZY<#HASHMAP<#LANGUAGE_IDENTIFIER, Vec<#LANGUAGE_IDENTIFIER>>> =
-                #LAZY::new(|| #CRATE_NAME::loader::build_fallbacks(&*LOCALES));
+                #LAZY::new(|| #CRATE_NAME::loader::build_fallbacks(
+                    &RESOURCES.keys().cloned().collect::<Vec<#LANGUAGE_IDENTIFIER>>()
+                ));
 
             #CRATE_NAME::StaticLoader::new(
                 &BUNDLES,
                 &FALLBACKS,
-                #fallback_language.parse().expect("invalid fallback language")
+                #CRATE_NAME::langid!(#fallback_language_value)
             )
         });
     };

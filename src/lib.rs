@@ -334,6 +334,8 @@ pub mod loader;
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;
 pub use unic_langid::LanguageIdentifier;
+#[cfg(feature = "macros")]
+pub use unic_langid::langid;
 
 #[doc(hidden)]
 pub use once_cell;
