@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.10.0...fluent-templates-v0.10.1) - 2024-08-19
+
+### Fixed
+- Drop `fluent` dependency ([#76](https://github.com/XAMPPRocky/fluent-templates/pull/76))
+
+### Other
+- Optimize fallback initialization on static loader macro ([#77](https://github.com/XAMPPRocky/fluent-templates/pull/77))
+
 ## [0.10.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.9.4...fluent-templates-v0.10.0) - 2024-08-16
 
 ### Added
