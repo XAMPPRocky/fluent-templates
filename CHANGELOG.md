@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.10.1...fluent-templates-v0.11.0) - 2024-09-22
+
+### Added
+
+- [**breaking**] upgrade to handlebars 6 ([#79](https://github.com/XAMPPRocky/fluent-templates/pull/79))
+
 ## [0.10.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.10.0...fluent-templates-v0.10.1) - 2024-08-19
 
 ### Fixed
