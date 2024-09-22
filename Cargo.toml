@@ -23,7 +23,13 @@ documentation = "https://docs.rs/fluent-templates/"
 repository = "https://github.com/XAMPPRocky/fluent-templates"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 description = "Templating for the Fluent localization framework"
-keywords = ["handlebars", "tera", "fluent", "internationalization", "localization"]
+keywords = [
+    "handlebars",
+    "tera",
+    "fluent",
+    "internationalization",
+    "localization",
+]
 categories = ["internationalization", "localization", "template-engine"]
 
 [workspace.dependencies]
@@ -47,7 +53,7 @@ handlebars = ["dep:handlebars", "dep:serde_json"]
 tera = ["dep:tera", "dep:heck", "dep:serde_json"]
 
 [dependencies]
-handlebars = { version = "5", optional = true }
+handlebars = { version = "6", optional = true }
 fluent-bundle = "0.15"
 fluent-syntax = "0.11"
 fluent-langneg = "0.13"
