@@ -322,7 +322,7 @@ pub type FluentBundle<R> =
     fluent_bundle::bundle::FluentBundle<R, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use error::LoaderError;
-pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, StaticLoader};
+pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, MultiLoader, StaticLoader};
 
 mod error;
 #[doc(hidden)]
@@ -346,12 +346,11 @@ pub type Result<T, E = error::LoaderError> = std::result::Result<T, E>;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Loader;
+    use unic_langid::{langid, LanguageIdentifier};
 
     #[test]
     fn check_if_loader_is_object_safe() {
-        use crate::Loader;
-        use unic_langid::{langid, LanguageIdentifier};
-
         const US_ENGLISH: LanguageIdentifier = langid!("en-US");
 
         let loader = ArcLoader::builder("./tests/locales", US_ENGLISH)
@@ -361,5 +360,31 @@ mod tests {
 
         let loader: Box<dyn Loader> = Box::new(loader);
         assert_eq!("Hello World!", loader.lookup(&US_ENGLISH, "hello-world"));
+    }
+
+    #[test]
+    fn check_if_multiloader_works() {
+        const US_ENGLISH: LanguageIdentifier = langid!("en-US");
+        const CHINESE: LanguageIdentifier = langid!("zh-CN");
+
+        let en_loader = ArcLoader::builder("./tests/locales", US_ENGLISH)
+            .customize(|bundle| bundle.set_use_isolating(false))
+            .build()
+            .unwrap();
+        let cn_loader = ArcLoader::builder("./tests/locales", CHINESE)
+            .customize(|bundle| bundle.set_use_isolating(false))
+            .build()
+            .unwrap();
+
+        let multiloader = MultiLoader::from_iter([
+            Box::new(en_loader) as Box<dyn Loader>,
+            Box::new(cn_loader) as Box<dyn Loader>,
+        ]);
+
+        assert_eq!(
+            "Hello World!",
+            multiloader.lookup(&US_ENGLISH, "hello-world")
+        );
+        assert_eq!("儿", multiloader.lookup(&CHINESE, "exists"));
     }
 }
