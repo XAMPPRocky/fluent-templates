@@ -342,3 +342,24 @@ pub use once_cell;
 
 /// A convenience `Result` type that defaults to `error::Loader`.
 pub type Result<T, E = error::LoaderError> = std::result::Result<T, E>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_if_loader_is_object_safe() {
+        use crate::Loader;
+        use unic_langid::{langid, LanguageIdentifier};
+
+        const US_ENGLISH: LanguageIdentifier = langid!("en-US");
+
+        let loader = ArcLoader::builder("./tests/locales", US_ENGLISH)
+            .customize(|bundle| bundle.set_use_isolating(false))
+            .build()
+            .unwrap();
+
+        let loader: Box<dyn Loader> = Box::new(loader);
+        assert_eq!("Hello World!", loader.lookup(&US_ENGLISH, "hello-world"));
+    }
+}
