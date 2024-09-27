@@ -1,7 +1,7 @@
 use crate::Loader;
 use fluent_bundle::FluentValue;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 pub use unic_langid::LanguageIdentifier;
 
@@ -9,8 +9,53 @@ pub use unic_langid::LanguageIdentifier;
 ///
 /// This loader allows for loaders with multiple sources to be used
 /// from a single one, instead of a multiple of them.
+///
+/// The idea behind this loader is to allow for the scenario where you depend
+/// on crates that have their own loader (think of protocol crates which
+/// are dependencies of a frontend -> the frontend needs to know each of
+/// the protocol's messages and be able to display them). Using a multiloader
+/// allows you to query multiple localization sources from one single source.
+///
+/// Note that a [`M̀ultiloader`] is most useful where each of your fluent modules
+/// is specially namespaced to avoid name collisions.
+///
+/// # Usage
+/// ```rust
+/// use fluent_templates::{ArcLoader, StaticLoader, MultiLoader, Loader};
+/// use unic_langid::{LanguageIdentifier, langid};
+///
+/// const US_ENGLISH: LanguageIdentifier = langid!("en-US");
+/// const CHINESE: LanguageIdentifier = langid!("zh-CN");
+///
+/// fluent_templates::static_loader! {
+///     static LOCALES = {
+///         locales: "./tests/locales",
+///         fallback_language: "en-US",
+///         // Removes unicode isolating marks around arguments, you typically
+///         // should only set to false when testing.
+///         customise: |bundle| bundle.set_use_isolating(false),
+///     };
+/// }
+///
+/// fn main() {
+///     let cn_loader = ArcLoader::builder("./tests/locales", CHINESE)
+///         .customize(|bundle| bundle.set_use_isolating(false))
+///         .build()
+///         .unwrap();
+///
+///     let multiloader = MultiLoader::from_iter([
+///         Box::new(&*LOCALES) as Box<dyn Loader>,
+///         Box::new(cn_loader) as Box<dyn Loader>,
+///     ]);
+///     assert_eq!("Hello World!", multiloader.lookup(&US_ENGLISH, "hello-world"));
+///     assert_eq!("儿", multiloader.lookup(&CHINESE, "exists"));
+/// }
+/// ```
+///
+/// # Order of search
+/// The one that is inserted first is also the one searched first.
 pub struct MultiLoader {
-    pub loaders: Vec<Box<dyn Loader>>,
+    pub loaders: VecDeque<Box<dyn Loader>>,
 }
 
 impl MultiLoader {
@@ -30,7 +75,7 @@ impl MultiLoader {
 impl Default for MultiLoader {
     fn default() -> Self {
         Self {
-            loaders: Vec::default(),
+            loaders: VecDeque::default(),
         }
     }
 }
