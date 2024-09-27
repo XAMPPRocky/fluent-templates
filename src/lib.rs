@@ -160,7 +160,7 @@
 //!
 //!     let args = {
 //!         let mut map = HashMap::new();
-//!         map.insert(String::from("name"), "Alice".into());
+//!         map.insert(Cow::from("name"), "Alice".into());
 //!         map
 //!     };
 //!
@@ -333,9 +333,9 @@ pub mod loader;
 
 #[cfg(feature = "macros")]
 pub use fluent_template_macros::static_loader;
-pub use unic_langid::LanguageIdentifier;
 #[cfg(feature = "macros")]
 pub use unic_langid::langid;
+pub use unic_langid::LanguageIdentifier;
 
 #[doc(hidden)]
 pub use once_cell;
