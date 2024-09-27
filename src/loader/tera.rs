@@ -1,5 +1,6 @@
 use fluent_bundle::FluentValue;
 use serde_json::Value as Json;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use unic_langid::LanguageIdentifier;
 
@@ -66,7 +67,7 @@ impl<L: Loader + Send + Sync> tera::Function for crate::FluentLoader<L> {
 
         for (key, value) in args.iter().filter(is_not_tera_key) {
             fluent_args.insert(
-                heck::ToKebabCase::to_kebab_case(&**key),
+                Cow::from(heck::ToKebabCase::to_kebab_case(&**key)),
                 json_to_fluent(value.clone())?,
             );
         }

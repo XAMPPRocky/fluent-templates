@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
@@ -107,11 +108,11 @@ pub struct ArcLoader {
 
 impl super::Loader for ArcLoader {
     // Traverse the fallback chain,
-    fn lookup_complete<T: AsRef<str>>(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> String {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
             if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
@@ -127,11 +128,11 @@ impl super::Loader for ArcLoader {
     }
 
     // Traverse the fallback chain,
-    fn try_lookup_complete<T: AsRef<str>>(
+    fn try_lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> Option<String> {
         for lang in negotiate_languages(&[lang], &self.bundles.keys().collect::<Vec<_>>(), None) {
             if let Ok(val) = self.lookup_single_language(lang, text_id, args) {
