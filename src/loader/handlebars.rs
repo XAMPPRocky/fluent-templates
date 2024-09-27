@@ -6,6 +6,7 @@ use handlebars::{
 use fluent_bundle::FluentValue;
 use handlebars::template::{Parameter, TemplateElement};
 use serde_json::Value as Json;
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 use crate::{FluentLoader, Loader};
@@ -57,7 +58,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
             .into());
         };
 
-        let mut args: Option<HashMap<String, FluentValue>> = if h.hash().is_empty() {
+        let mut args: Option<HashMap<Cow<'static, str>, FluentValue>> = if h.hash().is_empty() {
             None
         } else {
             let map = h
@@ -73,7 +74,7 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
                         Json::String(s) => s.to_owned().into(),
                         _ => return None,
                     };
-                    Some((k.to_string(), val))
+                    Some((Cow::from(k.to_string()), val))
                 })
                 .collect();
             Some(map)
@@ -112,7 +113,10 @@ impl<L: Loader + Send + Sync> HelperDef for FluentLoader<L> {
                     if let Some(ref tpl) = block.template {
                         let mut s = StringOutput::default();
                         tpl.render(reg, context, rcx, &mut s)?;
-                        args.insert(String::from(id), FluentValue::String(s.s.into()));
+                        args.insert(
+                            Cow::Owned(String::from(id)),
+                            FluentValue::String(s.s.into()),
+                        );
                     }
                 }
             }
