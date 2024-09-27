@@ -43,10 +43,10 @@ pub use unic_langid::LanguageIdentifier;
 ///         .build()
 ///         .unwrap();
 ///
-///     let multiloader = MultiLoader::from_iter([
+///     let mut multiloader = MultiLoader::from_iter([
 ///         Box::new(&*LOCALES) as Box<dyn Loader>,
-///         Box::new(cn_loader) as Box<dyn Loader>,
 ///     ]);
+///     multiloader.push_back(Box::new(cn_loader) as Box<dyn Loader>);
 ///     assert_eq!("Hello World!", multiloader.lookup(&US_ENGLISH, "hello-world"));
 ///     assert_eq!("儿", multiloader.lookup(&CHINESE, "exists"));
 /// }
@@ -55,7 +55,7 @@ pub use unic_langid::LanguageIdentifier;
 /// # Order of search
 /// The one that is inserted first is also the one searched first.
 pub struct MultiLoader {
-    pub loaders: VecDeque<Box<dyn Loader>>,
+    loaders: VecDeque<Box<dyn Loader>>,
 }
 
 impl MultiLoader {
@@ -69,6 +69,21 @@ impl MultiLoader {
         Self {
             loaders: iter.into_iter().collect(),
         }
+    }
+
+    /// Pushes a loader in front of all the others in terms of precedence.
+    pub fn push_front(&mut self, loader: Box<dyn Loader>) {
+        self.loaders.push_front(loader);
+    }
+
+    /// Pushes a loader at the back in terms of precedence.
+    pub fn push_back(&mut self, loader: Box<dyn Loader>) {
+        self.loaders.push_back(loader);
+    }
+
+    /// Pushes a loader at the back in terms of precedence.
+    pub fn remove(&mut self, idx: usize) -> Option<Box<dyn Loader>> {
+        self.loaders.remove(idx)
     }
 }
 
