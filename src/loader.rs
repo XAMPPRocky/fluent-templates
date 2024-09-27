@@ -10,6 +10,7 @@ mod tera;
 
 mod shared;
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 use crate::FluentBundle;
@@ -28,48 +29,48 @@ pub use static_loader::StaticLoader;
 pub trait Loader {
     /// Look up `text_id` for `lang` in Fluent.
     fn lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> String {
-        self.lookup_complete::<&str>(lang, text_id, None)
+        self.lookup_complete(lang, text_id, None)
     }
 
     /// Look up `text_id` for `lang` with `args` in Fluent.
-    fn lookup_with_args<T: AsRef<str>>(
+    fn lookup_with_args(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: &HashMap<T, FluentValue>,
+        args: &HashMap<Cow<'static, str>, FluentValue>,
     ) -> String {
         self.lookup_complete(lang, text_id, Some(args))
     }
 
     /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
-    fn lookup_complete<T: AsRef<str>>(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> String;
 
     /// Look up `text_id` for `lang` in Fluent.
     fn try_lookup(&self, lang: &LanguageIdentifier, text_id: &str) -> Option<String> {
-        self.try_lookup_complete::<&str>(lang, text_id, None)
+        self.try_lookup_complete(lang, text_id, None)
     }
 
     /// Look up `text_id` for `lang` with `args` in Fluent.
-    fn try_lookup_with_args<T: AsRef<str>>(
+    fn try_lookup_with_args(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: &HashMap<T, FluentValue>,
+        args: &HashMap<Cow<'static, str>, FluentValue>,
     ) -> Option<String> {
         self.try_lookup_complete(lang, text_id, Some(args))
     }
 
     /// Look up `text_id` for `lang` in Fluent, using any `args` if provided.
-    fn try_lookup_complete<T: AsRef<str>>(
+    fn try_lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> Option<String>;
 
     /// Returns an Iterator over the locales that are present.
@@ -80,20 +81,20 @@ impl<L> Loader for std::sync::Arc<L>
 where
     L: Loader,
 {
-    fn lookup_complete<T: AsRef<str>>(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
     }
 
-    fn try_lookup_complete<T: AsRef<str>>(
+    fn try_lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> Option<String> {
         L::try_lookup_complete(self, lang, text_id, args)
     }
@@ -107,20 +108,20 @@ impl<'a, L> Loader for &'a L
 where
     L: Loader,
 {
-    fn lookup_complete<T: AsRef<str>>(
+    fn lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> String {
         L::lookup_complete(self, lang, text_id, args)
     }
 
-    fn try_lookup_complete<T: AsRef<str>>(
+    fn try_lookup_complete(
         &self,
         lang: &LanguageIdentifier,
         text_id: &str,
-        args: Option<&HashMap<T, FluentValue>>,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
     ) -> Option<String> {
         L::try_lookup_complete(self, lang, text_id, args)
     }
