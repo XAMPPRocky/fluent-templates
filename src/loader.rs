@@ -8,6 +8,7 @@ mod handlebars;
 #[cfg(feature = "tera")]
 mod tera;
 
+mod multi_loader;
 mod shared;
 
 use std::borrow::Cow;
@@ -23,6 +24,7 @@ mod arc_loader;
 mod static_loader;
 
 pub use arc_loader::{ArcLoader, ArcLoaderBuilder};
+pub use multi_loader::MultiLoader;
 pub use static_loader::StaticLoader;
 
 /// A loader capable of looking up Fluent keys given a language.

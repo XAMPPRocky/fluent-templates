@@ -322,7 +322,7 @@ pub type FluentBundle<R> =
     fluent_bundle::bundle::FluentBundle<R, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use error::LoaderError;
-pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, StaticLoader};
+pub use loader::{ArcLoader, ArcLoaderBuilder, FluentLoader, Loader, MultiLoader, StaticLoader};
 
 mod error;
 #[doc(hidden)]
@@ -346,12 +346,11 @@ pub type Result<T, E = error::LoaderError> = std::result::Result<T, E>;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Loader;
+    use unic_langid::{langid, LanguageIdentifier};
 
     #[test]
     fn check_if_loader_is_object_safe() {
-        use crate::Loader;
-        use unic_langid::{langid, LanguageIdentifier};
-
         const US_ENGLISH: LanguageIdentifier = langid!("en-US");
 
         let loader = ArcLoader::builder("./tests/locales", US_ENGLISH)
