@@ -25,7 +25,6 @@ walkdir = ["dep:walkdir"]
 quote = "1.0.15"
 syn = { version = "2.0", features = ["full"] }
 proc-macro2 = "1.0.36"
-once_cell = { workspace = true }
 ignore = { workspace = true, optional = true }
 flume = { workspace = true, optional = true }
 unic-langid = { workspace = true }
