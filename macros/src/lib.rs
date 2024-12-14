@@ -190,7 +190,7 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         ..
     } = parse_macro_input!(input as StaticLoader);
     let CRATE_NAME: TokenStream = quote!(fluent_templates);
-    let LAZY: TokenStream = quote!(#CRATE_NAME::once_cell::sync::Lazy);
+    let LAZY: TokenStream = quote!(std::sync::LazyLock);
     let LANGUAGE_IDENTIFIER: TokenStream = quote!(#CRATE_NAME::loader::LanguageIdentifier);
     let FLUENT_BUNDLE: TokenStream = quote!(#CRATE_NAME::FluentBundle);
     let FLUENT_RESOURCE: TokenStream = quote!(#CRATE_NAME::fluent_bundle::FluentResource);
@@ -209,7 +209,10 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     };
 
     let fallback_language_value = fallback_language.value();
-    if !fallback_language_value.parse::<unic_langid::LanguageIdentifier>().is_ok() {
+    if !fallback_language_value
+        .parse::<unic_langid::LanguageIdentifier>()
+        .is_ok()
+    {
         return syn::Error::new(
             fallback_language.span(),
             format!(
