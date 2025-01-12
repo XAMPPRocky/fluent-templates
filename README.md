@@ -54,9 +54,9 @@ fluent_templates::static_loader! {
 You can also modify each `FluentBundle` on initialisation to be able to
 change configuration or add resources from Rust.
 ```rust
+use std::sync::LazyLock;
 use fluent_bundle::FluentResource;
 use fluent_templates::static_loader;
-use once_cell::sync::Lazy;
 
 static_loader! {
     // Declare our `StaticLoader` named `LOCALES`.
@@ -73,7 +73,7 @@ static_loader! {
             // `FluentResource`s need to be either `&'static` or behind an
             // `Arc` it's recommended you use lazily initialised
             // static variables.
-            static CRATE_VERSION_FTL: Lazy<FluentResource> = Lazy::new(|| {
+            static CRATE_VERSION_FTL: LazyLock<FluentResource> = LazyLock::new(|| {
                 let ftl_string = String::from(
                     concat!("-crate-version = {}", env!("CARGO_PKG_VERSION"))
                 );
