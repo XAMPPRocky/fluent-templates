@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.12.1...fluent-template-macros-v0.13.0) - 2025-01-12
+
+### Added
+
+- [**breaking**] Replace once_cell Lazy with standard lib LazyLock (#86)
+
 ## [0.10.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.10.0...fluent-template-macros-v0.10.1) - 2024-08-19
 
 ### Other
