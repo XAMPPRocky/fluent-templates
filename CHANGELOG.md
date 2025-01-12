@@ -6,10 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Other
-
-- [**breaking**] Remove dependency on `once_cell` and replace `once_cell::sync::Lazy` with `std::sync::LazyLock`
-
 ## [0.11.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.10.1...fluent-templates-v0.11.0) - 2024-09-22
 
 ### Added
