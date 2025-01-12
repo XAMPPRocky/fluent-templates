@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.12.0...fluent-templates-v0.12.1) - 2025-01-09
+
+### Other
+
+- Add a `MultiLoader` loader that consists of other loaders ([#84](https://github.com/XAMPPRocky/fluent-templates/pull/84))
+
+## [0.12.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.11.0...fluent-templates-v0.12.0) - 2024-09-27
+
+### Fixed
+
+- [**breaking**] Make `Loader` object-safe ([#83](https://github.com/XAMPPRocky/fluent-templates/pull/83))
+
 ## [0.11.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.10.1...fluent-templates-v0.11.0) - 2024-09-22
 
 ### Added
