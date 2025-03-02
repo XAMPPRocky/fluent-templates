@@ -8,6 +8,9 @@ mod handlebars;
 #[cfg(feature = "tera")]
 mod tera;
 
+#[cfg(feature = "minijinja")]
+mod minijinja;
+
 mod multi_loader;
 mod shared;
 
