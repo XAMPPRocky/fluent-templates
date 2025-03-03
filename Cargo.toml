@@ -44,7 +44,7 @@ all-features = true
 targets = ["x86_64-unknown-linux-gnu"]
 
 [features]
-default = ["macros", "ignore", "minijinja"]
+default = ["macros", "ignore"]
 macros = ["fluent-template-macros"]
 ignore = ["dep:ignore", "fluent-template-macros/ignore", "dep:flume", "dep:log"]
 walkdir = ["dep:walkdir", "fluent-template-macros/walkdir", "dep:log"]
