@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.13.0...fluent-templates-v0.13.1) - 2025-05-22
+
+### Other
+
+- Bump Fluent crates to latest minor releases ([#92](https://github.com/XAMPPRocky/fluent-templates/pull/92))
+
 ## [0.13.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.12.1...fluent-templates-v0.13.0) - 2025-01-12
 
 ### Added
