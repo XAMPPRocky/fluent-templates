@@ -107,7 +107,7 @@ impl crate::Loader for MultiLoader {
                 return text;
             }
         }
-        format!("Unknown localization {text_id}")
+        format!("Unknown localization key: {text_id:?}")
     }
 
     fn try_lookup_complete(
