@@ -1,4 +1,19 @@
 # Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.13.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.13.0...fluent-templates-v0.13.1) - 2025-08-25
+
+### Other
+
+- improve the error messages for unknown localizations ([#94](https://github.com/XAMPPRocky/fluent-templates/pull/94))
+- Bump Fluent crates to latest minor releases ([#92](https://github.com/XAMPPRocky/fluent-templates/pull/92))
+# Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
