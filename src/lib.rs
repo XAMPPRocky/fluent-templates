@@ -238,6 +238,50 @@
 //! # }
 //! ```
 //!
+//! ### minijinja
+//! With the `minijinja` feature you can convert `FluentLoader` to a minijinja function.
+//! It accepts as first non-named parameter pointing to a fluent resource and keyword parameter `lang` for
+//! what language to get that key for. Optionally you can pass extra arguments
+//! to the function as arguments to the resource. `fluent-templates` will
+//! automatically convert argument keys from Tera's `snake_case` to the fluent's
+//! preferred `kebab-case` arguments.
+//! The `lang` parameter is optional when the default language of the corresponding
+//! `FluentLoader` is set (see [`FluentLoader::with_default_lang`]).
+//!
+//! ```toml
+//!fluent-templates = { version = "*", features = ["minijinja"] }
+//!```
+//!
+//! ```rust
+//! use fluent_templates::{FluentLoader, static_loader};
+//!
+//! static_loader! {
+//!     static LOCALES = {
+//!         locales: "./tests/locales",
+//!         fallback_language: "en-US",
+//!         // Removes unicode isolating marks around arguments, you typically
+//!         // should only set to false when testing.
+//!         customise: |bundle| bundle.set_use_isolating(false),
+//!     };
+//! }
+//!
+//! fn main() {
+//! #   #[cfg(feature = "minijinja")] {
+//!         let mut minijinja = minijinja::Environment::default();
+//!         let ctx = minijinja::context! {};
+//!         minijinja.add_function("fluent", FluentLoader::new(&*LOCALES).into_minijinja_fn());
+//!         assert_eq!(
+//!             "Hello World!",
+//!             minijinja.render_str(r#"{{ fluent("hello-world", lang="en-US") }}"#, &ctx).unwrap()
+//!         );
+//!         assert_eq!(
+//!             "Hello Alice!",
+//!             minijinja.render_str(r#"{{ fluent("greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
+//!         );
+//!     }
+//! # }
+//! ```
+//!
 //! ### Handlebars
 //! In handlebars, `fluent-templates` will read the `lang` field in your
 //! [`handlebars::Context`] while rendering.
