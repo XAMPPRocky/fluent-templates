@@ -108,7 +108,7 @@ where
 
 impl<'a, L> Loader for &'a L
 where
-    L: Loader,
+    L: Loader + ?Sized,
 {
     fn lookup_complete(
         &self,
@@ -130,6 +130,30 @@ where
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
         L::locales(self)
+    }
+}
+
+impl<T: Loader + ?Sized> Loader for Box<T> {
+    fn lookup_complete(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
+    ) -> String {
+        self.as_ref().lookup_complete(lang, text_id, args)
+    }
+
+    fn try_lookup_complete(
+        &self,
+        lang: &LanguageIdentifier,
+        text_id: &str,
+        args: Option<&HashMap<Cow<'static, str>, FluentValue>>,
+    ) -> Option<String> {
+        self.as_ref().try_lookup_complete(lang, text_id, args)
+    }
+
+    fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
+        self.as_ref().locales()
     }
 }
 
