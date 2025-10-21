@@ -46,8 +46,8 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<Fluent
                     if entry
                         .file_type()
                         .as_ref()
-                        .map_or(false, fs::FileType::is_file)
-                        && entry.path().extension().map_or(false, |e| e == "ftl")
+                        .is_some_and(fs::FileType::is_file)
+                        && entry.path().extension().is_some_and(|e| e == "ftl")
                     {
                         if let Ok(string) = std::fs::read_to_string(entry.path()) {
                             let _ = tx.send(string);
@@ -61,7 +61,7 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> crate::Result<Vec<Fluent
             })
         });
 
-        return resources_from_vec(&rx.drain().collect::<Vec<_>>());
+        resources_from_vec(&rx.drain().collect::<Vec<_>>())
     }
 
     #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
@@ -95,7 +95,7 @@ mod tests {
         std::fs::write(dir.path().join("core.ftl"), "foo = bar\n".as_bytes())?;
         std::fs::write(dir.path().join("other.ftl"), "bar = baz\n".as_bytes())?;
         std::fs::write(dir.path().join("invalid.txt"), "baz = foo\n".as_bytes())?;
-        std::fs::write(dir.path().join(".binary_file.swp"), &[0, 1, 2, 3, 4, 5])?;
+        std::fs::write(dir.path().join(".binary_file.swp"), [0, 1, 2, 3, 4, 5])?;
 
         let result = read_from_dir(dir.path())?;
         assert_eq!(2, result.len()); // Doesn't include the binary file or the txt file

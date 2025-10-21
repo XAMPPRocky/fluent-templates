@@ -106,7 +106,7 @@ where
     }
 }
 
-impl<'a, L> Loader for &'a L
+impl<L> Loader for &L
 where
     L: Loader + ?Sized,
 {

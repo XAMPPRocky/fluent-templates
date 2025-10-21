@@ -154,10 +154,10 @@ impl super::Loader for ArcLoader {
 
 impl ArcLoader {
     /// Creates a new `ArcLoaderBuilder`
-    pub fn builder<P: AsRef<Path> + ?Sized>(
-        location: &P,
+    pub fn builder<'a, P: AsRef<Path> + ?Sized>(
+        location: &'a P,
         fallback: LanguageIdentifier,
-    ) -> ArcLoaderBuilder {
+    ) -> ArcLoaderBuilder<'a, 'a> {
         ArcLoaderBuilder {
             location: location.as_ref(),
             fallback,

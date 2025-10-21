@@ -125,6 +125,6 @@ impl<T: Loader> crate::Loader for MultiLoader<T> {
     }
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
-        Box::new(self.loaders.iter().map(|loader| loader.locales()).flatten())
+        Box::new(self.loaders.iter().flat_map(|loader| loader.locales()))
     }
 }

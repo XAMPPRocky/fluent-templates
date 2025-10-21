@@ -131,8 +131,8 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
                 let tx = tx.clone();
                 Box::new(move |result| {
                     if let Ok(entry) = result {
-                        if entry.file_type().as_ref().map_or(false, |e| e.is_file())
-                            && entry.path().extension().map_or(false, |e| e == "ftl")
+                        if entry.file_type().is_some_and(|e| e.is_file())
+                            && entry.path().extension().is_some_and(|e| e == "ftl")
                         {
                             tx.send(entry.path().display().to_string()).unwrap();
                         }
@@ -142,7 +142,7 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
                 })
             });
 
-        return rx.drain().collect();
+        rx.drain().collect()
     }
 
     #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
@@ -209,9 +209,9 @@ pub fn static_loader(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     };
 
     let fallback_language_value = fallback_language.value();
-    if !fallback_language_value
+    if fallback_language_value
         .parse::<unic_langid::LanguageIdentifier>()
-        .is_ok()
+        .is_err()
     {
         return syn::Error::new(
             fallback_language.span(),
