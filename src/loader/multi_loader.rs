@@ -16,7 +16,7 @@ pub use unic_langid::LanguageIdentifier;
 /// the protocol's messages and be able to display them). Using a multiloader
 /// allows you to query multiple localization sources from one single source.
 ///
-/// Note that a [`M̀ultiloader`] is most useful where each of your fluent modules
+/// Note that a [`MultiLoader`] is most useful where each of your fluent modules
 /// is specially namespaced to avoid name collisions.
 ///
 /// # Usage
