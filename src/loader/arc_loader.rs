@@ -24,9 +24,16 @@ pub struct ArcLoaderBuilder<'a, 'b> {
 
 impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
     /// Adds Fluent resources that are shared across all localizations.
-    pub fn shared_resources(mut self, shared: Option<&'b [PathBuf]>) -> Self {
-        self.shared = shared;
-        self
+    pub fn shared_resources<'b2>(
+        self,
+        shared: Option<&'b2 [PathBuf]>,
+    ) -> ArcLoaderBuilder<'a, 'b2> {
+        ArcLoaderBuilder {
+            location: self.location,
+            fallback: self.fallback,
+            shared,
+            customize: self.customize,
+        }
     }
 
     /// Allows you to customise each `FluentBundle`.
@@ -154,10 +161,10 @@ impl super::Loader for ArcLoader {
 
 impl ArcLoader {
     /// Creates a new `ArcLoaderBuilder`
-    pub fn builder<P: AsRef<Path> + ?Sized>(
-        location: &P,
+    pub fn builder<'a, P: AsRef<Path> + ?Sized>(
+        location: &'a P,
         fallback: LanguageIdentifier,
-    ) -> ArcLoaderBuilder {
+    ) -> ArcLoaderBuilder<'a, 'static> {
         ArcLoaderBuilder {
             location: location.as_ref(),
             fallback,

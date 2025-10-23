@@ -16,7 +16,7 @@ pub use unic_langid::LanguageIdentifier;
 /// the protocol's messages and be able to display them). Using a multiloader
 /// allows you to query multiple localization sources from one single source.
 ///
-/// Note that a [`M̀ultiloader`] is most useful where each of your fluent modules
+/// Note that a [`MultiLoader`] is most useful where each of your fluent modules
 /// is specially namespaced to avoid name collisions.
 ///
 /// # Usage
@@ -54,40 +54,40 @@ pub use unic_langid::LanguageIdentifier;
 ///
 /// # Order of search
 /// The one that is inserted first is also the one searched first.
-pub struct MultiLoader {
-    loaders: VecDeque<Box<dyn Loader>>,
+pub struct MultiLoader<T = Box<dyn Loader + Sync + Send>> {
+    loaders: VecDeque<T>,
 }
 
-impl MultiLoader {
+impl<T> MultiLoader<T> {
     /// Creates a [`MultiLoader`] without any loaders.
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Creates a [`MultiLoader`] from an iterator of loaders.
-    pub fn from_iter(iter: impl IntoIterator<Item = Box<dyn Loader>>) -> Self {
+    pub fn from_iter(iter: impl IntoIterator<Item = T>) -> Self {
         Self {
             loaders: iter.into_iter().collect(),
         }
     }
 
     /// Pushes a loader in front of all the others in terms of precedence.
-    pub fn push_front(&mut self, loader: Box<dyn Loader>) {
+    pub fn push_front(&mut self, loader: T) {
         self.loaders.push_front(loader);
     }
 
     /// Pushes a loader at the back in terms of precedence.
-    pub fn push_back(&mut self, loader: Box<dyn Loader>) {
+    pub fn push_back(&mut self, loader: T) {
         self.loaders.push_back(loader);
     }
 
     /// Pushes a loader at the back in terms of precedence.
-    pub fn remove(&mut self, idx: usize) -> Option<Box<dyn Loader>> {
+    pub fn remove(&mut self, idx: usize) -> Option<T> {
         self.loaders.remove(idx)
     }
 }
 
-impl Default for MultiLoader {
+impl<T> Default for MultiLoader<T> {
     fn default() -> Self {
         Self {
             loaders: VecDeque::default(),
@@ -95,7 +95,7 @@ impl Default for MultiLoader {
     }
 }
 
-impl crate::Loader for MultiLoader {
+impl<T: Loader> crate::Loader for MultiLoader<T> {
     fn lookup_complete(
         &self,
         lang: &unic_langid::LanguageIdentifier,
@@ -125,6 +125,6 @@ impl crate::Loader for MultiLoader {
     }
 
     fn locales(&self) -> Box<dyn Iterator<Item = &LanguageIdentifier> + '_> {
-        Box::new(self.loaders.iter().map(|loader| loader.locales()).flatten())
+        Box::new(self.loaders.iter().flat_map(|loader| loader.locales()))
     }
 }

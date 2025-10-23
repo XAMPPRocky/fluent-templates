@@ -1,4 +1,5 @@
 #![allow(unused)]
+#![allow(clippy::incompatible_msrv)]
 
 fluent_templates::static_loader! {
     static LOCALES = {
