@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.2](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.13.1...fluent-template-macros-v0.13.2) - 2025-10-23
+
+### Other
+
+- make MultiLoader useable in statics ([#96](https://github.com/XAMPPRocky/fluent-templates/pull/96))
+
 ## [0.13.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.12.1...fluent-template-macros-v0.13.0) - 2025-01-12
 
 ### Added
