@@ -24,11 +24,11 @@ repository = "https://github.com/XAMPPRocky/fluent-templates"
 authors = ["XAMPPRocky <xampprocky@icloud.com>"]
 description = "Templating for the Fluent localization framework"
 keywords = [
-    "handlebars",
-    "tera",
-    "fluent",
-    "internationalization",
-    "localization",
+  "handlebars",
+  "tera",
+  "fluent",
+  "internationalization",
+  "localization",
 ]
 categories = ["internationalization", "localization", "template-engine"]
 
@@ -50,6 +50,7 @@ ignore = ["dep:ignore", "fluent-template-macros/ignore", "dep:flume", "dep:log"]
 walkdir = ["dep:walkdir", "fluent-template-macros/walkdir", "dep:log"]
 handlebars = ["dep:handlebars", "dep:serde_json"]
 tera = ["dep:tera", "dep:heck", "dep:serde_json"]
+minijinja = ["dep:minijinja", "dep:heck"]
 
 [dependencies]
 handlebars = { version = "6", optional = true }
@@ -67,6 +68,7 @@ log = { version = "0.4", optional = true }
 fluent-template-macros = { path = "./macros", optional = true, version = "0.13.2" }
 intl-memoizer = "0.5"
 walkdir = { workspace = true, optional = true }
+minijinja = { version = "2.7.0", default-features = false, optional = true }
 
 [dev-dependencies]
 tempfile = "3.3"
