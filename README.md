@@ -1,12 +1,6 @@
 # Fluent Templates: A High level Fluent API.
 
-![Build & Test](https://github.com/XAMPPRocky/fluent-templates/workflows/Build%20&%20Test/badge.svg)
-[![crates.io](https://img.shields.io/crates/d/fluent-templates.svg)](https://crates.io/crates/fluent-templates)
-[![Help Wanted](https://img.shields.io/github/issues/XAMPPRocky/fluent-templates/help%20wanted?color=green)](https://github.com/XAMPPRocky/fluent-templates/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-[![Lines Of Code](https://tokei.rs/b1/github/XAMPPRocky/fluent-templates?category=code)](https://github.com/XAMPPRocky/tokei)
-[![Documentation](https://docs.rs/fluent-templates/badge.svg)](https://docs.rs/fluent-templates/)
-
-`fluent-templates` lets you to easily integrate [Fluent] localisation into
+`fluent-templates` lets you to easily integrate Fluent localisation into
 your Rust application or library. It does this by providing a high level
 "loader" API that loads fluent strings based on simple language negotiation,
 and the `FluentLoader` struct which is a `Loader` agnostic container type
@@ -48,6 +42,7 @@ fluent_templates::static_loader! {
         core_locales: "./tests/locales/core.ftl",
     };
 }
+# fn main() {}
 ```
 
 ### Customise Example
@@ -85,6 +80,7 @@ static_loader! {
         }
     };
 }
+# fn main() {}
 ```
 
 ## Locales Directory
@@ -112,25 +108,29 @@ locales
 
 ### Looking up fluent resources
 You can use the [`Loader`] trait to `lookup` a given fluent resource, and
-provide any additional arguments as needed with `lookup_with_args`.
+provide any additional arguments as needed with `lookup_with_args`. You
+can also look up attributes by appending a `.` to the name of the message.
 
 #### Example
 ```fluent
  # In `locales/en-US/main.ftl`
  hello-world = Hello World!
  greeting = Hello { $name }!
+        .placeholder = Hello Friend!
 
  # In `locales/fr/main.ftl`
  hello-world = Bonjour le monde!
  greeting = Bonjour { $name }!
+        .placeholder = Salut l'ami!
 
  # In `locales/de/main.ftl`
  hello-world = Hallo Welt!
  greeting = Hallo { $name }!
+        .placeholder = Hallo Fruend!
 ```
 
 ```rust
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use unic_langid::{LanguageIdentifier, langid};
 use fluent_templates::{Loader, static_loader};
@@ -154,15 +154,43 @@ fn main() {
     assert_eq!("Bonjour le monde!", LOCALES.lookup(&FRENCH, "hello-world"));
     assert_eq!("Hallo Welt!", LOCALES.lookup(&GERMAN, "hello-world"));
 
+    assert_eq!("Hello World!", LOCALES.try_lookup(&US_ENGLISH, "hello-world").unwrap());
+    assert_eq!("Bonjour le monde!", LOCALES.try_lookup(&FRENCH, "hello-world").unwrap());
+    assert_eq!("Hallo Welt!", LOCALES.try_lookup(&GERMAN, "hello-world").unwrap());
+
     let args = {
         let mut map = HashMap::new();
-        map.insert(String::from("name"), "Alice".into());
+        map.insert(Cow::from("name"), "Alice".into());
         map
     };
 
+    assert_eq!("Hello Friend!", LOCALES.lookup(&US_ENGLISH, "greeting.placeholder"));
     assert_eq!("Hello Alice!", LOCALES.lookup_with_args(&US_ENGLISH, "greeting", &args));
+    assert_eq!("Salut l'ami!", LOCALES.lookup(&FRENCH, "greeting.placeholder"));
     assert_eq!("Bonjour Alice!", LOCALES.lookup_with_args(&FRENCH, "greeting", &args));
+    assert_eq!("Hallo Fruend!", LOCALES.lookup(&GERMAN, "greeting.placeholder"));
     assert_eq!("Hallo Alice!", LOCALES.lookup_with_args(&GERMAN, "greeting", &args));
+
+    assert_eq!("Hello Friend!", LOCALES.try_lookup(&US_ENGLISH, "greeting.placeholder").unwrap());
+    assert_eq!("Hello Alice!", LOCALES.try_lookup_with_args(&US_ENGLISH, "greeting", &args).unwrap());
+    assert_eq!("Salut l'ami!", LOCALES.try_lookup(&FRENCH, "greeting.placeholder").unwrap());
+    assert_eq!("Bonjour Alice!", LOCALES.try_lookup_with_args(&FRENCH, "greeting", &args).unwrap());
+    assert_eq!("Hallo Fruend!", LOCALES.try_lookup(&GERMAN, "greeting.placeholder").unwrap());
+    assert_eq!("Hallo Alice!", LOCALES.try_lookup_with_args(&GERMAN, "greeting", &args).unwrap());
+
+
+    let args = {
+        let mut map = HashMap::new();
+        map.insert(Cow::Borrowed("param"), "1".into());
+        map.insert(Cow::Owned(format!("{}-param", "multi-word")), "2".into());
+        map
+    };
+
+    assert_eq!("text one 1 second 2", LOCALES.lookup_with_args(&US_ENGLISH, "parameter2", &args));
+    assert_eq!("texte une 1 seconde 2", LOCALES.lookup_with_args(&FRENCH, "parameter2", &args));
+
+    assert_eq!("text one 1 second 2", LOCALES.try_lookup_with_args(&US_ENGLISH, "parameter2", &args).unwrap());
+    assert_eq!("texte une 1 seconde 2", LOCALES.try_lookup_with_args(&FRENCH, "parameter2", &args).unwrap());
 }
 ```
 
@@ -173,6 +201,8 @@ what language to get that key for. Optionally you can pass extra arguments
 to the function as arguments to the resource. `fluent-templates` will
 automatically convert argument keys from Tera's `snake_case` to the fluent's
 preferred `kebab-case` arguments.
+The `lang` parameter is optional when the default language of the corresponding
+`FluentLoader` is set (see [`FluentLoader::with_default_lang`]).
 
 ```toml
 fluent-templates = { version = "*", features = ["tera"] }
@@ -192,18 +222,20 @@ static_loader! {
 }
 
 fn main() {
-    let mut tera = tera::Tera::default();
-    let ctx = tera::Context::default();
-    tera.register_function("fluent", FluentLoader::new(&*LOCALES));
-    assert_eq!(
-        "Hello World!",
-        tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
-    );
-    assert_eq!(
-        "Hello Alice!",
-        tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
-    );
-}
+#   #[cfg(feature = "tera")] {
+        let mut tera = tera::Tera::default();
+        let ctx = tera::Context::default();
+        tera.register_function("fluent", FluentLoader::new(&*LOCALES));
+        assert_eq!(
+            "Hello World!",
+            tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
+        );
+        assert_eq!(
+            "Hello Alice!",
+            tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
+        );
+    }
+# }
 ```
 
 ### Handlebars
@@ -228,11 +260,13 @@ static_loader! {
 }
 
 fn main() {
+# #[cfg(feature = "handlebars")] {
     let mut handlebars = handlebars::Handlebars::new();
     handlebars.register_helper("fluent", Box::new(FluentLoader::new(&*LOCALES)));
     let data = serde_json::json!({"lang": "zh-CN"});
     assert_eq!("Hello World!", handlebars.render_template(r#"{{fluent "hello-world"}}"#, &data).unwrap());
     assert_eq!("Hello Alice!", handlebars.render_template(r#"{{fluent "greeting" name="Alice"}}"#, &data).unwrap());
+# }
 }
 ```
 
@@ -270,6 +304,14 @@ especially if you need them to be multiline.
     {{/fluentparam}}
 {{/fluent}}
 ```
+
+
+[variables]: https://projectfluent.org/fluent/guide/variables.html
+[`static_loader!`]: ./macro.static_loader.html
+[`StaticLoader`]: ./struct.StaticLoader.html
+[`ArcLoader`]: ./struct.ArcLoader.html
+[`FluentLoader::with_default_lang`]: ./struct.FluentLoader.html#method.with_default_lang
+[`handlebars::Context`]: https://docs.rs/handlebars/3.1.0/handlebars/struct.Context.html
 
 ### FAQ
 
