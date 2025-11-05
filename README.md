@@ -53,7 +53,7 @@ use std::sync::LazyLock;
 use fluent_bundle::FluentResource;
 use fluent_templates::static_loader;
 
-static_loader! {
+fluent_templates::static_loader! {
     // Declare our `StaticLoader` named `LOCALES`.
     static LOCALES = {
         // The directory of localisations and fluent resources.
@@ -139,7 +139,7 @@ const US_ENGLISH: LanguageIdentifier = langid!("en-US");
 const FRENCH: LanguageIdentifier = langid!("fr");
 const GERMAN: LanguageIdentifier = langid!("de");
 
-static_loader! {
+fluent_templates::static_loader! {
     static LOCALES = {
         locales: "./tests/locales",
         fallback_language: "en-US",
@@ -211,7 +211,7 @@ fluent-templates = { version = "*", features = ["tera"] }
 ```rust
 use fluent_templates::{FluentLoader, static_loader};
 
-static_loader! {
+fluent_templates::static_loader! {
     static LOCALES = {
         locales: "./tests/locales",
         fallback_language: "en-US",
@@ -249,7 +249,7 @@ fluent-templates = { version = "*", features = ["handlebars"] }
 ```rust
 use fluent_templates::{FluentLoader, static_loader};
 
-static_loader! {
+fluent_templates::static_loader! {
     static LOCALES = {
         locales: "./tests/locales",
         fallback_language: "en-US",
@@ -320,7 +320,7 @@ These are called "Unicode Isolating Marks" that used to allow the text to be bid
 You can disable this with `FluentBundle::set_isolating_marks` being set to `false`.
 
 ```rust
-static_loader! {
+fluent_templates::static_loader! {
     static LOCALES = {
         locales: "./tests/locales",
         fallback_language: "en-US",
