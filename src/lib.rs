@@ -87,6 +87,8 @@
 //! `fluent-templates` will collect all subdirectories that match a valid
 //! [Unicode Language Identifier][uli] and bundle all fluent files found in
 //! those directories and map those resources to the respective identifier.
+//! It also supports locale files named `locales/<lang>.ftl`, which are merged
+//! with any resources found in `locales/<lang>/`.
 //! `fluent-templates` will recurse through each language directory as needed
 //! and will respect any `.gitignore` or `.ignore` files present.
 //!
@@ -96,8 +98,9 @@
 //! ```text
 //! locales
 //! ├── core.ftl
+//! ├── en-US.ftl
 //! ├── en-US
-//! │   └── main.ftl
+//! │   └── extra.ftl
 //! ├── fr
 //! │   └── main.ftl
 //! ├── zh-CN

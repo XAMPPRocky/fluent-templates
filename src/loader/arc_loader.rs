@@ -47,17 +47,28 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
 
     /// Constructs an `ArcLoader` from the settings provided.
     pub fn build(mut self) -> Result<ArcLoader, Box<dyn std::error::Error>> {
-        let mut resources = HashMap::new();
+        let mut resources: HashMap<LanguageIdentifier, Vec<Arc<FluentResource>>> = HashMap::new();
 
         for entry in read_dir(self.location)? {
             let entry = entry?;
-            if entry.file_type()?.is_dir() {
+            let file_type = entry.file_type()?;
+            if file_type.is_dir() {
                 if let Ok(lang) = entry.file_name().into_string() {
+                    let lang = lang.parse::<LanguageIdentifier>()?;
                     let lang_resources = crate::fs::read_from_dir(entry.path())?
                         .into_iter()
                         .map(Arc::new)
                         .collect::<Vec<_>>();
-                    resources.insert(lang.parse::<LanguageIdentifier>()?, lang_resources);
+                    resources.entry(lang).or_default().extend(lang_resources);
+                }
+            } else if file_type.is_file()
+                && entry.path().extension().is_some_and(|e| e == "ftl")
+            {
+                if let Some(stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
+                    if let Ok(lang) = stem.parse::<LanguageIdentifier>() {
+                        let res = Arc::new(crate::fs::read_from_file(entry.path())?);
+                        resources.entry(lang).or_default().push(res);
+                    }
                 }
             }
         }

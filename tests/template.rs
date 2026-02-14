@@ -106,6 +106,7 @@ mod handlebars {
             assert_eq!(r#"{{fluent "parameter2" param="P1" multi-word-param="P2"}}"#, "text one P1 second P2");
             assert_eq!(r#"{{#fluent "parameter"}}{{#fluentparam "param"}}blah blah{{/fluentparam}}{{/fluent}}"#, "text with a blah blah");
             assert_eq!(r#"{{#fluent "parameter2"}}{{#fluentparam "param"}}foo{{/fluentparam}}{{#fluentparam "multi-word-param"}}bar{{/fluentparam}}{{/fluent}}"#, "text one foo second bar");
+            assert_eq!(r#"{{fluent "top-level"}}"#, "top-level value");
             assert_eq!(r#"{{fluent "fallback"}}"#, "this should fall back");
         }
 
@@ -136,6 +137,7 @@ mod tera {
             assert_eq!(r#"{{ fluent(key="reference", lang="{lang}") }}"#, "simple text with a reference: foo");
             assert_eq!(r#"{{ fluent(key="parameter", lang="{lang}", param="PARAM") }}"#, "text with a PARAM");
             assert_eq!(r#"{{ fluent(key="parameter2", lang="{lang}", param="P1", multi_word_param="P2") }}"#, "text one P1 second P2");
+            assert_eq!(r#"{{ fluent(key="top-level", lang="{lang}") }}"#, "top-level value");
             assert_eq!(r#"{{ fluent(key="fallback", lang="{lang}") }}"#, "this should fall back");
         }
 

@@ -95,20 +95,33 @@ impl Parse for StaticLoader {
 /// Copied from `fluent_templates::loader` to avoid needing a seperate crate to
 /// share the function.
 fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<String>> {
-    let mut all_resources = HashMap::new();
+    let mut all_resources: HashMap<String, Vec<String>> = HashMap::new();
     for entry in std::fs::read_dir(dir)
         .unwrap()
         .filter_map(|rs| rs.ok())
-        .filter(|entry| entry.file_type().unwrap().is_dir())
     {
-        if let Some(lang) = entry
-            .file_name()
-            .into_string()
-            .ok()
-            .filter(|l| l.parse::<unic_langid::LanguageIdentifier>().is_ok())
+        let file_type = entry.file_type().unwrap();
+        if file_type.is_dir() {
+            if let Some(lang) = entry
+                .file_name()
+                .into_string()
+                .ok()
+                .filter(|l| l.parse::<unic_langid::LanguageIdentifier>().is_ok())
+            {
+                let resources = read_from_dir(entry.path());
+                all_resources.entry(lang).or_default().extend(resources);
+            }
+        } else if file_type.is_file()
+            && entry.path().extension().map_or(false, |e| e == "ftl")
         {
-            let resources = read_from_dir(entry.path());
-            all_resources.insert(lang, resources);
+            if let Some(stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
+                if stem.parse::<unic_langid::LanguageIdentifier>().is_ok() {
+                    all_resources
+                        .entry(stem.to_string())
+                        .or_default()
+                        .push(entry.path().display().to_string());
+                }
+            }
         }
     }
     all_resources
