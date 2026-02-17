@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.3](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.13.2...fluent-template-macros-v0.13.3) - 2026-02-17
+
+### Added
+
+- support top-level language files ([#103](https://github.com/XAMPPRocky/fluent-templates/pull/103))
+
 ## [0.13.2](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.13.1...fluent-template-macros-v0.13.2) - 2025-10-23
 
 ### Other
