@@ -46,12 +46,14 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
     }
 
     /// Constructs an `ArcLoader` from the settings provided.
-    pub fn build(mut self) -> Result<ArcLoader, Box<dyn std::error::Error>> {
+    pub fn build(mut self) -> Result<ArcLoader, LoaderError> {
         let mut resources: HashMap<LanguageIdentifier, Vec<Arc<FluentResource>>> = HashMap::new();
+        let entries = read_dir(self.location)
+            .map_err(|source| LoaderError::Fs { path: self.location.to_owned(), source })?;
 
-        for entry in read_dir(self.location)? {
-            let entry = entry?;
-            let file_type = entry.file_type()?;
+        for entry in entries {
+            let entry = entry.map_err(|source| LoaderError::Fs { path: self.location.to_owned(), source })?;
+            let file_type = entry.file_type().map_err(|source| LoaderError::Fs { path: entry.path(), source })?;
             if file_type.is_dir() {
                 if let Ok(lang) = entry.file_name().into_string() {
                     let lang = lang.parse::<LanguageIdentifier>()?;

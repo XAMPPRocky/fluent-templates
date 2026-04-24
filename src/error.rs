@@ -1,6 +1,6 @@
 use std::fmt;
 
-use unic_langid::LanguageIdentifier;
+use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 /// Errors that can occur when loading or parsing fluent resources.
 #[derive(Debug, thiserror::Error)]
@@ -25,6 +25,13 @@ pub enum LoaderError {
     FluentBundle {
         /// The original bundle errors
         errors: Vec<fluent_bundle::FluentError>,
+    },
+    /// A locale directory was not a valid language identifier.
+    #[error("Error parsing LanguageIdentifier\n: {}", source)]
+    InvalidLanguageId {
+        /// The original parse error
+        #[from]
+        source: LanguageIdentifierError,
     },
 }
 
