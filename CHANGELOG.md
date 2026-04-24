@@ -29,6 +29,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Other
 
+- release v0.13.4 ([#105](https://github.com/XAMPPRocky/fluent-templates/pull/105))
+- Remove Lines Of Code badge from README
+
+## [0.14.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.13.3...fluent-templates-v0.14.0) - 2026-04-24
+
+### Fixed
+
+- [**breaking**] Build function returns proper error type ([#106](https://github.com/XAMPPRocky/fluent-templates/pull/106))
+
+### Other
+
 - Remove Lines Of Code badge from README
 
 ## [0.13.3](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.13.2...fluent-templates-v0.13.3) - 2026-02-17
