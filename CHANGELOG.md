@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Other
+
+- Support tera v2 ([#107](https://github.com/XAMPPRocky/fluent-templates/pull/108))
+
 ## [0.13.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.13.0...fluent-templates-v0.13.1) - 2025-08-25
 
 ### Other
