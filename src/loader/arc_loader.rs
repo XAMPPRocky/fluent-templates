@@ -48,12 +48,20 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
     /// Constructs an `ArcLoader` from the settings provided.
     pub fn build(mut self) -> Result<ArcLoader, LoaderError> {
         let mut resources: HashMap<LanguageIdentifier, Vec<Arc<FluentResource>>> = HashMap::new();
-        let entries = read_dir(self.location)
-            .map_err(|source| LoaderError::Fs { path: self.location.to_owned(), source })?;
+        let entries = read_dir(self.location).map_err(|source| LoaderError::Fs {
+            path: self.location.to_owned(),
+            source,
+        })?;
 
         for entry in entries {
-            let entry = entry.map_err(|source| LoaderError::Fs { path: self.location.to_owned(), source })?;
-            let file_type = entry.file_type().map_err(|source| LoaderError::Fs { path: entry.path(), source })?;
+            let entry = entry.map_err(|source| LoaderError::Fs {
+                path: self.location.to_owned(),
+                source,
+            })?;
+            let file_type = entry.file_type().map_err(|source| LoaderError::Fs {
+                path: entry.path(),
+                source,
+            })?;
             if file_type.is_dir() {
                 if let Ok(lang) = entry.file_name().into_string() {
                     let lang = lang.parse::<LanguageIdentifier>()?;
@@ -63,9 +71,7 @@ impl<'a, 'b> ArcLoaderBuilder<'a, 'b> {
                         .collect::<Vec<_>>();
                     resources.entry(lang).or_default().extend(lang_resources);
                 }
-            } else if file_type.is_file()
-                && entry.path().extension().is_some_and(|e| e == "ftl")
-            {
+            } else if file_type.is_file() && entry.path().extension().is_some_and(|e| e == "ftl") {
                 if let Some(stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
                     if let Ok(lang) = stem.parse::<LanguageIdentifier>() {
                         let res = Arc::new(crate::fs::read_from_file(entry.path())?);

@@ -77,14 +77,14 @@ macro_rules! generate_tests {
                         let lhs = $lhs.replace("{lang}", $locale);
                         $assert_macro ! (
                             static_tera
-                            .render_str(&lhs, &tera::Context::from_value(data.clone()).unwrap())
+                            .render_str(&lhs, &tera::Context::from_serialize(&data).unwrap(), false)
                             .unwrap(),
                             $rhs
                         );
 
                         $assert_macro ! (
                             arc_tera
-                            .render_str(&lhs, &tera::Context::from_value(data.clone()).unwrap())
+                            .render_str(&lhs, &tera::Context::from_serialize(&data).unwrap(), false)
                             .unwrap(),
                             $rhs
                         );
@@ -165,13 +165,17 @@ mod tera {
         tera.register_function("fluent", loader);
         let context = tera::Context::new();
         assert_eq!(
-            tera.render_str(r#"{{ fluent(key="hello-world") }}"#, &context)
+            tera.render_str(r#"{{ fluent(key="hello-world") }}"#, &context, false)
                 .unwrap(),
             "Hallo Welt!"
         );
         assert_eq!(
-            tera.render_str(r#"{{ fluent(key="hello-world", lang="fr") }}"#, &context)
-                .unwrap(),
+            tera.render_str(
+                r#"{{ fluent(key="hello-world", lang="fr") }}"#,
+                &context,
+                false
+            )
+            .unwrap(),
             "Bonjour le monde!"
         );
     }
@@ -184,7 +188,7 @@ mod tera {
         tera.register_function("fluent", loader);
         let context = tera::Context::new();
         assert!(tera
-            .render_str(r#"{{ fluent(key="hellow-world") }}"#, &context)
+            .render_str(r#"{{ fluent(key="hellow-world") }}"#, &context, false)
             .is_err());
     }
 }
