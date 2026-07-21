@@ -45,10 +45,10 @@ fn parse_language(arg: &str) -> crate::Result<LanguageIdentifier, Error> {
         .ok_or(Error::LangArgumentInvalid)
 }
 
-impl<L: Loader + Send + Sync + 'static> tera::Function<Result<tera::Value, tera::Error>>
+impl<L: Loader + Send + Sync + 'static> tera::Function<tera::TeraResult<tera::Value>>
     for crate::FluentLoader<L>
 {
-    fn call(&self, kwargs: tera::Kwargs, _: &tera::State) -> Result<tera::Value, tera::Error> {
+    fn call(&self, kwargs: tera::Kwargs, _: &tera::State) -> tera::TeraResult<tera::Value> {
         let lang_arg: Option<LanguageIdentifier> = kwargs
             .get::<&str>(LANG_KEY)
             .map_err(|_| Error::LangArgumentInvalid)?
