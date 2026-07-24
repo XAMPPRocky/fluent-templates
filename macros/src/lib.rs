@@ -96,10 +96,7 @@ impl Parse for StaticLoader {
 /// share the function.
 fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<String>> {
     let mut all_resources: HashMap<String, Vec<String>> = HashMap::new();
-    for entry in std::fs::read_dir(dir)
-        .unwrap()
-        .filter_map(|rs| rs.ok())
-    {
+    for entry in std::fs::read_dir(dir).unwrap().filter_map(|rs| rs.ok()) {
         let file_type = entry.file_type().unwrap();
         if file_type.is_dir() {
             if let Some(lang) = entry
@@ -111,9 +108,7 @@ fn build_resources(dir: impl AsRef<std::path::Path>) -> HashMap<String, Vec<Stri
                 let resources = read_from_dir(entry.path());
                 all_resources.entry(lang).or_default().extend(resources);
             }
-        } else if file_type.is_file()
-            && entry.path().extension().map_or(false, |e| e == "ftl")
-        {
+        } else if file_type.is_file() && entry.path().extension().map_or(false, |e| e == "ftl") {
             if let Some(stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
                 if stem.parse::<unic_langid::LanguageIdentifier>().is_ok() {
                     all_resources

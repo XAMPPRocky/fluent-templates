@@ -199,11 +199,11 @@ fn main() {
     tera.register_function("fluent", FluentLoader::new(&*LOCALES));
     assert_eq!(
         "Hello World!",
-        tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx).unwrap()
+        tera.render_str(r#"{{ fluent(key="hello-world", lang="en-US") }}"#, &ctx, false).unwrap()
     );
     assert_eq!(
         "Hello Alice!",
-        tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx).unwrap()
+        tera.render_str(r#"{{ fluent(key="greeting", lang="en-US", name="Alice") }}"#, &ctx, false).unwrap()
     );
 }
 ```

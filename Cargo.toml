@@ -59,7 +59,8 @@ fluent-langneg = "0.13"
 serde_json = { version = "1", optional = true }
 unic-langid = { workspace = true, features = ["macros"] }
 thiserror = "2"
-tera = { version = "1.15", optional = true, default-features = false }
+tera = { git = "https://github.com/Keats/tera.git", rev = "ba36f89220aa7253da2e643f24479e452d8fde72", optional = true, default-features = false }
+# tera = { version = "2", optional = true, default-features = false }
 heck = { version = "0.5", optional = true }
 ignore = { workspace = true, optional = true }
 flume = { workspace = true, optional = true }
