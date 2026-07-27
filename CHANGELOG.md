@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.14.0...fluent-templates-v0.15.0) - 2026-07-27
+
+### Added
+
+- [**breaking**] Upgrade to Tera v2 ([#108](https://github.com/XAMPPRocky/fluent-templates/pull/108))
+
+### Other
+
+- Use the new tera 2.1 version ([#110](https://github.com/XAMPPRocky/fluent-templates/pull/110))
+- *(fluent-templates)* release v0.14.0 ([#107](https://github.com/XAMPPRocky/fluent-templates/pull/107))
+
 ## [0.15.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-templates-v0.14.0...fluent-templates-v0.15.0) - 2026-07-24
 
 ### Added
