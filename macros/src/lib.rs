@@ -129,7 +129,7 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
     compile_error!("one of the features `ignore` or `walkdir` must be enabled.");
 
     #[cfg(feature = "ignore")]
-    {
+    let mut paths: Vec<String> = {
         let (tx, rx) = flume::unbounded();
 
         ignore::WalkBuilder::new(path)
@@ -151,17 +151,20 @@ pub(crate) fn read_from_dir<P: AsRef<Path>>(path: P) -> Vec<String> {
             });
 
         rx.drain().collect()
-    }
+    };
 
     #[cfg(all(not(feature = "ignore"), feature = "walkdir"))]
-    walkdir::WalkDir::new(path)
+    let mut paths: Vec<String> = walkdir::WalkDir::new(path)
         .follow_links(true)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
         .filter(|e| e.path().extension().map_or(false, |e| e == "ftl"))
         .map(|e| e.path().display().to_string())
-        .collect()
+        .collect();
+
+    paths.sort(); // for reproducible builds
+    paths
 }
 
 /// Loads all of your fluent resources at compile time as `&'static str`s and
