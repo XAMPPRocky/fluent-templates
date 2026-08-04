@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.15.0...fluent-template-macros-v0.15.1) - 2026-08-04
+
+### Fixed
+
+- *(macros)* Walk the locales directory in a defined order ([#112](https://github.com/XAMPPRocky/fluent-templates/pull/112))
+
 ## [0.15.0](https://github.com/XAMPPRocky/fluent-templates/compare/fluent-template-macros-v0.14.0...fluent-template-macros-v0.15.0) - 2026-07-24
 
 ### Added
